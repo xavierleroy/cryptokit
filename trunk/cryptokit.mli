@@ -23,24 +23,10 @@
     - Random number generation.
     - Encodings and compression: base 64, hexadecimal, Zlib compression.
 
-    Disclaimer 1: the author is not an expert in cryptography.
-    While reasonable care has been taken to select good, widely-used
-    implementations of the ciphers and hashes, and follow recommended
-    practices found in reputable applied cryptography textbooks,
-    you are advised to review thoroughly the implementation of this module
-    before using it in a security-critical application.
-
-    Disclaimer 2: some knowledge of cryptography is needed to use
-    effectively this library.  A recommended reading is the
-    Handbook of Applied Cryptography [...].  Building secure applications
-    out of cryptographic primitives also requires a general background
-    in computer security.
-
-    Disclaimer 3: in some countries, the use and/or export of cryptographic
-    tools and applications is restricted by law.  For instance, to comply
-    with French laws, all symmetric ciphers in this library are limited
-    to 128-bit keys.  Do make sure to comply with regulations applicable
-    in your country. 
+    To use this library, link with 
+      [ocamlc unix.cma nums.cma cryptokit.cma]
+    or
+      [ocamlopt unix.cmxa nums.cmxa cryptokit.cmxa].
 *)
 
 (** {6 General-purpose abstract interfaces} *)
