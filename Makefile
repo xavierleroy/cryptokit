@@ -74,7 +74,7 @@ clean::
 install:
 	cp cryptokit.cmi cryptokit.cma cryptokit.mli $(INSTALLDIR)
 	cp libcryptokit.a $(INSTALLDIR)
-	if test -f dllcryptokit.so; then cp dllcryptokit.so $(INSTALLDIR); fi
+	if test -f dllcryptokit.so; then cp dllcryptokit.so $(INSTALLDIR)/stublibs; fi
 	if test -f cryptokit.cmxa; then cp cryptokit.cmxa cryptokit.cmx cryptokit.a $(INSTALLDIR); fi
 
 doc: FORCE
