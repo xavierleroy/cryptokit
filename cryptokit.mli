@@ -423,8 +423,8 @@ module Cipher : sig
         function as encryption. *)
 end
 
-(** The [Hash] module implements unkeyed cryptographic hashes SHA-1
-    and MD5, also known as message digest functions.  
+(** The [Hash] module implements unkeyed cryptographic hashes SHA-1,
+    SHA-256 and MD5, also known as message digest functions.  
     Hash functions used in cryptography are characterized as being
     <I>one-way</I> (given a hash value, it is computationally
     infeasible to find a text that hashes to this value) and
@@ -437,10 +437,14 @@ module Hash : sig
     (** SHA-1 is the Secure Hash Algorithm revision 1.  It is a NIST
         standard, is widely used, and has no known weaknesses.
         It produces 160-bit hashes (20 bytes).  *)
+  val sha256: unit -> hash
+    (** SHA-256, another NIST standard, is a variant of SHA-1 that
+        produces 256-bit hashes (32 bytes). *)
   val md5: unit -> hash
     (** MD5 is an older hash function, producing 128-bit hashes (16 bytes).
-        While popular in many applications, it is considered as
-        potentially slightly weaker than SHA-1. *)
+        While popular in many legacy applications, it is now
+        considered as unsecure.  In particular, it is not
+        collision-resistant. *)
 end
 
 (** The [MAC] module implements message authentication codes, also

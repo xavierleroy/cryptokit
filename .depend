@@ -2,12 +2,15 @@ arcfour.o: arcfour.c arcfour.h
 d3des.o: d3des.c d3des.h
 rijndael-alg-fst.o: rijndael-alg-fst.c rijndael-alg-fst.h
 sha1.o: sha1.c sha1.h
+sha256.o: sha256.c sha256.h
 stubs-aes.o: stubs-aes.c rijndael-alg-fst.h
 stubs-arcfour.o: stubs-arcfour.c arcfour.h
 stubs-des.o: stubs-des.c d3des.h
 stubs-md5.o: stubs-md5.c
 stubs-misc.o: stubs-misc.c
+stubs-rng.o: stubs-rng.c
 stubs-sha1.o: stubs-sha1.c sha1.h
+stubs-sha256.o: stubs-sha256.c sha256.h
 stubs-zlib.o: stubs-zlib.c
 cryptokit.cmo: cryptokit.cmi 
 cryptokit.cmx: cryptokit.cmi 

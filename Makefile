@@ -34,6 +34,7 @@ C_OBJS=\
   d3des.o stubs-des.o \
   arcfour.o stubs-arcfour.o \
   sha1.o stubs-sha1.o \
+  sha256.o stubs-sha256.o \
   stubs-md5.o \
   stubs-zlib.o \
   stubs-misc.o \
