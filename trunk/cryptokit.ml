@@ -1549,15 +1549,17 @@ let rec random_prime ?rng numbits =
   let moduli = moduli_small_primes n in
   (* Search from n *)
   let rec find_prime delta =
-    if is_divisible_by_small_prime delta moduli then
+    if delta < 0 then (* arithmetic overflow in incrementing delta *)
+      random_prime ?rng numbits
+    else if is_divisible_by_small_prime delta moduli then
       find_prime (delta + 2)
     else begin    
       let n' = Bn.add n (nat_of_int delta) in
       if is_pseudoprime n' then
         if Bn.num_bits n' = numbits then begin
           wipe_nat n; n'
-        end else begin
-          wipe_nat n; wipe_nat n'; random_prime numbits
+        end else begin (* overflow in adding delta to n *)
+          wipe_nat n; wipe_nat n'; random_prime ?rng numbits
         end
       else
         find_prime (delta + 2)
