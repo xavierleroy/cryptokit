@@ -3,10 +3,12 @@
 # Comment next line if the Zlib library is not available
 #ZLIB=-DHAVE_ZLIB
 
-# The name of the Zlib library.  Usually -lz.
+# The name of the Zlib library.  Usually -lz.  
+# Leave blank if you don't have Zlib.
 ZLIB_LIB=-lz
 
 # The directory containing the Zlib library (libz.a or libz.so)
+# Leave blank if you don't have Zlib.
 ZLIB_LIBDIR=/usr/lib
 
 # The directory containing the Zlib header file (zlib.h)
