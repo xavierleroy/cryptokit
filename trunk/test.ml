@@ -176,6 +176,29 @@ let _ =
   test 3 (hash (String.make 1000000 'a'))
     (hex "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0")
 
+(* RIPEMD-160 *)
+let _ =
+  testing_function "RIPEMD-160";
+  let hash s = hash_string (Hash.ripemd160()) s in
+  test 1 (hash "")
+    (hex "9c1185a5c5e9fc54612808977ee8f548b2258d31");
+  test 2 (hash "a")
+    (hex "0bdc9d2d256b3ee9daae347be6f4dc835a467ffe");
+  test 3 (hash "abc")
+    (hex "8eb208f7e05d987a9b044a8e98c6b087f15a0bfc");
+  test 4 (hash "message digest")
+    (hex "5d0689ef49d2fae572b881b123a85ffa21595f36");
+  test 5 (hash "abcdefghijklmnopqrstuvwxyz")
+    (hex "f71c27109c692c1b56bbdceb5b9d2865b3708dbc");
+  test 6 (hash "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")
+    (hex "12a053384a9c0c88e405a06c27dcf49ada62eb2b");
+  test 7 (hash "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
+    (hex "b0e20b6e3116640286ed3a87a5713079b21f5189");
+  test 8 (hash "12345678901234567890123456789012345678901234567890123456789012345678901234567890")
+    (hex "9b752e45573d4b39f4dbd3323cab82bf63326bfb");
+  test 9 (hash (String.make 1000000 'a'))
+    (hex "52783243c1697bdbe16d37f97f68f08325dc1528")
+
 (* MD5 *)
 let _ =
   testing_function "MD5";

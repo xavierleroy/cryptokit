@@ -59,6 +59,9 @@ external sha1_final: string -> string = "caml_sha1_final"
 external sha256_init: unit -> string = "caml_sha256_init"
 external sha256_update: string -> string -> int -> int -> unit = "caml_sha256_update"
 external sha256_final: string -> string = "caml_sha256_final"
+external ripemd160_init: unit -> string = "caml_ripemd160_init"
+external ripemd160_update: string -> string -> int -> int -> unit = "caml_ripemd160_update"
+external ripemd160_final: string -> string = "caml_ripemd160_final"
 external md5_init: unit -> string = "caml_md5_init"
 external md5_update: string -> string -> int -> int -> unit = "caml_md5_update"
 external md5_final: string -> string = "caml_md5_final"
@@ -802,6 +805,28 @@ class sha256 =
   end
 
 let sha256 () = new sha256
+
+class ripemd160 =
+  object(self)
+    val context = ripemd160_init()
+    method hash_size = 32
+    method add_substring src ofs len =
+      if ofs < 0 || ofs + len > String.length src
+      then invalid_arg "ripemd160#add_substring";
+      ripemd160_update context src ofs len
+    method add_string src =
+      ripemd160_update context src 0 (String.length src)
+    method add_char c =
+      self#add_string (String.make 1 c)
+    method add_byte b =
+      self#add_char (Char.unsafe_chr b)
+    method result =
+      ripemd160_final context
+    method wipe =
+      wipe_string context
+  end
+
+let ripemd160 () = new ripemd160
 
 class md5 =
   object(self)
