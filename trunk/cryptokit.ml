@@ -854,9 +854,43 @@ let arcfour key dir = new Stream.cipher (new Stream.arcfour key)
 
 end
 
+(* The hmac construction *)
+
+module HMAC(H: sig class h: hash  val blocksize: int end) =
+  struct
+    let hmac_pad key byte =
+      if String.length key > H.blocksize then raise(Error Wrong_key_size);
+      let r = String.make H.blocksize (Char.chr byte) in
+      xor_string key 0 r 0 (String.length key);
+      r
+    class hmac key =
+      object(self)
+        inherit H.h as super
+        initializer
+          (let s = hmac_pad key 0x36 in
+           self#add_string s;
+           wipe_string s)
+        method result =
+          let h' = new H.h in
+          let s = hmac_pad key 0x5C in
+          h'#add_string s;
+          wipe_string s;
+          h'#add_string (super#result);
+          let r = h'#result in
+          h'#wipe;
+          r
+      end
+  end
+
 (* High-level entry points for MACs *)
 
 module MAC = struct
+
+module HMAC_SHA1 = HMAC(struct class h = Hash.sha1  let blocksize = 64 end)
+module HMAC_MD5  = HMAC(struct class h = Hash.md5  let blocksize = 64 end)
+
+let hmac_sha1 key = new HMAC_SHA1.hmac key
+let hmac_md5 key = new HMAC_MD5.hmac key
 
 let aes ?iv ?pad key =
   new Block.mac ?iv ?pad (new Block.aes_encrypt key)

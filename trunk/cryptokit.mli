@@ -445,10 +445,22 @@ end
     and if it matches the transmitted MAC, be reasonably certain that
     the text was authentified by someone who possesses the secret key.
 
-    The module [MAC] provides one MAC function based on SHA-1,
-    and three MAC functions based on the block ciphers
+    The module [MAC] provides two MAC functions based on the hashes
+    SHA-1 and MD5, and four MAC functions based on the block ciphers
     AES, DES, and Triple-DES. *)
 module MAC: sig
+  val hmac_sha1: string -> hash
+    (** [hmac_sha1 key] returns a MAC based on the HMAC construction (RFC2104)
+        applied to SHA-1.  The returned hash values are 160 bits (20 bytes)
+        long.  The [key] argument is the MAC key; it can have any length
+        between 1 and 64 bytes.  A minimal length of 20 bytes is
+        recommended. *)
+  val hmac_md5: string -> hash
+    (** [hmac_md5 key] returns a MAC based on the HMAC construction (RFC2104)
+        applied to MD5.  The returned hash values are 128 bits (16 bytes)
+        long.  The [key] argument is the MAC key; it can have any length
+        between 1 and 64 bytes.  A minimal length of 16 bytes is
+        recommended. *)
   val aes: ?iv:string -> ?pad:Padding.scheme -> string -> hash
     (** [aes key] returns a MAC based on AES encryption in CBC mode.
         The ciphertext is discarded, and the final value of the
