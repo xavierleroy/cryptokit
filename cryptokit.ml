@@ -1893,7 +1893,7 @@ class uncompress =
            inflate zs
                    " " 0 (if first_finish then 1 else 0)
                    obuf oend (String.length obuf - oend)
-                   Z_FINISH in
+                   Z_SYNC_FLUSH in
         oend <- oend + used_out;
         if not finished then do_finish false in
       do_finish true; inflate_end zs
