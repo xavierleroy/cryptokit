@@ -246,6 +246,25 @@ let some_rsa_key = {
   RSA.qinv = hex "0000000000000000000000000000000000000000000000000000000000000000744c79c4b9bea97c25e563c9407a2d09b57358afe09af67d71f8198cb7c956b8"
 }
 
+(* HMAC-MD5 *)
+
+let _ =
+  testing_function "HMAC-MD5";
+  test 1
+    (hash_string (MAC.hmac_md5 (hex "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b"))
+                 "Hi There")
+    (hex "9294727a3638bb1c13f48ef8158bfc9d");
+  test 2
+    (hash_string (MAC.hmac_md5 "Jefe")
+                 "what do ya want for nothing?")
+    (hex "750c783e6ab0b503eaa86e310a5db738");
+  test 3
+    (hash_string (MAC.hmac_md5 (hex "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"))
+                 (String.make 50 '\221'))
+    (hex "56be34521d144c88dbb8c733f0e8b3f6")
+
+(* RSA *)
+
 let some_msg = "Supercalifragilistusexpialidolcius"
 
 let test_same_message testno msg1 msg2 =
