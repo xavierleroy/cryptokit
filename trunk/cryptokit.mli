@@ -337,8 +337,9 @@ module Cipher : sig
              string -> direction -> transform
     (** AES is the Advanced Encryption Standard, also known as Rijndael.
         This is a modern block cipher, recently standardized.
-        It has 128 bit keys and process data by blocks of 128 bits (16 bytes).
-        The string argument is the key; it must have length 16.
+        It processes data by blocks of 128 bits (16 bytes),
+        and supports keys of 128, 192 or 256 bits.
+        The string argument is the key; it must have length 16, 24 or 32.
         The direction argument specifies whether encryption or decryption
         is to be performed.
 
@@ -361,30 +362,32 @@ module Cipher : sig
 
   val des: ?mode:chaining_mode -> ?pad:Padding.scheme -> ?iv:string ->
              string -> direction -> transform
-    (** DES is the Digital Encryption Standard.  Standardized in 1972,
-        this is probably still the most widely used cipher today.
-        It resisted 30 years of cryptanalysis, but can be broken
+    (** DES is the Data Encryption Standard.  Probably still the
+        most widely used cipher today, but ir can be broken
         relatively easily by brute force, due to its small key size (56 bits).
         It should therefore be considered as weak encryption.
         Its block size is 64 bits (8 bytes).
         The arguments to the [des] function have the same meaning as
-        for the {!Cryptokit.Cipher.aes} function.  The key argument is a string of
-        length 8 (64 bits); the most significant bit of each key byte
-        is ignored. *)
+        for the {!Cryptokit.Cipher.aes} function.  The key argument is
+        a string of length 8 (64 bits); the most significant bit of
+        each key byte is ignored. *)
 
   val triple_des: ?mode:chaining_mode -> ?pad:Padding.scheme -> ?iv:string ->
              string -> direction -> transform
-    (** Triple DES with two DES keys.  This is a popular variant of DES
+    (** Triple DES with two or three DES keys.
+        This is a popular variant of DES
         where each block is encrypted with a 56-bit key [k1],
         decrypted with another 56-bit key [k2], then re-encrypted
-        with [k1].  This results in a 112-bit key length that resists
+        either [k1] or a third 56-bit key [k3].
+        This results in a 112-bit or 168-bit key length that resists
         brute-force attacks.  However, the three encryptions required
-        on each block make this cipher quite slow (4 times slower than AES).
-        The arguments to the [triple_des] function have the same meaning as
-        for the {!Cryptokit.Cipher.aes} function.  The key argument is a string of
-        length 16 (128 bits), representing the concatenation of the
-        two key halves [k1] and [k2].  The most significant bit of
-        each key byte is ignored. *)
+        on each block make this cipher quite slow (4 times slower than
+        AES).  The arguments to the [triple_des] function have the
+        same meaning as for the {!Cryptokit.Cipher.aes} function.  The
+        key argument is a string of length 16 or 24, representing the
+        concatenation of the key parts [k1], [k2], and optionally
+        [k3].  The most significant bit of each key byte is
+        ignored. *)
 
   val arcfour: string -> direction -> transform
     (** ARCfour (``alleged RC4'') is a fast stream cipher
@@ -394,9 +397,7 @@ module Cipher : sig
         not to use ARCfour in a commercial product.
 
         ARCfour is popular for its speed: approximately 2 times faster
-        than AES.  It accepts any key length up to 2048 bits, although the
-        present implementation is limited to 128 bits,
-        to comply with French regulations.
+        than AES.  It accepts any key length up to 2048 bits.
 
         The ARCfour cipher is a stream cipher, not a block cipher.
         Hence, its natural block size is 1, and no padding is
@@ -406,11 +407,11 @@ module Cipher : sig
         allows various attacks.  Hence, the same key must never be
         reused.
 
-        The string argument is the key; it can have any length between 0
-        and 16 (the longer the better).
-        The direction argument is present for consistency with the other
-        ciphers only, and is actually ignored: like all stream ciphers,
-        decryption is the same function as encryption. *)
+        The string argument is the key; its length must be between
+        1 and 256 inclusive.  The direction argument is present for
+        consistency with the other ciphers only, and is actually
+        ignored: like all stream ciphers, decryption is the same
+        function as encryption. *)
 end
 
 (** The [Hash] module implements unkeyed cryptographic hashes SHA-1
@@ -453,7 +454,7 @@ module MAC: sig
         The ciphertext is discarded, and the final value of the
         initialization vector is the MAC value.  Thus, the returned
         hash values are 128 bit (16 bytes) long.  The [key] argument
-        is the MAC key; it must have length 16 (128 bits).  The
+        is the MAC key; it must have length 16, 24, or 32.  The
         optional [iv] argument is the first value of the
         initialization vector, and defaults to 0.  The optional [pad]
         argument specifies a padding scheme to pad input to an
@@ -463,24 +464,23 @@ module MAC: sig
         The construction is identical to that used for the [aes] MAC.
         The key size is 64 bits (8 bytes), of which only 56 are used.
         The returned hash value has length 8 bytes.
-        Due to the small hash size and key size, this MAC is rather weak;
-        use AES or Triple-DES if at all possible. *)
+        Due to the small hash size and key size, this MAC is rather weak. *)
   val triple_des: ?iv:string -> ?pad:Padding.scheme -> string -> hash
-    (** [des key] returns a MAC based on triple DES encryption with
-        two keys in CBC mode.
+    (** [des key] returns a MAC based on triple DES encryption in CBC mode.
         The construction is identical to that used for the [aes] MAC.
-        The key size is 128 bits (16 bytes), of which only 112 are used.
-        The returned hash value has length 8 bytes.
-        The key size is sufficient to protect against brute-force attacks,
-        but the small hash size means that this MAC is not 
-        collision-resistant. *)
+        The key size is 16 or 24 bytes.  The returned hash value has
+        length 8 bytes.  The key size is sufficient to protect against
+        brute-force attacks, but the small hash size means that this
+        MAC is not collision-resistant. *)
   val des_final_triple_des: ?iv:string -> ?pad:Padding.scheme -> string -> hash
     (** [des_final_triple_des key] returns a MAC that uses DES CBC
-        with the first 8 bytes of [key] as key, then re-encrypts the
-        final initialization vector by DES-decrypting it with the last
-        8 bytes of [key], then DES-encrypting the result with the first
-        8 bytes of [key].  Thus, the key is 16 bytes long, of which
-        112 bits are used.  The overall construction has the same
+        with the first 8 bytes of [key] as key.  The final initialization
+        vector is then DES-decrypted with bytes 8 to 15 of [key],
+        and DES-encrypted again with either the last 8 bytes of [key]
+        (if a triple-length key is provided) or the first 8 bytes of [key]
+        (if a double-length key is provided).
+        Thus, the key is 16 or 24 bytes long, of which
+        112 or 168 bits are used.  The overall construction has the same
         key size as a triple DES MAC, but runs faster because triple
         encryption is not performed on all data blocks, but only on
         the final MAC. *)
@@ -526,12 +526,12 @@ module RSA: sig
         number generator to use for generating the key; it defaults to
         {!Cryptokit.Random.secure_rng}.  The optional [e] argument
         specifies the public exponent desired.  If not specified, [e]
-        is chosen randomly.  Some standards mandate [e = 3] or [e =
-        65537].  While [e = 3] is known to weaken RSA, [e = 65537]
-        significantly speeds up encryption and signature checking
-        compared with a random [e], without impacting security.  The
-        result of [new_key] is a complete RSA key with all components
-        defined: public, private, and private for use with the CRT. *)
+        is chosen randomly.  Small values of [e] such as [e = 3]
+        or [e = 65537] significantly speeds up encryption and
+        signature checking compared with a random [e].
+        The result of [new_key] is a complete RSA key with all
+        components defined: public, private, and private for use with
+        the CRT. *)
 
   val encrypt: key -> string -> string
     (** [encrypt k msg] encrypts the string [msg] with the public part
@@ -572,7 +572,8 @@ module RSA: sig
     (** [unwrap_signature k msg] decrypts the ciphertext string [msg]
         with the public part of key [k] (components [n] and [d]),
         thus extracting the plaintext that was signed by the sender.
-        The size of [msg] is limited as described for {!Cryptokit.RSA.encrypt}. *)
+        The size of [msg] is limited as described for
+        {!Cryptokit.RSA.encrypt}. *)
 end
 
 (** {6 Advanced, compositional interface to block ciphers 
@@ -629,15 +630,16 @@ module Block : sig
         [pad] specifies a padding scheme to be applied to the input
         data; if not provided, no padding is performed. *)
   class mac_final_triple: ?iv: string -> ?pad: Padding.scheme ->
-                             block_cipher -> block_cipher -> hash
+                          block_cipher -> block_cipher -> block_cipher -> hash
     (** Build a MAC (keyed hash function) from the given block ciphers
-        [c1] and [c2].  The input is run through [c1] in CBC mode,
-        as described for {!Cryptokit.Block.mac}.  The final initialization vector
-        is then super-enciphered by [c2], then by [c1], to
-        provide the final MAC.  This construction results in a MAC
-        that is as nearly as fast as {!Cryptokit.Block.mac} [c1], but more resistant
-        against brute-force key search because of the additional
-        final encryption through [c2]. *)
+        [c1], [c2] and [c3].  The input is run through [c1] in CBC
+        mode, as described for {!Cryptokit.Block.mac}.  The final
+        initialization vector is then super-enciphered by [c2], then
+        by [c3], to provide the final MAC.  This construction results
+        in a MAC that is as nearly as fast as {!Cryptokit.Block.mac}
+        [c1], but more resistant against brute-force key search
+        because of the additional final encryption through [c2] and
+        [c3]. *)
 
   (** {6 Some block ciphers: AES, DES, triple DES} *)
 
@@ -654,10 +656,10 @@ module Block : sig
     (** The DES block cipher, in decryption mode. *)
 
   class triple_des_encrypt: string -> block_cipher
-    (** The Triple-DES-with-two-keys block cipher, in encryption mode.
-        The key argument must have length 16. *)
+    (** The Triple-DES block cipher, in encryption mode.
+        The key argument must have length 16 (two keys) or 24 (three keys). *)
   class triple_des_decrypt: string -> block_cipher
-    (** The Triple-DES-with-two-keys block cipher, in decryption mode. *)
+    (** The Triple-DES block cipher, in decryption mode. *)
 
   (** {6 Chaining modes} *)
 

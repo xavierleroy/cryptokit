@@ -82,11 +82,13 @@ WARNINGS AND DISCLAIMERS:
   Building secure applications out of cryptographic primitives also
   requires a general background in computer security.
 
-  Disclaimer 3: in some countries, the use and/or export of cryptographic
-  tools and applications is restricted by law.  For instance, to comply
-  with French laws, all symmetric ciphers in this library are limited
-  to 128-bit keys.  Make sure to comply with regulations applicable
-  in your country. 
+  Disclaimer 3: in some countries, the use, distribution, import
+  and/or export of cryptographic applications is restricted by law.
+  For instance, French laws require authorization to use ciphers
+  with key size greater than 128 bits for confidentiality purposes
+  (data encryption), while their use for authentication and data
+  integrity purposes does not require authorization.  Make sure to
+  comply with regulations applicable in your country.
 
 
 DESIGN NOTES AND REFERENCES:
@@ -97,10 +99,8 @@ DESIGN NOTES AND REFERENCES:
   to enter all input, then fetch the output, lower memory requirements
   can be achieved by purging the output periodically during data input.
 
-  The AES implementation is the public-domain reference implementation
-  by the two authors of Rijndael.  It is limited to 128-bit keys because
-  French regulations require a formal declaration for cryptographic
-  products using larger keys, and I can't be bothered to do the declaration.
+  The AES implementation is the public-domain optimized reference
+  implementation by Daemen, Rijmen and Barreto.
 
   The DES implementation is based on Outerbridge's popular "d3des"
   implementation.  This is not the fastest DES implementation available,
@@ -108,7 +108,6 @@ DESIGN NOTES AND REFERENCES:
 
   ARCfour (``alleged RC4'') is implemented from scratch, based on the
   algorithm described in Schneier's _Applied_Cryptography_
-  Again, the key size is limited to 128 bits for legal reasons.
 
   SHA-1 is also implemented from scratch, based on the algorithm
   described in the _Handbook_of_Applied_Cryptography_.   It passes the
@@ -141,7 +140,7 @@ PERFORMANCE:
 
 Some performance figures measured on an Athlon XP 1600:
 
-     AES: raw encryption  21 Mbyte/s; with CBC and buffering  13 Mbytes/s
+ AES 128: raw encryption  21 Mbyte/s; with CBC and buffering  13 Mbytes/s
      DES: raw encryption  11 Mbyte/s; with CBC and buffering   7 Mbytes/s
     3DES: raw encryption 3.8 Mbyte/s; with CBC and buffering 3.2 Mbytes/s
     ARC4: raw encryption  40 Mbyte/s; with buffering          26 Mbytes/s
