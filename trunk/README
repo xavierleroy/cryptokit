@@ -59,7 +59,7 @@ INSTALLATION:
 
 DOCUMENTATION:
 
-  See the HTML documentation in doc/, or the extensive comments 
+  See the HTML documentation in doc/index.html, or the extensive comments 
   in file cryptokit.mli
 
   Compilation options:      none
@@ -78,9 +78,9 @@ WARNINGS AND DISCLAIMERS:
 
   Disclaimer 2: some knowledge of cryptography is needed to use
   effectively this library.  A recommended reading is the
-  Handbook of Applied Cryptography [...].  Building secure applications
-  out of cryptographic primitives also requires a general background
-  in computer security.
+  Handbook of Applied Cryptography http://www.cacr.math.uwaterloo.ca/hac/
+  Building secure applications out of cryptographic primitives also
+  requires a general background in computer security.
 
   Disclaimer 3: in some countries, the use and/or export of cryptographic
   tools and applications is restricted by law.  For instance, to comply
@@ -93,7 +93,7 @@ DESIGN NOTES AND REFERENCES:
 
   The library is organized around the concept of "transforms".  A transform
   is an object that accepts strings, sub-strings, characters and bytes
-  as input, transform them, and buffer the output.  While it is possible
+  as input, transforms them, and buffers the output.  While it is possible
   to enter all input, then fetch the output, lower memory requirements
   can be achieved by purging the output periodically during data input.
 
@@ -120,8 +120,8 @@ DESIGN NOTES AND REFERENCES:
   RSA encryption and decryption was implemented from scratch, using
   OCaml's bignum library for arbitrary-precision arithmetic.  Modular
   exponentiation uses the trivial Russian peasant algorithm, because the
-  bignum library does not support Montgomery division.  The Chinese
-  remainder theorem is exploited when possible, though.
+  bignum library does not support Montgomery modular multiplication.
+  The Chinese remainder theorem is exploited when possible, though.
   Like all ciphers in this library, the RSA implementation is *not*
   protected against timing attacks.
 

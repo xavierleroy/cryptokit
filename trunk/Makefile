@@ -29,6 +29,7 @@ OCAMLC=ocamlc -g
 OCAMLOPT=ocamlopt
 OCAMLDEP=ocamldep
 MKLIB=ocamlmklib
+OCAMLDOC=ocamldoc
 
 C_OBJS=\
   rijndael-alg-fst.o stubs-aes.o \
@@ -75,6 +76,11 @@ install:
 	cp libcryptokit.a $(INSTALLDIR)
 	if test -f dllcryptokit.so; then cp dllcryptokit.so $(INSTALLDIR); fi
 	if test -f cryptokit.cmxa; then cp cryptokit.cmxa cryptokit.cmx cryptokit.a $(INSTALLDIR); fi
+
+doc: FORCE
+	cd doc; $(OCAMLDOC) -html -I .. ../cryptokit.mli
+
+FORCE:
 
 .SUFFIXES: .ml .mli .cmo .cmi .cmx
 

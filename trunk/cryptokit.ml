@@ -820,30 +820,6 @@ end
 
 module MAC = struct
 
-let pad_key key blocksize padding_byte =
-  let len = String.length key in
-  let plen = (len + blocksize - 1) / blocksize * blocksize in
-  let res = String.create plen in
-  String.blit key 0 res 0 len;
-  String.fill res len (plen - len) padding_byte;
-  res
-
-class sha1 key =
-  object(self)
-    val k1 = pad_key key 64 '\000'
-    val k2 = pad_key key 64 '\255'
-    inherit Hash.sha1 as super
-    initializer (self#add_string k2)
-    method result =
-      hash_string (new Hash.sha1) (k1 ^ super#result)
-    method wipe =
-      super#wipe;
-      wipe_string k1;
-      wipe_string k2
-end
-
-let sha1 key = new sha1 key
-
 let aes ?iv ?pad key =
   new Block.mac ?iv ?pad (new Block.aes_encrypt key)
 let des ?iv ?pad key =
