@@ -15,7 +15,7 @@ OCAMLOPT=ocamlopt
 OCAMLDEP=ocamldep
 OCAMLLIB=`$(OCAMLC) -where`
 
-ifeq ($(TOOLCHAIN), mingw)
+ifeq ($(strip $(TOOLCHAIN)),mingw)
 
 O=o
 A=a

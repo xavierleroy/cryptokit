@@ -25,7 +25,9 @@
 /* Inspired by Mike Lin's port of Cryptokit 1.0 */
 
 #define _WIN32_WINNT 0x0400
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <wincrypt.h>
 #ifndef CRYPT_SILENT
 #define CRYPT_SILENT 0
 #endif
