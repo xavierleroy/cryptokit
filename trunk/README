@@ -140,16 +140,18 @@ DESIGN NOTES AND REFERENCES:
 
 PERFORMANCE:
 
-Some performance figures measured on an Athlon XP 1600:
+Some performance figures measured on a Pentium III 1Ghz:
 
- AES 128: raw encryption  21 Mbyte/s; with CBC and buffering  13 Mbytes/s
-     DES: raw encryption  11 Mbyte/s; with CBC and buffering   7 Mbytes/s
-    3DES: raw encryption 3.8 Mbyte/s; with CBC and buffering 3.2 Mbytes/s
-    ARC4: raw encryption  40 Mbyte/s; with buffering          26 Mbytes/s
-    SHA1: 29 Mbyte/s
-     MD5: 72 Mbyte/s
- AES MAC: 15 Mbyte/s
-RSA 1024: key generation 220 ms
-          public-key operation (public exponent 65537) 0.52 ms
-          private-key operation 29 ms
-          private-key operation with CRT 11.4 ms
+ AES 128: raw encryption  19 Mbyte/s; with CBC and buffering  11 Mbytes/s
+ AES 192: raw encryption  16 Mbyte/s; with CBC and buffering  10 Mbytes/s
+ AES 256: raw encryption  15 Mbyte/s; with CBC and buffering   9 Mbytes/s
+     DES: raw encryption   9 Mbyte/s; with CBC and buffering   6 Mbytes/s
+    3DES: raw encryption   3 Mbyte/s; with CBC and buffering 2.6 Mbytes/s
+    ARC4: raw encryption  38 Mbyte/s; with buffering          25 Mbytes/s
+    SHA1: 25 Mbyte/s
+     MD5: 50 Mbyte/s
+ AES MAC: 13 Mbyte/s
+RSA 1024: key generation 300 ms
+          public-key operation (public exponent 65537) 0.70 ms
+          private-key operation 45 ms
+          private-key operation with CRT 16 ms
