@@ -615,7 +615,6 @@ end
   - Fixed-size keys can then be derived from the shared secret
     using the function {!Cryptokit.DH.derive_key}.
 *)
-
 module DH: sig
 
   type parameters =
@@ -653,15 +652,16 @@ module DH: sig
       longer be used afterwards. *)
   val derive_key: ?diversification: string -> string -> int -> string
     (** [derive_key shared_secret numbytes] derives a secret string
-      of length [numbytes] from the given shared secret.  The optional
-      [diversification] argument is an arbitrary string that defaults
-      to the empty string.  Different secret strings can be obtained from
-      the same shared secret by supplying different [diversification]
-      argument.  The computation of the secret string is performed
-      by SHA-1 hashing of the diversification string, followed by
-      the shared secret, followed by an integer counter.  The hashing
-      is repeated with increasing values of the counter until [numbytes]
-      bytes have been obtained. *)
+      (typically, a key for symmetric encryption) from the given shared
+      secret.  [numbytes] is the desired length for the returned string.
+      The optional [diversification] argument is an arbitrary string
+      that defaults to the empty string.  Different secret strings can
+      be obtained from the same shared secret by supplying different
+      [diversification] argument.  The computation of the secret
+      string is performed by SHA-1 hashing of the diversification
+      string, followed by the shared secret, followed by an integer
+      counter.  The hashing is repeated with increasing values of the
+      counter until [numbytes] bytes have been obtained. *)
 end
 
 (** {6 Advanced, compositional interface to block ciphers 
