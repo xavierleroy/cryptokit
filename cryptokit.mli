@@ -16,8 +16,8 @@
 (** The Cryptokit library provides a variety of cryptographic primitives
     that can be used to implement cryptographic protocols in
     security-sensitive applications.  The primitives provided include:
-    - Symmetric-key cryptography: AES, DES, Triple-DES with 2 keys,
-      ARCfour, in ECB, CBC, CFB and OFB modes.
+    - Symmetric-key cryptography: AES, DES, Triple-DES, ARCfour,
+      in ECB, CBC, CFB and OFB modes.
     - Public-key cryptography: RSA.
     - Hash functions and MACs: SHA-1, MD5, and MACs based on AES and DES.
     - Random number generation.
