@@ -1,7 +1,7 @@
 ### Configuration section
 
 # Comment next line if the Zlib library is not available
-#ZLIB=-DHAVE_ZLIB
+ZLIB=-DHAVE_ZLIB
 
 # The name of the Zlib library.  Usually -lz.  
 # Leave blank if you don't have Zlib.
