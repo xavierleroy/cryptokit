@@ -105,7 +105,7 @@ class type transform =
       (** Some transforms (e.g. block ciphers) always produce output
           data by blocks of several characters.  This method
           returns the size of output blocks for the current transform.
-          If [input_block_size > 1], the total length of output data
+          If [output_block_size > 1], the total length of output data
           produced by the transform is always an integral multiple
           of [output_block_size].
           If [output_block_size = 1], the transform produces output data
