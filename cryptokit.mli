@@ -131,7 +131,7 @@ val transform_string: transform -> string -> string
 val transform_channel:
        transform -> ?len:int -> in_channel -> out_channel -> unit
   (** [transform_channel ic oc] reads characters from input channel [ic],
-      run them through the transform [t], and writes the transformed
+      runs them through the transform [t], and writes the transformed
       data to the output channel [oc].  If the optional [len] argument
       is provided, exactly [len] characters are read from [ic] and
       transformed; [End_of_file] is raised if [ic] does not contain
@@ -183,7 +183,7 @@ val hash_string: hash -> string -> string
       no longer be used for further hash computations. *)
 val hash_channel: hash -> ?len:int -> in_channel -> string
   (** [hash_channel h ic] reads characters from the input channel [ic],
-      compute their hash value and return it.
+      computes their hash value and returns it.
       If the optional [len] argument is provided, exactly [len] characters
       are read from [ic] and hashed; [End_of_file] is raised if [ic]
       does not contain at least [len] characters.
