@@ -1,7 +1,7 @@
 ### Configuration section
 
 # Where to install the library. By default: OCaml's standard library directory.
-INSTALLDIR=`$(OCAMLC) -where`
+INSTALLDIR=$(OCAMLLIB)
 
 # Which Win32 port of OCaml is used?
 TOOLCHAIN=msvc     # Native Win32 port with Microsoft compilers
@@ -13,6 +13,7 @@ OCAMLRUN=ocamlrun
 OCAMLC=ocamlc -g
 OCAMLOPT=ocamlopt
 OCAMLDEP=ocamldep
+OCAMLLIB=`$(OCAMLC) -where`
 
 ifeq ($(TOOLCHAIN), mingw)
 
@@ -42,7 +43,7 @@ MKLIB=lib /nologo /debugtype:CV /out:$(1) $(2)
 LIBS=advapi32.lib
 endif
 
-CFLAGS=
+CFLAGS=-I$(OCAMLLIB)
 
 C_OBJS=\
   rijndael-alg-fst.$(O) stubs-aes.$(O) \
@@ -64,7 +65,7 @@ all: dllcryptokit.dll libcryptokit.$(A) cryptokit.cmi cryptokit.cma
 allopt: dllcryptokit.dll libcryptokit.$(A) cryptokit.cmi cryptokit.cmxa 
 
 dllcryptokit.dll: $(DC_OBJS)
-	$(call MKDLL,$@,tmp.$(A),$(DC_OBJS) $(LIBS))
+	$(call MKDLL,$@,tmp.$(A),$(DC_OBJS) $(OCAMLLIB)/ocamlrun.$(A) $(LIBS))
 
 libcryptokit.$(A): $(SC_OBJS)
 	$(call MKLIB,$@,$(SC_OBJS))

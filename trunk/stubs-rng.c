@@ -24,7 +24,11 @@
 
 /* Inspired by Mike Lin's port of Cryptokit 1.0 */
 
+#define _WIN32_WINNT 0x0400
 #include <windows.h>
+#ifndef CRYPT_SILENT
+#define CRYPT_SILENT 0
+#endif
 
 #define HCRYPTPROV_val(v) (*((HCRYPTPROV *) &Field(v, 0)))
 
