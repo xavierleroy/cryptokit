@@ -61,9 +61,10 @@ class type transform =
           buffers.  Raise [Error Wrong_data_length] if the total length
           of input data provided via the [put_*] methods is not
           an integral number of the input block size
-          (see {!Cryptokit.transform.input_block_size}). After calling [finish],
-          the transform can no longer accept additional data.  Hence,
-          do not call any of the [put_*] methods after calling [finish]. *)
+          (see {!Cryptokit.transform.input_block_size}).
+          After calling [finish], the transform can no longer accept
+          additional data.  Hence, do not call any of the [put_*]
+          methods after calling [finish]. *)
     method available_output: int
       (** Return the number of characters of output currently available.
           The output can be recovered with the [get_*] methods. *)
@@ -130,7 +131,7 @@ val transform_string: transform -> string -> string
 
 val transform_channel:
        transform -> ?len:int -> in_channel -> out_channel -> unit
-  (** [transform_channel ic oc] reads characters from input channel [ic],
+  (** [transform_channel t ic oc] reads characters from input channel [ic],
       runs them through the transform [t], and writes the transformed
       data to the output channel [oc].  If the optional [len] argument
       is provided, exactly [len] characters are read from [ic] and
@@ -170,7 +171,7 @@ class type hash =
           after [result]. *)
     method hash_size: int
       (** Return the size of hash values produced by this hash function,
-          in characters. *)
+          in bytes. *)
     method wipe: unit
       (** Erase all internal buffers and data structures of this hash,
           overwriting them with zeroes.  See {!Cryptokit.transform.wipe}. *)
@@ -193,7 +194,7 @@ val hash_channel: hash -> ?len:int -> in_channel -> string
 
 (** {6 Utilities: random numbers and padding schemes} *)
 
-(** The [Random] module provides (pseudo-) random number generators
+(** The [Random] module provides random and pseudo-random number generators
     suitable for generating cryptographic keys, nonces, or challenges. *)
 module Random : sig
 
@@ -363,13 +364,13 @@ module Cipher : sig
   val des: ?mode:chaining_mode -> ?pad:Padding.scheme -> ?iv:string ->
              string -> direction -> transform
     (** DES is the Data Encryption Standard.  Probably still the
-        most widely used cipher today, but ir can be broken
+        most widely used cipher today, although it can be broken
         relatively easily by brute force, due to its small key size (56 bits).
         It should therefore be considered as weak encryption.
         Its block size is 64 bits (8 bytes).
         The arguments to the [des] function have the same meaning as
         for the {!Cryptokit.Cipher.aes} function.  The key argument is
-        a string of length 8 (64 bits); the most significant bit of
+        a string of length 8 (64 bits); the least significant bit of
         each key byte is ignored. *)
 
   val triple_des: ?mode:chaining_mode -> ?pad:Padding.scheme -> ?iv:string ->
@@ -377,7 +378,7 @@ module Cipher : sig
     (** Triple DES with two or three DES keys.
         This is a popular variant of DES
         where each block is encrypted with a 56-bit key [k1],
-        decrypted with another 56-bit key [k2], then re-encrypted
+        decrypted with another 56-bit key [k2], then re-encrypted with
         either [k1] or a third 56-bit key [k3].
         This results in a 112-bit or 168-bit key length that resists
         brute-force attacks.  However, the three encryptions required
@@ -386,7 +387,7 @@ module Cipher : sig
         same meaning as for the {!Cryptokit.Cipher.aes} function.  The
         key argument is a string of length 16 or 24, representing the
         concatenation of the key parts [k1], [k2], and optionally
-        [k3].  The most significant bit of each key byte is
+        [k3].  The least significant bit of each key byte is
         ignored. *)
 
   val arcfour: string -> direction -> transform
@@ -410,7 +411,7 @@ module Cipher : sig
         The string argument is the key; its length must be between
         1 and 256 inclusive.  The direction argument is present for
         consistency with the other ciphers only, and is actually
-        ignored: like all stream ciphers, decryption is the same
+        ignored: for all stream ciphers, decryption is the same
         function as encryption. *)
 end
 
@@ -658,7 +659,7 @@ module Block : sig
 
   class aes_encrypt: string -> block_cipher
     (** The AES block cipher, in encryption mode.  The string argument
-        is the key; its length must be 16 bytes. *)
+        is the key; its length must be 16, 24 or 32 bytes. *)
   class aes_decrypt: string -> block_cipher
     (** The AES block cipher, in decryption mode. *)
 
@@ -734,7 +735,7 @@ module Stream : sig
 
   class arcfour: string -> stream_cipher
     (** The ARCfour (``alleged RC4'') stream cipher.
-        The argument is the key, and must be of length 16 or less.
+        The argument is the key, and must be of length 1 to 256.
         This stream cipher works by xor-ing the input with the
         output of a key-dependent pseudo random number generator.
         Thus, decryption is the same function as encryption. *)
@@ -851,3 +852,13 @@ val xor_string: string -> int -> string -> int -> int -> unit
         of characters [spos, ..., spos + len - 1] of [src]
         with characters [dpos, ..., dpos + len - 1] of [dst],
         storing the result in [dst] starting at position [dpos]. *)
+val mod_power: string -> string -> string -> string
+    (** [mod_power a b c] computes [a^b mod c], where the
+        strings [a], [b], [c] and the result string are viewed as
+        arbitrary-precision integers in big-endian format.
+        Requires [a < c].  This function can be used to implement
+        Diffie-Hellman key agreement, for instance. *)
+val mod_mult: string -> string -> string -> string
+    (** [mod_mult a b c] computes [a*b mod c], where the
+        strings [a], [b], [c] and the result string are viewed as
+        arbitrary-precision integers in big-endian format. *)

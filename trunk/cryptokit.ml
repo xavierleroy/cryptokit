@@ -1993,3 +1993,10 @@ let xor_string src src_ofs dst dst_ofs len =
   then invalid_arg "xor_string";
   xor_string src src_ofs dst dst_ofs len
   
+let mod_power a b c =
+  bytes_of_nat ~numbits:(String.length c * 8)
+    (Bn.mod_power (nat_of_bytes a) (nat_of_bytes b) (nat_of_bytes c))
+let mod_mult a b c =
+  bytes_of_nat ~numbits:(String.length c * 8)
+    (Bn.mod_ (Bn.mult (nat_of_bytes a) (nat_of_bytes b))
+             (nat_of_bytes c))
