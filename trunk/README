@@ -7,9 +7,9 @@ OVERVIEW:
   protocols in security-sensitive applications.  The primitives provided
   include:
 
-  - Symmetric-key cryptography: AES, DES, Triple-DES, ARCfour,
+  - Symmetric-key ciphers: AES, DES, Triple-DES, ARCfour,
       in ECB, CBC, CFB and OFB modes.
-  - Public-key cryptography: RSA.
+  - Public-key cryptography: RSA encryption, Diffie-Hellman key agreement.
   - Hash functions and MACs: SHA-1, MD5, and MACs based on AES and DES.
   - Random number generation.
   - Encodings and compression: base 64, hexadecimal, Zlib compression.
