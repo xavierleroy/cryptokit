@@ -241,7 +241,8 @@ let _ =
   test_same_message 4 some_msg
     (RSA.decrypt_CRT some_rsa_key (RSA.encrypt some_rsa_key some_msg));
   (* Same, with a home-made key *)
-  let prng = new Random.pseudo_rng (Random.string Random.secure_rng 160) in
+  let prng =
+    new Random.pseudo_rng (hex "5b5e50dc5b6eaf5346eba8244e5666ac4dcd5409") in
   let key = RSA.new_key ~rng:prng 1024 in
   test_same_message 5 some_msg
     (RSA.unwrap_signature key (RSA.sign key some_msg));
@@ -360,4 +361,8 @@ let _ =
   if !error_occurred then begin
     printf "********* TEST FAILED ***********\n";
     exit 2 
+  end else begin
+    printf "All tests successful.\n";
+    exit 0
   end
+
