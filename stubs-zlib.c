@@ -15,7 +15,9 @@
 
 /* Stub code to interface with Zlib */
 
+#ifdef HAVE_ZLIB
 #include <zlib.h>
+#endif
 
 #include <caml/mlvalues.h>
 #include <caml/alloc.h>
@@ -23,9 +25,11 @@
 #include <caml/fail.h>
 #include <caml/memory.h>
 
-#define ZStream_val(v) ((z_stream *) (v))
-
 static value * caml_zlib_error_exn = NULL;
+
+#ifdef HAVE_ZLIB
+
+#define ZStream_val(v) ((z_stream *) (v))
 
 static void caml_zlib_error(char * fn, value vzs)
 {
@@ -109,13 +113,6 @@ value caml_zlib_deflate(value vzs, value srcbuf, value srcpos, value srclen,
 }
 
 CAMLprim
-value caml_zlib_deflate_bytecode(value * arg, int nargs)
-{
-  return caml_zlib_deflate(arg[0], arg[1], arg[2], arg[3],
-                         arg[4], arg[5], arg[6], arg[7]);
-}
-
-CAMLprim
 value caml_zlib_deflateEnd(value vzs)
 {
   if (deflateEnd(ZStream_val(vzs)) != Z_OK)
@@ -162,17 +159,71 @@ value caml_zlib_inflate(value vzs, value srcbuf, value srcpos, value srclen,
 }
 
 CAMLprim
-value caml_zlib_inflate_bytecode(value * arg, int nargs)
-{
-  return caml_zlib_inflate(arg[0], arg[1], arg[2], arg[3],
-                         arg[4], arg[5], arg[6], arg[7]);
-}
-
-CAMLprim
 value caml_zlib_inflateEnd(value vzs)
 {
   if (inflateEnd(ZStream_val(vzs)) != Z_OK)
     caml_zlib_error("Zlib.inflateEnd", vzs);
   return Val_unit;
 }
+
+#else
+
+static void caml_zlib_not_supported(void)
+{
+  value bucket;
+  if (caml_zlib_error_exn == NULL) {
+    caml_zlib_error_exn = caml_named_value("Cryptokit.Error");
+    if (caml_zlib_error_exn == NULL)
+      invalid_argument("Exception Cryptokit.Error not initialized");
+  }
+  bucket = alloc_small(2, 0);
+  Field(bucket, 0) = *caml_zlib_error_exn;
+  Field(bucket, 1) = Val_int(12); /* Compression_not_supported */
+  mlraise(bucket);
+}
+
+CAMLprim
+value caml_zlib_deflateInit(value vlevel, value expect_header)
+{ caml_zlib_not_supported(); return Val_unit; }
+
+CAMLprim
+value caml_zlib_deflate(value vzs, value srcbuf, value srcpos, value srclen,
+                      value dstbuf, value dstpos, value dstlen,
+                      value vflush)
+{ caml_zlib_not_supported(); return Val_unit; }
+
+CAMLprim
+value caml_zlib_deflateEnd(value vzs)
+{ caml_zlib_not_supported(); return Val_unit; }
+
+CAMLprim
+value caml_zlib_inflateInit(value expect_header)
+{ caml_zlib_not_supported(); return Val_unit; }
+
+CAMLprim
+value caml_zlib_inflate(value vzs, value srcbuf, value srcpos, value srclen,
+                      value dstbuf, value dstpos, value dstlen,
+                      value vflush)
+{ caml_zlib_not_supported(); return Val_unit; }
+
+CAMLprim
+value caml_zlib_inflateEnd(value vzs)
+{ caml_zlib_not_supported(); return Val_unit; }
+
+#endif
+
+CAMLprim
+value caml_zlib_deflate_bytecode(value * arg, int nargs)
+{
+  return caml_zlib_deflate(arg[0], arg[1], arg[2], arg[3],
+                         arg[4], arg[5], arg[6], arg[7]);
+}
+
+CAMLprim
+value caml_zlib_inflate_bytecode(value * arg, int nargs)
+{
+  return caml_zlib_inflate(arg[0], arg[1], arg[2], arg[3],
+                         arg[4], arg[5], arg[6], arg[7]);
+}
+
 
