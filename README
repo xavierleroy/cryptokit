@@ -10,7 +10,7 @@ OVERVIEW:
   - Symmetric-key ciphers: AES, DES, Triple-DES, ARCfour,
       in ECB, CBC, CFB and OFB modes.
   - Public-key cryptography: RSA encryption, Diffie-Hellman key agreement.
-  - Hash functions and MACs: SHA-1, SHA-256, MD5,
+  - Hash functions and MACs: SHA-1, SHA-256, RIPEMD-160, MD5,
       and MACs based on AES and DES.
   - Random number generation.
   - Encodings and compression: base 64, hexadecimal, Zlib compression.
@@ -129,6 +129,13 @@ DESIGN NOTES AND REFERENCES:
   described in the _Handbook_of_Applied_Cryptography_.   It passes the
   FIPS test vectors.
 
+  SHA-256 is implemented from scratch based on FIPS publication 180-2.
+  It passes the FIPS test vectors.
+
+  RIPEMD-160 is based on the reference implementation by A.Bosselaers.
+  It passes the test vectors listed at
+     http://www.esat.kuleuven.ac.be/~bosselae/ripemd160.html
+
   MD5 uses the public-domain implementation by Colin Plumb that is also
   used in the OCaml runtime system for module Digest.
 
@@ -148,24 +155,26 @@ DESIGN NOTES AND REFERENCES:
 
   The seeded PRNG is a combination of AES encryption in CBC mode and a lagged
   Fibonacci generator with long period.  It appears to pass the Diehard
-  statistical tests.  Still, better use the system RNG if high-quality
+  statistical tests.  Still, better to use the system RNG if high-quality
   random numbers are needed.
 
 
 PERFORMANCE:
 
-Some performance figures measured on a Pentium III 1Ghz:
+Some performance figures measured on a Pentium 4 2Ghz:
 
- AES 128: raw encryption  19 Mbyte/s; with CBC and buffering  11 Mbytes/s
- AES 192: raw encryption  16 Mbyte/s; with CBC and buffering  10 Mbytes/s
- AES 256: raw encryption  15 Mbyte/s; with CBC and buffering   9 Mbytes/s
-     DES: raw encryption   9 Mbyte/s; with CBC and buffering   6 Mbytes/s
-    3DES: raw encryption   3 Mbyte/s; with CBC and buffering 2.6 Mbytes/s
-    ARC4: raw encryption  38 Mbyte/s; with buffering          25 Mbytes/s
-    SHA1: 25 Mbyte/s
-     MD5: 50 Mbyte/s
- AES MAC: 13 Mbyte/s
-RSA 1024: key generation 300 ms
-          public-key operation (public exponent 65537) 0.70 ms
-          private-key operation 45 ms
-          private-key operation with CRT 16 ms
+  AES 128: raw encryption  39 Mbyte/s; with CBC and buffering  15 Mbytes/s
+  AES 192: raw encryption  34 Mbyte/s; with CBC and buffering  14 Mbytes/s
+  AES 256: raw encryption  29 Mbyte/s; with CBC and buffering  13 Mbytes/s
+      DES: raw encryption  19 Mbyte/s; with CBC and buffering   8 Mbytes/s
+     3DES: raw encryption 6.5 Mbyte/s; with CBC and buffering 4.5 Mbytes/s
+     ARC4: raw encryption  57 Mbyte/s; with buffering          47 Mbytes/s
+     SHA1: 31 Mbyte/s
+   SHA256: 21 Mbyte/s
+RIPEMD160: 21 Mbyte/s
+      MD5: 53 Mbyte/s
+  AES MAC: 20 Mbyte/s
+ RSA 1024: key generation 120 ms
+           public-key operation (public exponent 65537) 0.70 ms
+           private-key operation 29 ms
+           private-key operation with CRT 9 ms

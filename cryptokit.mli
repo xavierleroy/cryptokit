@@ -116,7 +116,7 @@ class type transform =
           data such as secret key-derived material, or parts of the
           input or output data.  Calling [wipe] ensures that this sensitive
           data will not remain in memory longer than strictly necessary,
-          thus making certain invasive attacks more difficult.
+          thus making invasive attacks more difficult.
           It is thus prudent practice to call [wipe] on every
           transform that the program no longer needs.
           After calling [wipe], the transform is no longer in a working
@@ -435,11 +435,13 @@ end
 module Hash : sig
   val sha1: unit -> hash
     (** SHA-1 is the Secure Hash Algorithm revision 1.  It is a NIST
-        standard, is widely used, and has no known weaknesses.
-        It produces 160-bit hashes (20 bytes).  *)
+        standard, is widely used, and produces 160-bit hashes (20 bytes).
+        Recent results suggest that it is not collision-resistant. *)
   val sha256: unit -> hash
     (** SHA-256, another NIST standard, is a variant of SHA-1 that
         produces 256-bit hashes (32 bytes). *)
+  val ripemd160: unit -> hash
+    (** RIPEMD-160 produces 160-bit hashes (20 bytes). *)
   val md5: unit -> hash
     (** MD5 is an older hash function, producing 128-bit hashes (16 bytes).
         While popular in many legacy applications, it is now
