@@ -1607,11 +1607,14 @@ let new_key ?rng ?e numbits =
         if Bn.relative_prime (Bn.sub n Bn.one) (nat_of_int e)
         then n
         else gen_factor nbits in
-  let p = gen_factor numbits2
-  and q = gen_factor numbits2 in
-  (* Make sure p >= q *)
-  let (p, q) =
-    if Bn.compare p q < 0 then (q, p) else (p, q) in
+  (* Make sure p > q *)
+  let rec gen_factors nbits =
+    let p = gen_factor nbits
+    and q = gen_factor nbits in
+    let cmp = Bn.compare p q in
+    if cmp = 0 then gen_factors nbits else
+    if cmp < 0 then (q, p) else (p, q) in
+  let (p, q) = gen_factors numbits2 in
   (* p1 = p - 1 and q1 = q - 1 *)
   let p1 = Bn.sub p Bn.one
   and q1 = Bn.sub q Bn.one in
