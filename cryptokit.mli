@@ -57,14 +57,26 @@ class type transform =
     method finish: unit
       (** Call method [finish] to indicate that no further data will
           be processed through the transform.  This causes the transform
-          to e.g. add final padding to the data and flush its internal
-          buffers.  Raise [Error Wrong_data_length] if the total length
+          to flush its internal buffers as per method [flush], then
+          perform all appropriate finalization actions, e.g. add
+          final padding.  Raise [Error Wrong_data_length] if the total length
           of input data provided via the [put_*] methods is not
           an integral number of the input block size
           (see {!Cryptokit.transform.input_block_size}).
           After calling [finish], the transform can no longer accept
           additional data.  Hence, do not call any of the [put_*]
-          methods after calling [finish]. *)
+          methods nor [flush] after calling [finish]. *)
+    method flush: unit
+      (** [flush] causes the transform to flush its internal buffers
+          and make all output processed up to this point available through
+          the [get_*] methods.  
+          Raise [Error Wrong_data_length] if the total length
+          of input data provided via the [put_*] methods is not
+          an integral number of the input block size
+          (see {!Cryptokit.transform.input_block_size}).
+          Unlike method [finish], method [flush] does not add final
+          padding and leaves the transform in a state where it can
+          still accept more input. *)
     method available_output: int
       (** Return the number of characters of output currently available.
           The output can be recovered with the [get_*] methods. *)

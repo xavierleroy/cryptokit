@@ -79,6 +79,7 @@ class type transform =
     method put_byte: int -> unit
 
     method finish: unit
+    method flush: unit
 
     method available_output: int
 
@@ -148,6 +149,7 @@ class compose (tr1 : transform) (tr2 : transform) =
     method get_char = tr2#get_char
     method get_byte = tr2#get_byte
 
+    method flush = tr1#flush; self#transfer; tr2#flush
     method finish = tr1#finish; self#transfer; tr2#finish
 
     method wipe = tr1#wipe; tr2#wipe
@@ -558,7 +560,7 @@ class cipher (cipher : block_cipher) =
       output_buffer#wipe;
       wipe_string ibuf
 
-    method finish =
+    method flush =
       if used = 0 then ()
       else if used = blocksize then begin
         self#ensure_capacity blocksize;
@@ -567,6 +569,9 @@ class cipher (cipher : block_cipher) =
         oend <- oend + blocksize
       end
       else raise (Error Wrong_data_length)
+
+    method finish =
+      self#flush
   end
 
 (* Block cipher with padding *)
@@ -748,6 +753,7 @@ class cipher (cipher : stream_cipher) =
     method put_byte b =
       self#put_char (Char.unsafe_chr b)
 
+    method flush = ()
     method finish = ()
 
     method wipe =
@@ -1807,6 +1813,8 @@ class encode multiline =
 
     method put_byte b = self#put_char (Char.chr b)
 
+    method flush : unit = raise (Error Wrong_data_length)
+
     method finish =
       begin match ipos with
         1 ->
@@ -1893,6 +1901,8 @@ class decode =
 
     method put_byte b = self#put_char (Char.chr b)
 
+    method flush : unit = raise (Error Wrong_data_length)
+
     method finish =
       finished <- true;
       match ipos with
@@ -1943,6 +1953,7 @@ class encode =
     method put_string s =
       self#put_substring s 0 (String.length s)
 
+    method flush = ()
     method finish = ()
 
     method wipe = output_buffer#wipe
@@ -1988,6 +1999,9 @@ class decode =
       self#put_substring s 0 (String.length s)
 
     method put_byte b = self#put_char (Char.chr b)
+
+    method flush =
+      if ipos <> 0 then raise(Error Wrong_data_length)
 
     method finish =
       if ipos <> 0 then raise(Error Bad_encoding)
@@ -2054,6 +2068,17 @@ class compress level =
 
     method put_byte b = self#put_char (Char.chr b)
 
+    method flush =
+      self#ensure_capacity 64;
+      let avail_out = String.length obuf - oend in
+      let (_, _, used_out) =
+         deflate zs
+                 "" 0 0
+                 obuf oend (String.length obuf - oend)
+                 Z_SYNC_FLUSH in
+      oend <- oend + used_out;
+      if oend = String.length obuf then self#flush
+
     method finish =
       self#ensure_capacity 64;
       let (finished, _, used_out) =
@@ -2087,12 +2112,13 @@ class uncompress =
                   src ofs len
                   obuf oend (String.length obuf - oend)
                   Z_SYNC_FLUSH in
-        if finished then
-          raise(Error(Compression_error("Zlib.inflate",
-             "garbage at end of compressed data")));
         oend <- oend + used_out;
-        if used_in < len
-        then self#put_substring src (ofs + used_in) (len - used_in)
+        if used_in < len then begin
+          if finished then
+            raise(Error(Compression_error("Zlib.inflate",
+               "garbage at end of compressed data")));
+          self#put_substring src (ofs + used_in) (len - used_in)
+        end
       end
 
     method put_string s = self#put_substring s 0 (String.length s)
@@ -2100,6 +2126,8 @@ class uncompress =
     method put_char c = self#put_string (String.make 1 c)
 
     method put_byte b = self#put_char (Char.chr b)
+
+    method flush = ()
 
     method finish =
       let rec do_finish first_finish =
