@@ -1625,6 +1625,57 @@ let new_key ?rng ?e numbits =
 
 end
 
+(* Diffie-Hellman key agreement *)
+
+module DH = struct
+
+type parameters =
+  { p: string;
+    g: string;
+    privlen: int }
+
+let new_parameters ?(rng = Random.secure_rng) ?(privlen = 160) numbits =
+  if numbits < 32 || numbits <= privlen then raise(Error Wrong_key_size);
+  let np = RSA.random_prime ~rng numbits in
+  let rec find_generator () =
+    let g = RSA.random_nat ~rng (numbits - 1) in
+    if Bn.compare g Bn.one <= 0 then find_generator() else g in
+  let ng = find_generator () in
+  { p = bytes_of_nat ~numbits np;
+    g = bytes_of_nat ~numbits ng;
+    privlen = privlen }
+
+type private_secret = nat
+
+let private_secret ?(rng = Random.secure_rng) params =
+  RSA.random_nat ~rng params.privlen
+
+let message params privsec =
+  bytes_of_nat ~numbits:(String.length params.p * 8)
+    (Bn.mod_power (nat_of_bytes params.g) privsec (nat_of_bytes params.p))
+
+let shared_secret params privsec othermsg =
+  let res =
+    bytes_of_nat ~numbits:(String.length params.p * 8)
+      (Bn.mod_power (nat_of_bytes othermsg) privsec (nat_of_bytes params.p))
+  in wipe_nat privsec; res
+
+let derive_key ?(diversification = "") sharedsec numbytes =
+  let result = String.create numbytes in
+  let rec derive pos counter =
+    if pos < numbytes then begin
+      let h =
+        hash_string (Hash.sha1()) 
+                    (diversification ^ sharedsec ^ string_of_int counter) in
+      String.blit h 0 result pos (min (String.length h) (numbytes - pos));
+      wipe_string h;
+      derive (pos + String.length h) (counter + 1)
+    end in
+  derive 0 1;
+  result
+
+end
+
 (* Base64 encoding *)
 
 module Base64 = struct
