@@ -165,6 +165,17 @@ let _ =
   test 6 (hash (String.make 1000000 'a'))
          (hex "34AA973CD4C4DAA4F61EEB2BDBAD27316534016F")
 
+(* SHA-256 *)
+let _ =
+  testing_function "SHA-256";
+  let hash s = hash_string (Hash.sha256()) s in
+  test 1 (hash "abc")
+    (hex "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
+  test 2 (hash "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")
+    (hex "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1");
+  test 3 (hash (String.make 1000000 'a'))
+    (hex "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0")
+
 (* MD5 *)
 let _ =
   testing_function "MD5";
