@@ -581,8 +581,9 @@ end
 
 (** The [Block] module provides classes that implements
     popular block ciphers, chaining modes, and wrapping of a block cipher
-    as a general transform.  The classes can be composed in a Lego-like
-    fashion, facilitating the integration of new block ciphers, modes, etc. *)
+    as a general transform or as a hash function.
+    The classes can be composed in a Lego-like fashion, facilitating
+    the integration of new block ciphers, modes, etc. *)
 module Block : sig
 
   class type block_cipher =
