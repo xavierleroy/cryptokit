@@ -20,20 +20,20 @@
 
 #define Context_val(v) ((struct SHA1Context *) String_val(v))
 
-value caml_sha1_init(value unit)
+CAMLprim value caml_sha1_init(value unit)
 {
   value ctx = alloc_string(sizeof(struct SHA1Context));
   SHA1_init(Context_val(ctx));
   return ctx;
 }
 
-value caml_sha1_update(value ctx, value src, value ofs, value len)
+CAMLprim value caml_sha1_update(value ctx, value src, value ofs, value len)
 {
   SHA1_add_data(Context_val(ctx), &Byte_u(src, Long_val(ofs)), Long_val(len));
   return Val_unit;
 }
 
-value caml_sha1_final(value ctx)
+CAMLprim value caml_sha1_final(value ctx)
 {
   CAMLparam1(ctx);
   CAMLlocal1(res);
