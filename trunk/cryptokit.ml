@@ -916,7 +916,10 @@ end
 module HMAC(H: sig class h: hash  val blocksize: int end) =
   struct
     let hmac_pad key byte =
-      if String.length key > H.blocksize then raise(Error Wrong_key_size);
+      let key =
+        if String.length key > H.blocksize
+        then hash_string (new H.h) key
+        else key in
       let r = String.make H.blocksize (Char.chr byte) in
       xor_string key 0 r 0 (String.length key);
       r

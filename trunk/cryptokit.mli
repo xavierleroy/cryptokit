@@ -479,15 +479,13 @@ module MAC: sig
   val hmac_sha1: string -> hash
     (** [hmac_sha1 key] returns a MAC based on the HMAC construction (RFC2104)
         applied to SHA-1.  The returned hash values are 160 bits (20 bytes)
-        long.  The [key] argument is the MAC key; it can have any length
-        between 1 and 64 bytes.  A minimal length of 20 bytes is
-        recommended. *)
+        long.  The [key] argument is the MAC key; it can have any length,
+        but a minimal length of 20 bytes is recommended. *)
   val hmac_md5: string -> hash
     (** [hmac_md5 key] returns a MAC based on the HMAC construction (RFC2104)
         applied to MD5.  The returned hash values are 128 bits (16 bytes)
-        long.  The [key] argument is the MAC key; it can have any length
-        between 1 and 64 bytes.  A minimal length of 16 bytes is
-        recommended. *)
+        long.  The [key] argument is the MAC key; it can have any length,
+        but a minimal length of 16 bytes is recommended. *)
   val aes: ?iv:string -> ?pad:Padding.scheme -> string -> hash
     (** [aes key] returns a MAC based on AES encryption in CBC mode.
         The ciphertext is discarded, and the final value of the
