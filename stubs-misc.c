@@ -15,6 +15,8 @@
 
 #include <caml/mlvalues.h>
 
+#define ALIGNMENT_OF(x) ((long)(x) & (sizeof(long) - 1))
+
 CAMLprim value caml_xor_string(value src, value src_ofs,
                                value dst, value dst_ofs,
                                value len)
@@ -23,11 +25,19 @@ CAMLprim value caml_xor_string(value src, value src_ofs,
   char * d = &Byte(dst, Long_val(dst_ofs));
   long l = Long_val(len);
 
-  while (l >= sizeof(long)) {
-    *((long *) d) ^= *((long *) s);
-    s += sizeof(long);
-    d += sizeof(long);
-    l -= sizeof(long);
+  if (l >= 64 && ALIGNMENT_OF(s) == ALIGNMENT_OF(d)) {
+    while (ALIGNMENT_OF(s) != 0 && l > 0) {
+      *d ^= *s;
+      s += 1;
+      d += 1;
+      l -= 1;
+    }
+    while (l >= sizeof(long)) {
+      *((long *) d) ^= *((long *) s);
+      s += sizeof(long);
+      d += sizeof(long);
+      l -= sizeof(long);
+    }
   }
   while (l > 0) {
     *d ^= *s;
