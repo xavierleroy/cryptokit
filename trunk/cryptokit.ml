@@ -32,6 +32,7 @@ type error =
   | Compression_error of string * string
   | No_entropy_source
   | Entropy_source_closed
+  | Compression_not_supported
 
 exception Error of error
 
@@ -927,6 +928,29 @@ let string rng len =
   rng#random_bytes res 0 len;
   res
 
+type system_rng_handle
+external get_system_rng: unit -> system_rng_handle = "caml_get_system_rng"
+external close_system_rng: system_rng_handle -> unit = "caml_close_system_rng"
+external system_rng_random_bytes: 
+  system_rng_handle -> string -> int -> int -> bool
+  = "caml_system_rng_random_bytes"
+
+class system_rng =
+  object(self)
+    val h = get_system_rng ()
+    method random_bytes buf ofs len =
+      if ofs < 0 || len < 0 || ofs > String.length buf - len
+      then invalid_arg "random_bytes";
+      if system_rng_random_bytes h buf ofs len
+      then ()
+      else raise(Error Entropy_source_closed)
+    method wipe =
+      close_system_rng h
+  end
+
+let system_rng () =
+  try new system_rng with Not_found -> raise(Error No_entropy_source)
+
 class device_rng filename =
   object(self)
     val fd = Unix.openfile filename [Unix.O_RDONLY] 0
@@ -980,6 +1004,9 @@ class no_rng =
   end
 
 let secure_rng =
+  try
+    new system_rng
+  with Not_found ->
   try
     new device_rng "/dev/random"
   with Unix.Unix_error(_,_,_) ->

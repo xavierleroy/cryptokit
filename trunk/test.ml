@@ -410,7 +410,10 @@ The quick brown fox jumps over the lazy dog.
 The quick brown fox jumps over the lazy dog.
 The quick brown fox jumps over the lazy dog.
 " in
-  test 1 text (transform_string (Zlib.uncompress()) (transform_string (Zlib.compress()) text))
+  try
+    test 1 text (transform_string (Zlib.uncompress()) (transform_string (Zlib.compress()) text))
+  with Error Compression_not_supported ->
+    printf " (not supported)"
 
 (* End of tests *)
 

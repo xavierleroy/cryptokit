@@ -215,7 +215,8 @@ module Random : sig
 
   val secure_rng: rng
     (** A high-quality random number generator, using hard-to-predict
-        system data to generate entropy.  This generator reads from
+        system data to generate entropy.  This generator either uses
+        the OS-provided RNG, if any, or reads from
         [/dev/random] on systems that supports it, or interrogate
         the EGD daemon otherwise (see [http://egd.sourceforge.net/]).
         For EGD, the following paths are tried to locate the Unix socket
@@ -225,11 +226,17 @@ module Random : sig
         - [/var/run/egd-pool]; [/dev/egd-pool]; [/etc/egd-pool].
 
         The method [secure_rng#random_bytes] fails
-        if neither [/dev/random] nor EGD are available.
+        if no suitable RNG is available.
         [secure_rng#random_bytes] may block until enough entropy
         has been gathered.  Do not use for generating large quantities
         of random data, else you might exhaust the entropy sources
         of the system. *)
+
+  val system_rng: unit -> rng
+    (** [system_rng ()] returns a random number generator derived
+        from the OS-provided RNG.  It raises [Error No_entropy_source]
+        if the OS does not provide a secure RNG.  Currently, this function
+        is supported under Win32, and always fails under Unix. *)
 
   val device_rng: string -> rng
     (** [device_rng devicename] returns a random number generator
@@ -291,8 +298,9 @@ module Padding : sig
 
   val length: scheme
     (** This padding scheme pads data with [n] copies of the character
-        having code [n].  It is unambiguous since at least one
-        character of padding is added.  This scheme is defined in RFC 2040. *)
+        having code [n].  The integer [n] lies between 1 and the block
+        size (included).  This constraint ensures non-ambiguity.
+        This scheme is defined in RFC 2040 and in PKCS 5 and 7. *)
   val _8000: scheme
     (** This padding scheme pads data with one [0x80] byte, followed
         by as many [0] bytes as needed to fill the block. *)
@@ -908,10 +916,12 @@ type error =
   | Compression_error of string * string
       (** Error during compression or decompression. *)
   | No_entropy_source
-      (** No entropy source ([/dev/random] or EGD) was found for
+      (** No entropy source (OS, [/dev/random] or EGD) was found for
           {!Cryptokit.Random.secure_rng}. *)
   | Entropy_source_closed
       (** End of file on a device or EGD entropy source. *)
+  | Compression_not_supported
+      (** The data compression functions are not available. *)
 
 exception Error of error
   (** Exception raised by functions in this library

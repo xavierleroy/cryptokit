@@ -1,6 +1,9 @@
 ### Configuration section
 
-# The name of the Zlib library.  Usually -lz
+# Comment next line if the Zlib library is not available
+#ZLIB=-DHAVE_ZLIB
+
+# The name of the Zlib library.  Usually -lz.
 ZLIB_LIB=-lz
 
 # The directory containing the Zlib library (libz.a or libz.so)
@@ -13,7 +16,7 @@ ZLIB_INCLUDE=/usr/include
 INSTALLDIR=`$(OCAMLC) -where`
 
 # Flags for the C compiler.
-CFLAGS=-O -I$(ZLIB_INCLUDE)
+CFLAGS=-O -I$(ZLIB_INCLUDE) $(ZLIB)
 
 ### End of configuration section
 
@@ -31,7 +34,8 @@ C_OBJS=\
   sha1.o stubs-sha1.o \
   stubs-md5.o \
   stubs-zlib.o \
-  stubs-misc.o
+  stubs-misc.o \
+  stubs-rng.o
 
 CAML_OBJS=cryptokit.cmo
 
