@@ -12,17 +12,10 @@ ZLIB_INCLUDE=/usr/include
 # Where to install the library. By default: OCaml's standard library directory.
 INSTALLDIR=`$(OCAMLC) -where`
 
-# Flags for the C compiler.  -fomit-frame-pointer works around a gcc bug
-# in RedHat 7.2 and Mandrake 8
-CFLAGS=-O -I$(ZLIB_INCLUDE) -fomit-frame-pointer
+# Flags for the C compiler.
+CFLAGS=-O -I$(ZLIB_INCLUDE)
 
 ### End of configuration section
-
-
-# Modify to reflect the location of the include file <zlib.h>
-ZLIBINCLUDE=-I/usr/include
-# Modify to reflect the location and name of the zlib library libz.a or libz.so
-ZLIBLIB=-lz
 
 OCAMLRUN=ocamlrun
 OCAMLC=ocamlc -g

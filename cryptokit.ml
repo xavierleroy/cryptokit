@@ -47,7 +47,7 @@ external aes_cook_encrypt_key : string -> string = "caml_aes_cook_encrypt_key"
 external aes_cook_decrypt_key : string -> string = "caml_aes_cook_decrypt_key"
 external aes_encrypt : string -> string -> int -> string -> int -> unit = "caml_aes_encrypt"
 external aes_decrypt : string -> string -> int -> string -> int -> unit = "caml_aes_decrypt"
-external des_cook_key : string -> dir -> string = "caml_des_cook_key"
+external des_cook_key : string -> int -> dir -> string = "caml_des_cook_key"
 external des_transform : string -> string -> int -> string -> int -> unit = "caml_des_transform"
 external arcfour_cook_key : string -> string = "caml_arcfour_cook_key"
 external arcfour_transform : string -> string -> int -> string -> int -> int -> unit = "caml_arcfour_transform_bytecode" "caml_arcfour_transform"
@@ -300,7 +300,8 @@ class type block_cipher =
 class aes_encrypt key =
   object
     val ckey =
-      if String.length key = 16
+      let kl = String.length key in
+      if kl = 16 || kl = 24 || kl = 32
       then aes_cook_encrypt_key key
       else raise(Error Wrong_key_size)
     method blocksize = 16
@@ -316,7 +317,8 @@ class aes_encrypt key =
 class aes_decrypt key =
   object
     val ckey =
-      if String.length key = 16
+      let kl = String.length key in
+      if kl = 16 || kl = 24 || kl = 32
       then aes_cook_decrypt_key key
       else raise(Error Wrong_key_size)
     method blocksize = 16
@@ -333,7 +335,7 @@ class des direction key =
   object
     val ckey =
       if String.length key = 8
-      then des_cook_key key direction
+      then des_cook_key key 0 direction
       else raise(Error Wrong_key_size)
     method blocksize = 8
     method transform src src_ofs dst dst_ofs =
@@ -348,14 +350,19 @@ class des direction key =
 class des_encrypt = des Encrypt
 class des_decrypt = des Decrypt
 
-class triple_des dir key =
-  let _ = if String.length key <> 16 then raise(Error Wrong_key_size) in
+class triple_des_encrypt key =
+  let _ =
+    let kl = String.length key in
+    if kl <> 16 && kl <> 24 then raise (Error Wrong_key_size) in
+  let ckey1 =
+    des_cook_key key 0 Encrypt in
+  let ckey2 =
+    des_cook_key key 8 Decrypt in
+  let ckey3 =
+    if String.length key = 24
+    then des_cook_key key 16 Encrypt
+    else ckey1 in
   object
-    val ckey1 =
-      des_cook_key key dir
-    val ckey2 =
-      des_cook_key (String.sub key 8 8)
-                   (match dir with Encrypt -> Decrypt | Decrypt -> Encrypt)
     method blocksize = 8
     method transform src src_ofs dst dst_ofs =
       if src_ofs < 0 || src_ofs + 8 > String.length src
@@ -363,14 +370,39 @@ class triple_des dir key =
       then invalid_arg "triple_des#transform";
       des_transform ckey1 src src_ofs dst dst_ofs;
       des_transform ckey2 dst dst_ofs dst dst_ofs;
-      des_transform ckey1 dst dst_ofs dst dst_ofs
+      des_transform ckey3 dst dst_ofs dst dst_ofs
     method wipe =
       wipe_string ckey1;
-      wipe_string ckey2
+      wipe_string ckey2;
+      wipe_string ckey3
   end
 
-class triple_des_encrypt = triple_des Encrypt
-class triple_des_decrypt = triple_des Decrypt
+class triple_des_decrypt key =
+  let _ =
+    let kl = String.length key in
+    if kl <> 16 && kl <> 24 then raise (Error Wrong_key_size) in
+  let ckey3 =
+    des_cook_key key 0 Decrypt in
+  let ckey2 =
+    des_cook_key key 8 Encrypt in
+  let ckey1 =
+    if String.length key = 24
+    then des_cook_key key 16 Decrypt
+    else ckey3 in
+  object
+    method blocksize = 8
+    method transform src src_ofs dst dst_ofs =
+      if src_ofs < 0 || src_ofs + 8 > String.length src
+      || dst_ofs < 0 || dst_ofs + 8 > String.length dst
+      then invalid_arg "triple_des#transform";
+      des_transform ckey1 src src_ofs dst dst_ofs;
+      des_transform ckey2 dst dst_ofs dst dst_ofs;
+      des_transform ckey3 dst dst_ofs dst dst_ofs
+    method wipe =
+      wipe_string ckey1;
+      wipe_string ckey2;
+      wipe_string ckey3
+  end
 
 (* Chaining modes *)
 
@@ -639,16 +671,20 @@ class mac ?iv:iv_init ?(pad: Padding.scheme option) (cipher : block_cipher) =
   end
 
 class mac_final_triple ?iv ?pad (cipher1 : block_cipher)
-                                (cipher2 : block_cipher) =
+                                (cipher2 : block_cipher)
+                                (cipher3 : block_cipher) =
   let _ = if cipher1#blocksize <> cipher2#blocksize
+          || cipher2#blocksize <> cipher3#blocksize
           then raise(Error Incompatible_block_size) in
   object
     inherit mac ?iv ?pad cipher1 as super
     method result =
       let r = super#result in
       cipher2#transform r 0 r 0;
-      cipher1#transform r 0 r 0;
+      cipher3#transform r 0 r 0;
       r
+    method wipe =
+      super#wipe; cipher2#wipe; cipher3#wipe
   end
 
 end
@@ -666,7 +702,7 @@ class type stream_cipher =
 class arcfour key =
   object
     val ckey =
-      if String.length key > 0 && String.length key <= 16
+      if String.length key > 0 && String.length key <= 256
       then arcfour_cook_key key
       else raise(Error Wrong_key_size)
     method transform src src_ofs dst dst_ofs len =
@@ -810,7 +846,9 @@ let des ?mode ?pad ?iv key dir =
 
 let triple_des ?mode ?pad ?iv key dir =
   make_block_cipher ?mode ?pad ?iv dir
-    (new Block.triple_des (normalize_dir mode dir) key)
+   (match normalize_dir mode dir with
+      Encrypt -> new Block.triple_des_encrypt key
+    | Decrypt -> new Block.triple_des_decrypt key)
 
 let arcfour key dir = new Stream.cipher (new Stream.arcfour key)
 
@@ -827,9 +865,16 @@ let des ?iv ?pad key =
 let triple_des ?iv ?pad key =
   new Block.mac ?iv ?pad (new Block.triple_des_encrypt key)
 let des_final_triple_des ?iv ?pad key =
-  new Block.mac_final_triple ?iv ?pad
-      (new Block.des_encrypt (String.sub key 0 8))
-      (new Block.des_decrypt (String.sub key 8 8))
+  let kl = String.length key in
+  if kl <> 16 && kl <> 24 then raise (Error Wrong_key_size);
+  let k1 = String.sub key 0 8 in
+  let k2 = String.sub key 8 8 in
+  let k3 = if kl = 24 then String.sub key 16 8 else k1 in
+  let c1 = new Block.des_encrypt k1
+  and c2 = new Block.des_decrypt k2
+  and c3 = new Block.des_encrypt k3 in
+  wipe_string k1; wipe_string k2; wipe_string k3;
+  new Block.mac_final_triple ?iv ?pad c1 c2 c3
 
 end
 

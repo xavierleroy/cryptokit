@@ -61,12 +61,28 @@ let _ =
 let _ =
   testing_function "AES";
   let res = String.create 16 in
-  let c = new Block.aes_encrypt (hex "000102030405060708090A0B0C0D0E0F")
-  and d = new Block.aes_decrypt (hex "000102030405060708090A0B0C0D0E0F") in
-  let plain = hex "00112233445566778899AABBCCDDEEFF"
-  and cipher = hex "69C4E0D86A7B0430D8CDB78070B4C55A" in
-  c#transform plain 0 res 0; test 1 res cipher;
-  d#transform cipher 0 res 0; test 2 res plain
+  let do_test key plain cipher testno1 testno2 =
+    let c = new Block.aes_encrypt (hex key)
+    and d = new Block.aes_decrypt (hex key) in
+    let plain = hex plain
+    and cipher = hex cipher in
+    c#transform plain 0 res 0;  test testno1 res cipher;
+    d#transform cipher 0 res 0; test testno2 res plain in
+  do_test
+    "000102030405060708090A0B0C0D0E0F"
+    "00112233445566778899AABBCCDDEEFF"
+    "69C4E0D86A7B0430D8CDB78070B4C55A"
+    1 2;
+  do_test
+    "000102030405060708090A0B0C0D0E0F1011121314151617"
+    "00112233445566778899AABBCCDDEEFF"
+    "DDA97CA4864CDFE06EAF70A0EC0D7191"
+    3 4;
+  do_test
+    "000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F"
+    "00112233445566778899AABBCCDDEEFF"
+    "8EA2B7CA516745BFEAFC49904B496089"
+    5 6
 
 (* DES *)
 let _ =
@@ -94,18 +110,28 @@ let _ =
 let _ =
   testing_function "Triple DES";
   let res = String.create 8 in
-  let c = new Block.triple_des_encrypt (hex "0123456789abcdeffedcba9876543210")
-  and d = new Block.triple_des_decrypt (hex "0123456789abcdeffedcba9876543210") in
-  let plain = hex "0123456789abcde7"
-  and cipher = hex "7f1d0a77826b8aff" in
-  c#transform plain 0 res 0; test 1 res cipher;
-  d#transform cipher 0 res 0; test 2 res plain;
-  let c = new Block.triple_des_encrypt (hex "0123456789abcdef0123456789abcdef")
-  and d = new Block.triple_des_decrypt (hex "0123456789abcdef0123456789abcdef") in
-  let plain = hex "0123456789abcde7"
-  and cipher = hex "c95744256a5ed31d" in
-  c#transform plain 0 res 0; test 3 res cipher;
-  d#transform cipher 0 res 0; test 4 res plain
+  let do_test key plain cipher testno1 testno2 =
+    let c = new Block.triple_des_encrypt (hex key)
+    and d = new Block.triple_des_decrypt (hex key) in
+    let plain = hex plain
+    and cipher = hex cipher in
+    c#transform plain 0 res 0; test testno1 res cipher;
+    d#transform cipher 0 res 0; test testno2 res plain in
+  do_test
+    "0123456789abcdeffedcba9876543210"
+    "0123456789abcde7"
+    "7f1d0a77826b8aff"
+    1 2;
+  do_test
+    "0123456789abcdef0123456789abcdef"
+    "0123456789abcde7"
+    "c95744256a5ed31d"
+    3 4;
+  do_test
+    "0123456789abcdeffedcba987654321089abcdef01234567"
+    "0123456789abcde7"
+    "de0b7c06ae5e0ed5"
+    5 6
 
 (* ARCfour *)
 
@@ -242,7 +268,7 @@ let _ =
     (RSA.decrypt_CRT some_rsa_key (RSA.encrypt some_rsa_key some_msg));
   (* Same, with a home-made key *)
   let prng =
-    new Random.pseudo_rng (hex "5b5e50dc5b6eaf5346eba8244e5666ac4dcd5409") in
+    Random.pseudo_rng (hex "5b5e50dc5b6eaf5346eba8244e5666ac4dcd5409") in
   let key = RSA.new_key ~rng:prng 1024 in
   test_same_message 5 some_msg
     (RSA.unwrap_signature key (RSA.sign key some_msg));
