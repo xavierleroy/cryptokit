@@ -1,0 +1,6 @@
+Release 1.1:
+- Added Diffie-Hellman key agreement
+- Exported raw modular arithmetic operations (mod_power, mod_mult)
+
+Release 1.0:
+- First public release
