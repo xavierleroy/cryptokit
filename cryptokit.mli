@@ -550,10 +550,10 @@ module RSA: sig
     }
     (** The type of RSA keys.  Components [size], [n] and [e] define
         the public part of the key.  Components [size], [n] and [d]
-        define the private part of the key.  To speed up secret key operations
+        define the private part of the key.  To speed up private key operations
         through the use of the Chinese remainder theorem (CRT), additional
         components [p], [q], [dp], [dq] and [qinv] are provided.  These
-        are part of the secret key. *)
+        are part of the private key. *)
 
   val wipe_key: key -> unit
     (** Erase all components of a RSA key. *)
