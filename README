@@ -87,11 +87,10 @@ WARNINGS AND DISCLAIMERS:
 
   Disclaimer 3: in some countries, the use, distribution, import
   and/or export of cryptographic applications is restricted by law.
-  For instance, French laws require authorization to use ciphers
-  with key size greater than 128 bits for confidentiality purposes
-  (data encryption), while their use for authentication and data
-  integrity purposes does not require authorization.  Make sure to
-  comply with regulations applicable in your country.
+  The precise restrictions may depend on the strenght of the cryptography
+  used (e.g. key size), but also on its purpose (e.g. confidentiality
+  vs. authentication).  It is up to the users of this library to
+  comply with regulations applicable in their country.
 
 
 DESIGN NOTES AND REFERENCES:
