@@ -230,18 +230,18 @@ module Random : sig
         of random data, else you might exhaust the entropy sources
         of the system. *)
 
-  class device_rng: string -> rng
+  val device_rng: string -> rng
     (** [new device_rng devicename] returns a random number generator
         that reads from the special file [devicename], e.g.
         [/dev/random] or [/dev/urandom]. *)
 
-  class egd_rng: string -> rng
+  val egd_rng: string -> rng
     (** [new device_rng egd_socket] returns a random number generator
         that uses the Entropy Gathering Daemon ([http://egd.sourceforge.net/]).
         [egd_socket] is the path to the Unix socket that EGD uses for
         communication.  *)
 
-  class pseudo_rng: string -> rng
+  val pseudo_rng: string -> rng
     (** [new pseudo_rng seed] returns a pseudo-random number generator
         seeded by the string [seed].  [seed] must contain at least
         16 characters, and can be arbitrarily longer than this,
@@ -461,11 +461,11 @@ module MAC: sig
         brute-force attacks. *)
   val aes: ?iv:string -> ?pad:Padding.scheme -> string -> hash
     (** [aes key] returns a MAC based on AES encryption in CBC mode.
-        The ciphertext is discarded, except the last ciphertext block,
-        which is the MAC value.  Thus, the returned hash values
-        are 128 bit (16 bytes) long.  The [key] argument is the
-        MAC key; it must have length 16 (128 bits).
-        The optional [iv] argument is the first value of the
+        The ciphertext is discarded, and the final value of the
+        initialization vector is the MAC value.  Thus, the returned
+        hash values are 128 bit (16 bytes) long.  The [key] argument
+        is the MAC key; it must have length 16 (128 bits).  The
+        optional [iv] argument is the first value of the
         initialization vector, and defaults to 0.  The optional [pad]
         argument specifies a padding scheme to pad input to an
         integral number of 16-byte blocks. *)
@@ -485,6 +485,16 @@ module MAC: sig
         The key size is sufficient to protect against brute-force attacks,
         but the small hash size means that this MAC is not 
         collision-resistant. *)
+  val des_final_triple_des: ?iv:string -> ?pad:Padding.scheme -> string -> hash
+    (** [des_final_triple_des key] returns a MAC that uses DES CBC
+        with the first 8 bytes of [key] as key, then super-encrypts the
+        final initialization vector by DES-decrypting it with the last
+        8 bytes of [key], then DES-encrypting the result with the first
+        8 bytes of [key].  Thus, the key is 16 bytes long, of which
+        112 bits are used.  The overall construction has the same
+        key size as a Triple DES MAC, but runs faster because triple
+        encryption is not performed on all data blocks, but only on
+        the final MAC. *)
 end
 
 (** The [RSA] module implements RSA public-key cryptography.
@@ -620,12 +630,23 @@ module Block : sig
   class mac: ?iv: string -> ?pad: Padding.scheme -> block_cipher -> hash
     (** Build a MAC (keyed hash function) from the given block cipher.
         The block cipher is run in CBC mode, and the MAC value is
-        the last ciphertext block.  Thus, the hash size of the resulting
+        the final value of the initialization vector.
+        Thus, the hash size of the resulting
         hash is the block size of the block cipher.
-        The optional argument [iv] specifies the initialization
+        The optional argument [iv] specifies the first initialization
         vector, with a default of all zeroes.  The optional argument
         [pad] specifies a padding scheme to be applied to the input
         data; if not provided, no padding is performed. *)
+  class mac_final_triple: ?iv: string -> ?pad: Padding.scheme ->
+                             block_cipher -> block_cipher -> hash
+    (** Build a MAC (keyed hash function) from the given block ciphers
+        [c1] and [c2].  The input is run through [c1] in CBC mode,
+        as described for {!mac}.  The final initialization vector
+        is then super-enciphered by [c2], then by [c1], to
+        provide the final MAC.  This construction results in a MAC
+        that is as nearly as fast as {!mac c1}, but more resistant
+        against brute-force key search because of the additional
+        final encryption through [c2]. *)
 
   class aes_encrypt: string -> block_cipher
     (** The AES block cipher, in encryption mode.  The string argument
@@ -771,8 +792,6 @@ end
 
 (** Error codes for this library. *)
 type error =
-    Compression_error of string * string
-      (** Error during compression or decompression. *)
   | Wrong_key_size
       (** The key is too long or too short for the given cipher. *)
   | Wrong_IV_size
@@ -786,6 +805,10 @@ type error =
   | Output_buffer_overflow
       (** The output buffer for a transform exceeds the maximal length
           of a Caml string. *)
+  | Incompatible_block_size
+      (** A combination of two block ciphers was attempted whereby
+          the ciphers have different block sizes, while they must have
+          the same. *)
   | Number_too_long
       (** Denotes an internal error in RSA key generation or encryption. *)
   | Seed_too_short
@@ -796,6 +819,8 @@ type error =
   | Bad_encoding
       (** Illegal characters were found in an encoding of binary data
           such as base 64 or hexadecimal. *)
+  | Compression_error of string * string
+      (** Error during compression or decompression. *)
   | No_entropy_source
       (** No entropy source ([/dev/random] or EGD) was found for
           {!Random.secure_rng}. *)

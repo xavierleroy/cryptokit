@@ -19,16 +19,17 @@ let wipe_string s = String.fill s 0 (String.length s) '\000'
 let wipe_nat n = set_to_zero_nat n 0 (length_nat n)
 
 type error =
-    Compression_error of string * string
   | Wrong_key_size
   | Wrong_IV_size
   | Wrong_data_length
   | Bad_padding
   | Output_buffer_overflow
+  | Incompatible_block_size
   | Number_too_long
   | Seed_too_short
   | Message_too_long
   | Bad_encoding
+  | Compression_error of string * string
   | No_entropy_source
   | Entropy_source_closed
 
@@ -637,6 +638,19 @@ class mac ?iv:iv_init ?(pad: Padding.scheme option) (cipher : block_cipher) =
       String.copy iv
   end
 
+class mac_final_triple ?iv ?pad (cipher1 : block_cipher)
+                                (cipher2 : block_cipher) =
+  let _ = if cipher1#blocksize <> cipher2#blocksize
+          then raise(Error Incompatible_block_size) in
+  object
+    inherit mac ?iv ?pad cipher1 as super
+    method result =
+      let r = super#result in
+      cipher2#transform r 0 r 0;
+      cipher1#transform r 0 r 0;
+      r
+  end
+
 end
 
 (* Stream ciphers *)
@@ -836,6 +850,10 @@ let des ?iv ?pad key =
   new Block.mac ?iv ?pad (new Block.des_encrypt key)
 let triple_des ?iv ?pad key =
   new Block.mac ?iv ?pad (new Block.triple_des_encrypt key)
+let des_final_triple_des ?iv ?pad key =
+  new Block.mac_final_triple ?iv ?pad
+      (new Block.des_encrypt (String.sub key 0 8))
+      (new Block.des_decrypt (String.sub key 8 8))
 
 end
 
@@ -867,6 +885,8 @@ class device_rng filename =
       Unix.close fd
   end
 
+let device_rng filename = new device_rng filename
+
 class egd_rng socketname =
   object(self)
     val fd =
@@ -894,6 +914,8 @@ class egd_rng socketname =
     method wipe =
       Unix.close fd
   end
+
+let egd_rng socketname = new egd_rng socketname
 
 class no_rng =
   object
@@ -959,6 +981,8 @@ class pseudo_rng seed =
     method wipe =
       wipe_string obuf; wipe_string seed
   end
+
+  let pseudo_rng seed = new pseudo_rng seed
 
 end
 
