@@ -10,6 +10,7 @@ ZLIB_LIB=-lz
 # The directory containing the Zlib library (libz.a or libz.so)
 # Leave blank if you don't have Zlib.
 ZLIB_LIBDIR=/usr/lib
+#ZLIB_LIBDIR=/usr/lib64    # for x86-64 Linux
 
 # The directory containing the Zlib header file (zlib.h)
 ZLIB_INCLUDE=/usr/include
