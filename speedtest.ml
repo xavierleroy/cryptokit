@@ -54,8 +54,12 @@ let hash h niter blocksize () =
   ignore(h#result)
 
 let _ =
-  time_fn "Raw AES, 16_000_000 bytes"
+  time_fn "Raw AES 128, 16_000_000 bytes"
     (raw_block_cipher (new Block.aes_encrypt "0123456789ABCDEF")  1000000);
+  time_fn "Raw AES 192, 16_000_000 bytes"
+    (raw_block_cipher (new Block.aes_encrypt "0123456789ABCDEF01234567")  1000000);
+  time_fn "Raw AES 256, 16_000_000 bytes"
+    (raw_block_cipher (new Block.aes_encrypt "0123456789ABCDEF0123456789ABCDEF")  1000000);
   time_fn "Raw DES, 16_000_000 bytes"
     (raw_block_cipher (new Block.des_encrypt "01234567") 2000000);
   time_fn "Raw 3DES, 16_000_000 bytes"
@@ -64,8 +68,12 @@ let _ =
     (raw_stream_cipher (new Stream.arcfour "0123456789ABCDEF") 1000000 16);
   time_fn "Raw ARCfour, 16_000_000 bytes, 64-byte chunks"
     (raw_stream_cipher (new Stream.arcfour "0123456789ABCDEF") 250000 64);
-  time_fn "Wrapped AES CBC, 16_000_000 bytes"
+  time_fn "Wrapped AES 128 CBC, 16_000_000 bytes"
     (transform (Cipher.aes "0123456789ABCDEF" Cipher.Encrypt) 1000000 16);
+  time_fn "Wrapped AES 192 CBC, 16_000_000 bytes"
+    (transform (Cipher.aes "0123456789ABCDEF01234567" Cipher.Encrypt) 1000000 16);
+  time_fn "Wrapped AES 256 CBC, 16_000_000 bytes"
+    (transform (Cipher.aes "0123456789ABCDEF0123456789ABCDEF" Cipher.Encrypt) 1000000 16);
   time_fn "Wrapped DES CBC, 16_000_000 bytes"
     (transform (Cipher.des "01234567" Cipher.Encrypt) 1000000 16);
   time_fn "Wrapped 3DES CBC, 16_000_000 bytes"
@@ -78,7 +86,7 @@ let _ =
     (hash (Hash.md5()) 1000000 16);
   time_fn "AES MAC, 16_000_000 bytes, 16-byte chunks"
     (hash (MAC.aes "0123456789ABCDEF") 1000000 16);
-  let prng = new Random.pseudo_rng (Random.string Random.secure_rng 160) in
+  let prng = Random.pseudo_rng (Random.string Random.secure_rng 160) in
   let key =
   time_fn "RSA key generation (1024 bits) x 10"
     (repeat 10 (fun () -> RSA.new_key ~rng:prng ~e:65537 1024)) in
