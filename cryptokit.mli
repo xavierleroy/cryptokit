@@ -61,7 +61,7 @@ class type transform =
           buffers.  Raise [Error Wrong_data_length] if the total length
           of input data provided via the [put_*] methods is not
           an integral number of the input block size
-          (see {!transform#input_block_size}). After calling [finish],
+          (see {!Cryptokit.transform.input_block_size}). After calling [finish],
           the transform can no longer accept additional data.  Hence,
           do not call any of the [put_*] methods after calling [finish]. *)
     method available_output: int
@@ -76,7 +76,7 @@ class type transform =
       (** Return a triple [(buf,pos,len)], where [buf] is the internal
           output buffer for the transform, [pos] the position of the
           first character of available output, and [len] the number of
-          characters of available output.  The string [buf] can be
+          characters of available output.  The string [buf] will be
           modified later, so the caller must immediately copy
           characters [pos] to [pos+len-1] of [buf] to some other
           location.  The internal output buffer is emptied;
@@ -112,7 +112,7 @@ class type transform =
     method wipe: unit
       (** Erase all internal buffers and data structures of this transform,
           overwriting them with zeroes.  A transform may contain sensitive
-          data such as secret key-derived material or parts of the
+          data such as secret key-derived material, or parts of the
           input or output data.  Calling [wipe] ensures that this sensitive
           data will not remain in memory longer than strictly necessary,
           thus making certain invasive attacks more difficult.
@@ -173,7 +173,7 @@ class type hash =
           in characters. *)
     method wipe: unit
       (** Erase all internal buffers and data structures of this hash,
-          overwriting them with zeroes.  See {!transform#wipe}. *)
+          overwriting them with zeroes.  See {!Cryptokit.transform.wipe}. *)
   end
 
 val hash_string: hash -> string -> string
@@ -223,7 +223,7 @@ module Random : sig
         - [$HOME/.gnupg/entropy];
         - [/var/run/egd-pool]; [/dev/egd-pool]; [/etc/egd-pool].
 
-        [secure_rng#random_bytes] fails
+        The method [secure_rng#random_bytes] fails
         if neither [/dev/random] nor EGD are available.
         [secure_rng#random_bytes] may block until enough entropy
         has been gathered.  Do not use for generating large quantities
@@ -231,18 +231,18 @@ module Random : sig
         of the system. *)
 
   val device_rng: string -> rng
-    (** [new device_rng devicename] returns a random number generator
+    (** [device_rng devicename] returns a random number generator
         that reads from the special file [devicename], e.g.
         [/dev/random] or [/dev/urandom]. *)
 
   val egd_rng: string -> rng
-    (** [new device_rng egd_socket] returns a random number generator
+    (** [device_rng egd_socket] returns a random number generator
         that uses the Entropy Gathering Daemon ([http://egd.sourceforge.net/]).
         [egd_socket] is the path to the Unix socket that EGD uses for
         communication.  *)
 
   val pseudo_rng: string -> rng
-    (** [new pseudo_rng seed] returns a pseudo-random number generator
+    (** [pseudo_rng seed] returns a pseudo-random number generator
         seeded by the string [seed].  [seed] must contain at least
         16 characters, and can be arbitrarily longer than this,
         except that only the first 55 characters are used.
@@ -254,18 +254,15 @@ module Random : sig
         it still does not generate ``true'' randomness: the entropy of
         the strings it creates cannot exceed the entropy contained in
         the seed.  As a typical use,
-        [new Random.pseudo_rng (Random.string Random.secure_rng 20)] returns a
+        [Random.pseudo_rng (Random.string Random.secure_rng 20)] returns a
         generator that can generate arbitrarily long strings of pseudo-random
         data without delays, and with a total entropy of approximately
         160 bits. *)
 end        
 
-(** To apply block ciphers to input data of arbitrary length, it is
-    required to pad the input data to an integral multiple of the
-    block size, by adding conventional characters at the end.
-    The padding characters are then stripped when the ciphertext is
-    decrypted.  The [Padding] module defines a generic interface
-    for padding schemes, as well as two popular padding schemes. *)
+(** The [Padding] module defines a generic interface
+    for padding input data to an integral number of blocks,
+    as well as two popular padding schemes. *)
 module Padding : sig
 
   class type scheme =
@@ -279,7 +276,7 @@ module Padding : sig
             padding must be added.  The padding scheme must be unambiguous
             in the following sense: from [buf] after padding, it must be
             possible to determine [used] unambiguously.  (This is what
-            method {!strip} does.) *)
+            method {!Cryptokit.Padding.scheme.strip} does.) *)
       method strip: string -> int
         (** This is the converse of the [pad] operation: from a padded
             string [buf] as built by method [pad], [strip buf] determines
@@ -371,7 +368,7 @@ module Cipher : sig
         It should therefore be considered as weak encryption.
         Its block size is 64 bits (8 bytes).
         The arguments to the [des] function have the same meaning as
-        for the {!aes} function.  The key argument is a string of
+        for the {!Cryptokit.Cipher.aes} function.  The key argument is a string of
         length 8 (64 bits); the most significant bit of each key byte
         is ignored. *)
 
@@ -384,7 +381,7 @@ module Cipher : sig
         brute-force attacks.  However, the three encryptions required
         on each block make this cipher quite slow (4 times slower than AES).
         The arguments to the [triple_des] function have the same meaning as
-        for the {!aes} function.  The key argument is a string of
+        for the {!Cryptokit.Cipher.aes} function.  The key argument is a string of
         length 16 (128 bits), representing the concatenation of the
         two key halves [k1] and [k2].  The most significant bit of
         each key byte is ignored. *)
@@ -394,33 +391,37 @@ module Cipher : sig
         that appears to produce equivalent results with the commercial
         RC4 cipher from RSA Data Security Inc.  This company holds the
         RC4 trademark, and sells the real RC4 cipher.  So, it is prudent
-        not to use ARCfour in a commercial product.  The ARCfour cipher
-        operates on bytes, not blocks, hence no padding is required.
-        It accepts any key length up to 2048 bits, although the
-        present implementation is limited to 128 bits, to comply with
-        French regulations.  Encryption is fast -- approximately 2 times
-        faster than AES.  However, this is a stream cipher: 
-        the xor of two ciphertexts obtained with the same key
-        is the xor of the corresponding plaintexts, which allows various
-        attacks.  Hence, the same key must never be reused.
+        not to use ARCfour in a commercial product.
+
+        ARCfour is popular for its speed: approximately 2 times faster
+        than AES.  It accepts any key length up to 2048 bits, although the
+        present implementation is limited to 128 bits,
+        to comply with French regulations.
+
+        The ARCfour cipher is a stream cipher, not a block cipher.
+        Hence, its natural block size is 1, and no padding is
+        required.  Chaining modes do not apply.  A feature of stream
+        ciphers is that the xor of two ciphertexts obtained with the
+        same key is the xor of the corresponding plaintexts, which
+        allows various attacks.  Hence, the same key must never be
+        reused.
+
         The string argument is the key; it can have any length between 0
-        and 16 (the longer the better, of course).
+        and 16 (the longer the better).
         The direction argument is present for consistency with the other
         ciphers only, and is actually ignored: like all stream ciphers,
         decryption is the same function as encryption. *)
 end
 
-(** The [Hash] module implements unkeyed cryptographic hashes, also
-    known as message digest functions.  Hash functions used in
-    cryptography are characterized as being <I>one-way</I>
-    (given a hash value, it is computationally infeasible to find
-    a text that hashes to this value) and <I>collision-resistant</I>
-    (it is computationally infeasible to find two different texts
-    that hash to the same value).  Thus, the hash of a text can be
-    used as a compact replacement for this text for the purposes of
-    ensuring integrity of the text.
-
-    Two hash functions are provided in module [Hash]: SHA-1 and MD5. *)
+(** The [Hash] module implements unkeyed cryptographic hashes SHA-1
+    and MD5, also known as message digest functions.  
+    Hash functions used in cryptography are characterized as being
+    <I>one-way</I> (given a hash value, it is computationally
+    infeasible to find a text that hashes to this value) and
+    <I>collision-resistant</I> (it is computationally infeasible to
+    find two different texts that hash to the same value).  Thus, the
+    hash of a text can be used as a compact replacement for this text
+    for the purposes of ensuring integrity of the text. *)
 module Hash : sig
   val sha1: unit -> hash
     (** SHA-1 is the Secure Hash Algorithm revision 1.  It is a NIST
@@ -447,18 +448,6 @@ end
     and three MAC functions based on the block ciphers
     AES, DES, and Triple-DES. *)
 module MAC: sig
-  val sha1: string -> hash
-    (** [sha1 key] returns a MAC that uses SHA-1 as follows:
-        the MAC of text [x] is [H(key ^ pad1 ^ H(key ^ pad2 ^ x))]
-        where [H] is SHA-1, and [pad1] and [pad2] extend [key] to an
-        integral number of 64-byte blocks.  ([pad1] uses zeroes and
-        [pad2] uses [0xFF] bytes.)  Many similar constructions of
-        a MAC from an unkeyed hash function are possible; this one
-        is recommended in the Handbook of Applied Cryptography.
-        The returned hash values are 160-bit long (20 bytes).
-        The key argument can have arbitrary length, but must not
-        be too small (e.g. less than 8 bytes) because of
-        brute-force attacks. *)
   val aes: ?iv:string -> ?pad:Padding.scheme -> string -> hash
     (** [aes key] returns a MAC based on AES encryption in CBC mode.
         The ciphertext is discarded, and the final value of the
@@ -487,12 +476,12 @@ module MAC: sig
         collision-resistant. *)
   val des_final_triple_des: ?iv:string -> ?pad:Padding.scheme -> string -> hash
     (** [des_final_triple_des key] returns a MAC that uses DES CBC
-        with the first 8 bytes of [key] as key, then super-encrypts the
+        with the first 8 bytes of [key] as key, then re-encrypts the
         final initialization vector by DES-decrypting it with the last
         8 bytes of [key], then DES-encrypting the result with the first
         8 bytes of [key].  Thus, the key is 16 bytes long, of which
         112 bits are used.  The overall construction has the same
-        key size as a Triple DES MAC, but runs faster because triple
+        key size as a triple DES MAC, but runs faster because triple
         encryption is not performed on all data blocks, but only on
         the final MAC. *)
 end
@@ -531,17 +520,17 @@ module RSA: sig
     (** Erase all components of a RSA key. *)
 
   val new_key: ?rng: Random.rng -> ?e: int -> int -> key
-    (** Generate a new, random RSA key.  The non-optional [int] argument
-        is the desired size for the modulus, in bits (e.g. 1024).
-        The optional [rng] argument specifies a random number generator
-        to use for generating the key; it defaults to {!Random.secure_rng}.
-        The optional [e] argument specifies the public exponent desired.
-        If not specified, [e] is chosen randomly.
-        Some standards mandate [e = 3] or [e = 65537].  While [e = 3]
-        is known to weaken RSA, [e = 65537] significantly 
-        speeds up encryption and signature checking compared with a
-        random [e], without impacting security.
-        The result of [new_key] is a complete RSA key with all components
+    (** Generate a new, random RSA key.  The non-optional [int]
+        argument is the desired size for the modulus, in bits
+        (e.g. 1024).  The optional [rng] argument specifies a random
+        number generator to use for generating the key; it defaults to
+        {!Cryptokit.Random.secure_rng}.  The optional [e] argument
+        specifies the public exponent desired.  If not specified, [e]
+        is chosen randomly.  Some standards mandate [e = 3] or [e =
+        65537].  While [e = 3] is known to weaken RSA, [e = 65537]
+        significantly speeds up encryption and signature checking
+        compared with a random [e], without impacting security.  The
+        result of [new_key] is a complete RSA key with all components
         defined: public, private, and private for use with the CRT. *)
 
   val encrypt: key -> string -> string
@@ -555,35 +544,35 @@ module RSA: sig
         randomly-generated key, and encrypt only that key with RSA. *)
   val decrypt: key -> string -> string
     (** [decrypt k msg] decrypts the ciphertext string [msg] with the
-        private part of key [k] (components [n] and [d]).
-        The size of [msg] is limited as described for {!encrypt}. *)
+        private part of key [k] (components [n] and [d]).  The size of
+        [msg] is limited as described for {!Cryptokit.RSA.encrypt}. *)
   val decrypt_CRT: key -> string -> string
-    (** [decrypt_CRT k msg] decrypts the ciphertext string [msg] with the
-        CRT private part of key [k] (components [n], [p], [q], [dp], [dq]
-        and [qinv]).  The use of the Chinese remainder theorem (CRT)
-        allows significantly faster decryption than {!decrypt}, at no
-        loss in security. 
-        The size of [msg] is limited as described for {!encrypt}. *)
+    (** [decrypt_CRT k msg] decrypts the ciphertext string [msg] with
+        the CRT private part of key [k] (components [n], [p], [q],
+        [dp], [dq] and [qinv]).  The use of the Chinese remainder
+        theorem (CRT) allows significantly faster decryption than
+        {!Cryptokit.RSA.decrypt}, at no loss in security.  The size of
+        [msg] is limited as described for {!Cryptokit.RSA.encrypt}. *)
   val sign: key -> string -> string
     (** [sign k msg] encrypts the plaintext string [msg] with the
         private part of key [k] (components [n] and [d]), thus
         performing a digital signature on [msg].
-        The size of [msg] is limited as described for {!encrypt}.
+        The size of [msg] is limited as described for {!Cryptokit.RSA.encrypt}.
         If you need to sign longer messages, compute a cryptographic
         hash of the message and sign only the hash with RSA. *)
   val sign_CRT: key -> string -> string
     (** [sign_CRT k msg] encrypts the plaintext string [msg] with the
-        CRT private part of key [k] (components [n], [p], [q], [dp], [dq]
-        and [qinv]), thus performing a digital signature on [msg].
-        The use of the Chinese remainder theorem (CRT)
-        allows significantly faster signature than {!sign}, at no
-        loss in security. 
-        The size of [msg] is limited as described for {!encrypt}. *)
+        CRT private part of key [k] (components [n], [p], [q], [dp],
+        [dq] and [qinv]), thus performing a digital signature on
+        [msg].  The use of the Chinese remainder theorem (CRT) allows
+        significantly faster signature than {!Cryptokit.RSA.sign}, at
+        no loss in security.  The size of [msg] is limited as
+        described for {!Cryptokit.RSA.encrypt}. *)
   val unwrap_signature: key -> string -> string
     (** [unwrap_signature k msg] decrypts the ciphertext string [msg]
         with the public part of key [k] (components [n] and [d]),
         thus extracting the plaintext that was signed by the sender.
-        The size of [msg] is limited as described for {!encrypt}. *)
+        The size of [msg] is limited as described for {!Cryptokit.RSA.encrypt}. *)
 end
 
 (** {6 Advanced, compositional interface to block ciphers 
@@ -611,6 +600,8 @@ module Block : sig
     end
       (** Abstract interface for a block cipher. *)
 
+  (** {6 Deriving transforms and hashes from block ciphers} *)
+
   class cipher: block_cipher -> transform
     (** Wraps a block cipher as a general transform.  The transform
         has input block size and output block size equal to the
@@ -618,12 +609,12 @@ module Block : sig
         Example: [new cipher (new cbc_encrypt (new aes_encrypt key))]
         returns a transform that performs AES encryption in CBC mode. *)
   class cipher_padded_encrypt: Padding.scheme -> block_cipher -> transform
-    (** Like {!cipher}, but performs padding on the input data
+    (** Like {!Cryptokit.Block.cipher}, but performs padding on the input data
         as specified by the first argument.  The input block size of
         the returned transform is 1; the output block size is the
         block size of the block cipher. *)
   class cipher_padded_decrypt: Padding.scheme -> block_cipher -> transform
-    (** Like {!cipher}, but removes padding on the output data
+    (** Like {!Cryptokit.Block.cipher}, but removes padding on the output data
         as specified by the first argument.  The output block size of
         the returned transform is 1; the input block size is the
         block size of the block cipher. *)
@@ -641,12 +632,14 @@ module Block : sig
                              block_cipher -> block_cipher -> hash
     (** Build a MAC (keyed hash function) from the given block ciphers
         [c1] and [c2].  The input is run through [c1] in CBC mode,
-        as described for {!mac}.  The final initialization vector
+        as described for {!Cryptokit.Block.mac}.  The final initialization vector
         is then super-enciphered by [c2], then by [c1], to
         provide the final MAC.  This construction results in a MAC
-        that is as nearly as fast as {!mac c1}, but more resistant
+        that is as nearly as fast as {!Cryptokit.Block.mac} [c1], but more resistant
         against brute-force key search because of the additional
         final encryption through [c2]. *)
+
+  (** {6 Some block ciphers: AES, DES, triple DES} *)
 
   class aes_encrypt: string -> block_cipher
     (** The AES block cipher, in encryption mode.  The string argument
@@ -666,6 +659,8 @@ module Block : sig
   class triple_des_decrypt: string -> block_cipher
     (** The Triple-DES-with-two-keys block cipher, in decryption mode. *)
 
+  (** {6 Chaining modes} *)
+
   class cbc_encrypt: ?iv: string -> block_cipher -> block_cipher
     (** Add Cipher Block Chaining (CBC) to the given block cipher
         in encryption mode.
@@ -677,7 +672,7 @@ module Block : sig
         underlying block cipher. *)
   class cbc_decrypt: ?iv: string -> block_cipher -> block_cipher
     (** Add Cipher Block Chaining (CBC) to the given block cipher
-        in decryption mode.  This works like {!cbc_encrypt}, 
+        in decryption mode.  This works like {!Cryptokit.Block.cbc_encrypt}, 
         except that input blocks are first decrypted by the block
         cipher before being xor-ed with the previous input block. *)
 
@@ -689,7 +684,7 @@ module Block : sig
         The returned block cipher has block size [n]. *)
   class cfb_decrypt: ?iv: string -> int -> block_cipher -> block_cipher
     (** Add Cipher Feedback Block (CFB) to the given block cipher
-        in decryption mode.  See {!cfb_encrypt}. *)
+        in decryption mode.  See {!Cryptokit.Block.cfb_encrypt}. *)
   class ofb: ?iv: string -> int -> block_cipher -> block_cipher
     (** Add Output Feedback Block (OFB) to the given block cipher.
         The integer argument [n] is the number of
@@ -744,7 +739,7 @@ module Base64: sig
         as specified in the MIME standard. 
         The output is approximately [4/3] longer than the input. *)
   val encode_compact : unit -> transform
-    (** Same as {!encode_multiline}, but the output is not
+    (** Same as {!Cryptokit.Base64.encode_multiline}, but the output is not
         split into lines, and no final padding is added.
         This is adequate for encoding short strings for
         transmission as part of URLs, for instance. *)
@@ -772,18 +767,18 @@ module Hexa: sig
 end
 
 (** The [Zlib] module supports the compression and decompression
-    of data, using the [zlib] library: Lempel-Ziv compression
-    as used by the [gzip] and [zip] compressors.   While compression
-    itself is not encryption, it is often used prior to encryption
-    to hide regularities in the plaintext, and reduce the size of
-    the ciphertext. *)
+    of data, using the [zlib] library.  The algorithm used is
+    Lempel-Ziv compression as in the [gzip] and [zip] compressors.
+    While compression itself is not encryption, it is often used prior
+    to encryption to hide regularities in the plaintext, and reduce
+    the size of the ciphertext. *)
 module Zlib: sig
   val compress : ?level:int -> unit -> transform
     (** Return a transform that compresses its input.
         The optional [level] argument is an integer between 1 and 9
         specifying how hard the transform should try to compress data:
         1 is lowest but fastest compression, while 9 is highest but
-        slowest compression. The default level is 7. *)
+        slowest compression. The default level is 6. *)
   val uncompress : unit -> transform
     (** Return a transform that decompresses its input. *)
 end
@@ -823,7 +818,7 @@ type error =
       (** Error during compression or decompression. *)
   | No_entropy_source
       (** No entropy source ([/dev/random] or EGD) was found for
-          {!Random.secure_rng}. *)
+          {!Cryptokit.Random.secure_rng}. *)
   | Entropy_source_closed
       (** End of file on a device or EGD entropy source. *)
 
