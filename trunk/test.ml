@@ -445,7 +445,12 @@ The quick brown fox jumps over the lazy dog.
 The quick brown fox jumps over the lazy dog.
 " in
   try
-    test 1 text (transform_string (Zlib.uncompress()) (transform_string (Zlib.compress()) text))
+    test 1 text (transform_string (Zlib.uncompress()) (transform_string (Zlib.compress()) text));
+    let c = Zlib.compress() and u = Zlib.uncompress() in
+    c#put_string text; c#flush; u#put_string c#get_string; u#flush;
+    test 2 text u#get_string;
+    c#put_string text; c#finish; u#put_string c#get_string; u#finish;
+    test 3 text u#get_string
   with Error Compression_not_supported ->
     printf " (not supported)"
 
