@@ -2082,11 +2082,14 @@ class uncompress =
     method put_substring src ofs len =
       if len > 0 then begin
         self#ensure_capacity 64;
-        let (_, used_in, used_out) =
+        let (finished, used_in, used_out) =
           inflate zs
                   src ofs len
                   obuf oend (String.length obuf - oend)
                   Z_SYNC_FLUSH in
+        if finished then
+          raise(Error(Compression_error("Zlib.inflate",
+             "garbage at end of compressed data")));
         oend <- oend + used_out;
         if used_in < len
         then self#put_substring src (ofs + used_in) (len - used_in)
