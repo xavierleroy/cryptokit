@@ -1695,7 +1695,7 @@ let new_key ?rng ?e numbits =
   let d = Bn.mod_inv e (Bn.mult p1 q1) in
   (* dp = d mod p-1 and dq = d mod q-1 *)
   let dp = Bn.mod_ d p1 and dq = Bn.mod_ d q1 in
-  (* qinv = q^1 mod p *)
+  (* qinv = q^-1 mod p *)
   let qinv = Bn.mod_inv q p in
   (* Build key *)
   let res =
@@ -2047,14 +2047,14 @@ class compress level =
   object(self)
     val zs = deflate_init level false
     
-    inherit buffered_output 256 as output_buffer
+    inherit buffered_output 512 as output_buffer
 
     method input_block_size = 1
     method output_block_size = 1
 
     method put_substring src ofs len =
       if len > 0 then begin
-        self#ensure_capacity 64;
+        self#ensure_capacity 256;
         let (_, used_in, used_out) =
           deflate zs
                   src ofs len
@@ -2072,7 +2072,7 @@ class compress level =
     method put_byte b = self#put_char (Char.chr b)
 
     method flush =
-      self#ensure_capacity 64;
+      self#ensure_capacity 256;
       let avail_out = String.length obuf - oend in
       let (_, _, used_out) =
          deflate zs
@@ -2083,7 +2083,7 @@ class compress level =
       if oend = String.length obuf then self#flush
 
     method finish =
-      self#ensure_capacity 64;
+      self#ensure_capacity 256;
       let (finished, _, used_out) =
          deflate zs
                  "" 0 0
@@ -2102,14 +2102,14 @@ class uncompress =
   object(self)
     val zs = inflate_init false
     
-    inherit buffered_output 256 as output_buffer
+    inherit buffered_output 512 as output_buffer
 
     method input_block_size = 1
     method output_block_size = 1
 
     method put_substring src ofs len =
       if len > 0 then begin
-        self#ensure_capacity 64;
+        self#ensure_capacity 256;
         let (finished, used_in, used_out) =
           inflate zs
                   src ofs len
@@ -2118,7 +2118,7 @@ class uncompress =
         oend <- oend + used_out;
         if used_in < len then begin
           if finished then
-            raise(Error(Compression_error("Zlib.inflate",
+            raise(Error(Compression_error("Zlib.uncompress",
                "garbage at end of compressed data")));
           self#put_substring src (ofs + used_in) (len - used_in)
         end
@@ -2134,7 +2134,7 @@ class uncompress =
 
     method finish =
       let rec do_finish first_finish =
-        self#ensure_capacity 64;
+        self#ensure_capacity 256;
         let (finished, _, used_out) =
            inflate zs
                    " " 0 (if first_finish then 1 else 0)
