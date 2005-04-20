@@ -13,7 +13,7 @@ OCAMLRUN=ocamlrun
 OCAMLC=ocamlc -g
 OCAMLOPT=ocamlopt
 OCAMLDEP=ocamldep
-OCAMLLIB=`$(OCAMLC) -where`
+OCAMLLIB="$(shell $(OCAMLC) -where)"
 
 ifeq ($(strip $(TOOLCHAIN)),mingw)
 
