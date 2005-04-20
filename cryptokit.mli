@@ -57,15 +57,15 @@ class type transform =
     method finish: unit
       (** Call method [finish] to indicate that no further data will
           be processed through the transform.  This causes the transform
-          to flush its internal buffers as per method [flush], then
-          perform all appropriate finalization actions, e.g. add
-          final padding.  Raise [Error Wrong_data_length] if the total length
-          of input data provided via the [put_*] methods is not
-          an integral number of the input block size
-          (see {!Cryptokit.transform.input_block_size}).
-          After calling [finish], the transform can no longer accept
-          additional data.  Hence, do not call any of the [put_*]
-          methods nor [flush] after calling [finish]. *)
+          to flush its internal buffers and perform all appropriate
+          finalization actions, e.g. add final padding.  Raise [Error
+          Wrong_data_length] if the total length of input data
+          provided via the [put_*] methods is not an integral number
+          of the input block size (see
+          {!Cryptokit.transform.input_block_size}).  After calling
+          [finish], the transform can no longer accept additional
+          data.  Hence, do not call any of the [put_*] methods nor
+          [flush] after calling [finish]. *)
     method flush: unit
       (** [flush] causes the transform to flush its internal buffers
           and make all output processed up to this point available through
@@ -74,6 +74,8 @@ class type transform =
           of input data provided via the [put_*] methods is not
           an integral number of the input block size
           (see {!Cryptokit.transform.input_block_size}).
+          (For padded block ciphers, the input block size used here
+          is that of the underlying block cipher, without the padding.)
           Unlike method [finish], method [flush] does not add final
           padding and leaves the transform in a state where it can
           still accept more input. *)
@@ -241,7 +243,7 @@ module Random : sig
         if no suitable RNG is available.
         [secure_rng#random_bytes] may block until enough entropy
         has been gathered.  Do not use for generating large quantities
-        of random data, else you might exhaust the entropy sources
+        of random data, otherwise you could exhaust the entropy sources
         of the system. *)
 
   val system_rng: unit -> rng
@@ -435,8 +437,8 @@ module Cipher : sig
         function as encryption. *)
 end
 
-(** The [Hash] module implements unkeyed cryptographic hashes SHA-1,
-    SHA-256 and MD5, also known as message digest functions.  
+(** The [Hash] module implements unkeyed cryptographic hashes (SHA-1,
+    SHA-256, RIPEMD-160 and MD5), also known as message digest functions.  
     Hash functions used in cryptography are characterized as being
     <I>one-way</I> (given a hash value, it is computationally
     infeasible to find a text that hashes to this value) and
