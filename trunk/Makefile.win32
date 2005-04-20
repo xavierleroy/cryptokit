@@ -50,6 +50,8 @@ C_OBJS=\
   d3des.$(O) stubs-des.$(O) \
   arcfour.$(O) stubs-arcfour.$(O) \
   sha1.$(O) stubs-sha1.$(O) \
+  sha256.$(O) stubs-sha256.$(O) \
+  ripemd160.$(O) stubs-ripemd160.$(O) \
   stubs-md5.$(O) \
   stubs-zlib.$(O) \
   stubs-misc.$(O) \
@@ -122,13 +124,21 @@ install:
 clean::
 	rm -f *.cm* *.$(O) *.$(A) *.dll
 
-arcfour.$(SO) arcfour.$(DO): arcfour.h
-d3des.$(SO) d3des.$(DO): d3des.h
-rijndael-alg-fst.$(SO) rijndael-alg-fst.$(DO): rijndael-alg-fst.h
-sha1.$(SO) sha1.$(DO): sha1.h
-stubs-aes.$(SO) stubs-aes.$(DO): rijndael-alg-fst.h
-stubs-arcfour.$(SO) stubs-arcfour.$(DO): arcfour.h
-stubs-des.$(SO) stubs-des.$(DO): d3des.h
-stubs-sha1.$(SO) stubs-sha1.$(DO): sha1.h
+arcfour.$(SO) arcfour.$(DO): arcfour.c arcfour.h
+d3des.$(SO) d3des.$(DO): d3des.c d3des.h
+rijndael-alg-fst.$(SO) rijndael-alg-fst.$(DO): rijndael-alg-fst.c rijndael-alg-fst.h
+ripemd160.$(SO) ripemd160.$(DO): ripemd160.c ripemd160.h
+sha1.$(SO) sha1.$(DO): sha1.c sha1.h
+sha256.$(SO) sha256.$(DO): sha256.c sha256.h
+stubs-aes.$(SO) stubs-aes.$(DO): stubs-aes.c rijndael-alg-fst.h
+stubs-arcfour.$(SO) stubs-arcfour.$(DO): stubs-arcfour.c arcfour.h
+stubs-des.$(SO) stubs-des.$(DO): stubs-des.c d3des.h
+stubs-md5.$(SO) stubs-md5.$(DO): stubs-md5.c
+stubs-misc.$(SO) stubs-misc.$(DO): stubs-misc.c
+stubs-ripemd160.$(SO) stubs-ripemd160.$(DO): stubs-ripemd160.c ripemd160.h
+stubs-rng.$(SO) stubs-rng.$(DO): stubs-rng.c
+stubs-sha1.$(SO) stubs-sha1.$(DO): stubs-sha1.c sha1.h
+stubs-sha256.$(SO) stubs-sha256.$(DO): stubs-sha256.c sha256.h
+stubs-zlib.$(SO) stubs-zlib.$(DO): stubs-zlib.c
 
 include .depend

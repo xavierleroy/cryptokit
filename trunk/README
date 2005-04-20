@@ -40,7 +40,7 @@ REQUIREMENTS:
   - If the operating system does not provide the /dev/random device
     (for random number generation), consider installing the EGD
     entropy gathering daemon http://egd.sourceforge.net/
-    Without /dev/random or EGD, this library cannot generate random data
+    Without /dev/random nor EGD, this library cannot generate random data
     and RSA keys.  The remainder of the library still works, though.
 
 

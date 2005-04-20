@@ -1,7 +1,7 @@
 Release 1.3:
 - Added hash functions SHA-256 and RIPEMD-160.
 - Added "flush" method to transforms.
-- Fixed loop in decompressiion of incorrect data.
+- Fixed infinite loop in decompression of incorrect data.
 
 Release 1.2:
 - MS Windows port

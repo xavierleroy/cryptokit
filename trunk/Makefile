@@ -102,7 +102,7 @@ clean::
 	rm -f *.cm* *.o *.a *.so
 
 depend:
-	gcc -MM *.c > .depend
+	gcc -MM -I `$(OCAMLC) -where` -isystem `$(OCAMLC) -where ` *.c > .depend
 	$(OCAMLDEP) *.mli *.ml >> .depend
 
 include .depend
