@@ -1,0 +1,144 @@
+### Configuration section
+
+# Where to install the library. By default: OCaml's standard library directory.
+INSTALLDIR=$(OCAMLSTDLIB)
+
+# Which Win32 port of OCaml is used?
+#TOOLCHAIN=msvc     # Native Win32 port with Microsoft compilers
+TOOLCHAIN=mingw    # Native Win32 port with Mingw compilers
+
+### End of configuration section
+
+OCAMLRUN=ocamlrun
+OCAMLC=ocamlc -g
+OCAMLOPT=ocamlopt
+OCAMLDEP=ocamldep
+OCAMLSTDLIB="$(shell $(OCAMLC) -where)"
+
+ifeq ($(strip $(TOOLCHAIN)),mingw)
+
+O=o
+A=a
+SO=s.o
+DO=d.o
+DLL=
+CC=gcc -mno-cygwin
+STATICOPTS=-O2 -mms-bitfields -Wall
+DLLOPTS=$(STATICOPTS) -DCAML_DLL
+MKDLL=$(CC) -shared -o $(1) -Wl,--out-implib,$(2) $(3)
+MKLIB=rm -f $(1); ar rcs $(1) $(2)
+LIBS=
+
+else
+
+O=obj
+A=lib
+SO=s.obj
+DO=d.obj
+CC=cl /nologo
+STATICOPTS=/Ox /MT
+DLLOPTS=/Ox /MD -DCAML_DLL
+MKDLL=link /nologo /dll /out:$(1) /implib:$(2) $(3)
+MKLIB=lib /nologo /debugtype:CV /out:$(1) $(2)
+LIBS=advapi32.lib
+endif
+
+CFLAGS=-I$(OCAMLSTDLIB)
+
+C_OBJS=\
+  rijndael-alg-fst.$(O) stubs-aes.$(O) \
+  d3des.$(O) stubs-des.$(O) \
+  arcfour.$(O) stubs-arcfour.$(O) \
+  sha1.$(O) stubs-sha1.$(O) \
+  sha256.$(O) stubs-sha256.$(O) \
+  ripemd160.$(O) stubs-ripemd160.$(O) \
+  stubs-md5.$(O) \
+  stubs-zlib.$(O) \
+  stubs-misc.$(O) \
+  stubs-rng.$(O)
+
+DC_OBJS=$(C_OBJS:.$(O)=.$(DO))
+SC_OBJS=$(C_OBJS:.$(O)=.$(SO))
+
+CAML_OBJS=cryptokit.cmo
+
+all: dllcryptokit.dll libcryptokit.$(A) cryptokit.cmi cryptokit.cma
+
+allopt: dllcryptokit.dll libcryptokit.$(A) cryptokit.cmi cryptokit.cmxa 
+
+dllcryptokit.dll: $(DC_OBJS)
+	$(call MKDLL,$@,tmp.$(A),$(DC_OBJS) $(OCAMLSTDLIB)/ocamlrun.$(A) $(LIBS))
+
+libcryptokit.$(A): $(SC_OBJS)
+	$(call MKLIB,$@,$(SC_OBJS))
+
+cryptokit.cma: $(CAML_OBJS)
+	$(OCAMLC) -a -o cryptokit.cma $(CAML_OBJS) \
+                 -dllib -lcryptokit -cclib -lcryptokit
+
+cryptokit.cmxa: $(CAML_OBJS:.cmo=.cmx)
+	$(OCAMLOPT) -a -o cryptokit.cmxa $(CAML_OBJS:.cmo=.cmx) \
+                 -cclib -lcryptokit
+
+test: test.byt
+	$(OCAMLRUN) -I . ./test.byt
+
+test.byt: libcryptokit.$(A) cryptokit.cma test.ml
+	$(OCAMLC) -o test.byt unix.cma nums.cma cryptokit.cma test.ml
+
+clean::
+	rm -f test.byt
+
+speedtest.exe: libcryptokit.$(A) cryptokit.cmxa speedtest.ml
+	$(OCAMLOPT) -o speedtest.exe \
+                unix.cmxa nums.cmxa cryptokit.cmxa speedtest.ml
+
+clean::
+	rm -f speedtest.exe
+
+install:
+	cp cryptokit.cmi cryptokit.cma cryptokit.mli $(INSTALLDIR)
+	cp libcryptokit.$(A) $(INSTALLDIR)
+	cp dllcryptokit.dll $(INSTALLDIR)
+	cp cryptokit.cmxa cryptokit.cmx cryptokit.$(A) $(INSTALLDIR)
+
+.SUFFIXES: .ml .mli .cmo .cmi .cmx .c .$(DO) .$(SO)
+
+.mli.cmi:
+	$(OCAMLC) -c $(COMPFLAGS) $<
+
+.ml.cmo:
+	$(OCAMLC) -c $(COMPFLAGS) $<
+
+.ml.cmx:
+	$(OCAMLOPT) -c $(COMPFLAGS) $<
+
+.c.$(DO):
+	$(CC) $(DLLOPTS) $(CFLAGS) -c $<
+	mv $*.$(O) $*.$(DO)
+
+.c.$(SO):
+	$(CC) $(STATICOPTS) $(CFLAGS) -c $<
+	mv $*.$(O) $*.$(SO)
+
+clean::
+	rm -f *.cm* *.$(O) *.$(A) *.dll
+
+arcfour.$(SO) arcfour.$(DO): arcfour.c arcfour.h
+d3des.$(SO) d3des.$(DO): d3des.c d3des.h
+rijndael-alg-fst.$(SO) rijndael-alg-fst.$(DO): rijndael-alg-fst.c rijndael-alg-fst.h
+ripemd160.$(SO) ripemd160.$(DO): ripemd160.c ripemd160.h
+sha1.$(SO) sha1.$(DO): sha1.c sha1.h
+sha256.$(SO) sha256.$(DO): sha256.c sha256.h
+stubs-aes.$(SO) stubs-aes.$(DO): stubs-aes.c rijndael-alg-fst.h
+stubs-arcfour.$(SO) stubs-arcfour.$(DO): stubs-arcfour.c arcfour.h
+stubs-des.$(SO) stubs-des.$(DO): stubs-des.c d3des.h
+stubs-md5.$(SO) stubs-md5.$(DO): stubs-md5.c
+stubs-misc.$(SO) stubs-misc.$(DO): stubs-misc.c
+stubs-ripemd160.$(SO) stubs-ripemd160.$(DO): stubs-ripemd160.c ripemd160.h
+stubs-rng.$(SO) stubs-rng.$(DO): stubs-rng.c
+stubs-sha1.$(SO) stubs-sha1.$(DO): stubs-sha1.c sha1.h
+stubs-sha256.$(SO) stubs-sha256.$(DO): stubs-sha256.c sha256.h
+stubs-zlib.$(SO) stubs-zlib.$(DO): stubs-zlib.c
+
+include .depend
