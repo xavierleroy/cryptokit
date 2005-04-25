@@ -7,7 +7,7 @@ OVERVIEW:
   protocols in security-sensitive applications.  The primitives provided
   include:
 
-  - Symmetric-key ciphers: AES, DES, Triple-DES, ARCfour,
+  - Symmetric-key ciphers: AES, DES, Triple-DES, Blowfish, ARCfour,
       in ECB, CBC, CFB and OFB modes.
   - Public-key cryptography: RSA encryption, Diffie-Hellman key agreement.
   - Hash functions and MACs: SHA-1, SHA-256, RIPEMD-160, MD5,
@@ -121,6 +121,10 @@ DESIGN NOTES AND REFERENCES:
   The DES implementation is based on Outerbridge's popular "d3des"
   implementation.  This is not the fastest DES implementation available,
   but one of the cleanest.  Outerbridge's code is marked as public domain.
+
+  The Blowfish implementation is that of Paul Kocher with some
+  performance improvements.  It is under the LGPL.  It passes the
+  test vectors listed at http://www.schneier.com/code/vectors.txt
 
   ARCfour (``alleged RC4'') is implemented from scratch, based on the
   algorithm described in Schneier's _Applied_Cryptography_

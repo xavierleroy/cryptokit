@@ -48,6 +48,7 @@ CFLAGS=-I$(OCAMLSTDLIB)
 C_OBJS=\
   rijndael-alg-fst.$(O) stubs-aes.$(O) \
   d3des.$(O) stubs-des.$(O) \
+  blowfish.$(O) stubs-blowfish.$(O) \
   arcfour.$(O) stubs-arcfour.$(O) \
   sha1.$(O) stubs-sha1.$(O) \
   sha256.$(O) stubs-sha256.$(O) \

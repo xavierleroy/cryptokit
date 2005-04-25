@@ -33,6 +33,7 @@ OCAMLDOC=ocamldoc
 C_OBJS=\
   rijndael-alg-fst.o stubs-aes.o \
   d3des.o stubs-des.o \
+  blowfish.o stubs-blowfish.o \
   arcfour.o stubs-arcfour.o \
   sha1.o stubs-sha1.o \
   sha256.o stubs-sha256.o \
