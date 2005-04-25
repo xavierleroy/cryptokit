@@ -48,6 +48,9 @@ external aes_cook_encrypt_key : string -> string = "caml_aes_cook_encrypt_key"
 external aes_cook_decrypt_key : string -> string = "caml_aes_cook_decrypt_key"
 external aes_encrypt : string -> string -> int -> string -> int -> unit = "caml_aes_encrypt"
 external aes_decrypt : string -> string -> int -> string -> int -> unit = "caml_aes_decrypt"
+external blowfish_cook_key : string -> string = "caml_blowfish_cook_key"
+external blowfish_encrypt : string -> string -> int -> string -> int -> unit = "caml_blowfish_encrypt"
+external blowfish_decrypt : string -> string -> int -> string -> int -> unit = "caml_blowfish_decrypt"
 external des_cook_key : string -> int -> dir -> string = "caml_des_cook_key"
 external des_transform : string -> string -> int -> string -> int -> unit = "caml_des_transform"
 external arcfour_cook_key : string -> string = "caml_arcfour_cook_key"
@@ -320,7 +323,8 @@ class aes_encrypt key =
       then invalid_arg "aes#transform";
       aes_encrypt ckey src src_ofs dst dst_ofs
     method wipe =
-      wipe_string ckey
+      wipe_string ckey;
+      ckey.[String.length ckey - 1] <- '\016'
   end
 
 class aes_decrypt key =
@@ -336,6 +340,41 @@ class aes_decrypt key =
       || dst_ofs < 0 || dst_ofs + 16 > String.length dst
       then invalid_arg "aes#transform";
       aes_decrypt ckey src src_ofs dst dst_ofs
+    method wipe =
+      wipe_string ckey;
+      ckey.[String.length ckey - 1] <- '\016'
+  end
+
+class blowfish_encrypt key =
+  object
+    val ckey =
+      let kl = String.length key in
+      if kl >= 4 && kl <= 56
+      then blowfish_cook_key key
+      else raise(Error Wrong_key_size)
+    method blocksize = 8
+    method transform src src_ofs dst dst_ofs =
+      if src_ofs < 0 || src_ofs + 8 > String.length src
+      || dst_ofs < 0 || dst_ofs + 8 > String.length dst
+      then invalid_arg "blowfish#transform";
+      blowfish_encrypt ckey src src_ofs dst dst_ofs
+    method wipe =
+      wipe_string ckey
+  end
+
+class blowfish_decrypt key =
+  object
+    val ckey =
+      let kl = String.length key in
+      if kl >= 4 && kl <= 56
+      then blowfish_cook_key key
+      else raise(Error Wrong_key_size)
+    method blocksize = 8
+    method transform src src_ofs dst dst_ofs =
+      if src_ofs < 0 || src_ofs + 8 > String.length src
+      || dst_ofs < 0 || dst_ofs + 8 > String.length dst
+      then invalid_arg "blowfish#transform";
+      blowfish_decrypt ckey src src_ofs dst dst_ofs
     method wipe =
       wipe_string ckey
   end
@@ -896,6 +935,12 @@ let aes ?mode ?pad ?iv key dir =
    (match normalize_dir mode dir with
       Encrypt -> new Block.aes_encrypt key
     | Decrypt -> new Block.aes_decrypt key)
+
+let blowfish ?mode ?pad ?iv key dir =
+  make_block_cipher ?mode ?pad ?iv dir
+   (match normalize_dir mode dir with
+      Encrypt -> new Block.blowfish_encrypt key
+    | Decrypt -> new Block.blowfish_decrypt key)
 
 let des ?mode ?pad ?iv key dir =
   make_block_cipher ?mode ?pad ?iv dir
