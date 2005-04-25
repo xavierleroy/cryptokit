@@ -322,10 +322,10 @@ end
 
 (** {6 Cryptographic primitives (simplified interface)} *)
 
-(** The [Cipher] module implements the AES, DES, Triple-DES and ARCfour
-    symmetric ciphers.  Symmetric ciphers are presented as transforms
-    parameterized by a secret key and a ``direction'' indicating
-    whether encryption or decryption is to be performed.  
+(** The [Cipher] module implements the AES, DES, Triple-DES, ARCfour
+    and Blowfish symmetric ciphers.  Symmetric ciphers are presented
+    as transforms parameterized by a secret key and a ``direction''
+    indicating whether encryption or decryption is to be performed.
     The same secret key is used for encryption and for decryption. *)
 module Cipher : sig
 
@@ -435,6 +435,34 @@ module Cipher : sig
         consistency with the other ciphers only, and is actually
         ignored: for all stream ciphers, decryption is the same
         function as encryption. *)
+
+  val blowfish: ?mode:chaining_mode -> ?pad:Padding.scheme -> ?iv:string ->
+             string -> direction -> transform
+    (** Blowfish is a fast block cipher proposed by B.Schneier in 1994.
+        It processes data by blocks of 64 bits (8 bytes),
+        and supports keys of 32 to 448 bits.
+        The string argument is the key; its length must be between
+        4 and 56.
+        The direction argument specifies whether encryption or decryption
+        is to be performed.
+
+        The optional [mode] argument specifies a
+        chaining mode, as described above; [CBC] is used by default.
+
+        The optional [pad] argument specifies a padding scheme to
+        pad cleartext to an integral number of blocks.  If no [pad]
+        argument is given, no padding is performed and the length
+        of the cleartext must be an integral number of blocks.
+
+        The optional [iv] argument is the initialization vector used
+        in modes CBC, CFB and OFB.  It is ignored in ECB mode.
+        If provided, it must be a string of the same size as the block size
+        (16 bytes).  If omitted, the null initialization vector
+        (16 zero bytes) is used.
+
+        The [blowfish] function returns a transform that performs encryption
+        or decryption, depending on the direction argument. *)
+
 end
 
 (** The [Hash] module implements unkeyed cryptographic hashes (SHA-1,
@@ -756,7 +784,7 @@ module Block : sig
         because of the additional final encryption through [c2] and
         [c3]. *)
 
-  (** {6 Some block ciphers: AES, DES, triple DES} *)
+  (** {6 Some block ciphers: AES, DES, triple DES, Blowfish} *)
 
   class aes_encrypt: string -> block_cipher
     (** The AES block cipher, in encryption mode.  The string argument
@@ -775,6 +803,12 @@ module Block : sig
         The key argument must have length 16 (two keys) or 24 (three keys). *)
   class triple_des_decrypt: string -> block_cipher
     (** The Triple-DES block cipher, in decryption mode. *)
+
+  class blowfish_encrypt: string -> block_cipher
+    (** The Blowfish block cipher, in encryption mode.  The string argument
+        is the key; its length must be between 4 and 56. *)
+  class blowfish_decrypt: string -> block_cipher
+    (** The Blowfish block cipher, in decryption mode. *)
 
   (** {6 Chaining modes} *)
 
