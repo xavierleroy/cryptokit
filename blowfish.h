@@ -19,15 +19,16 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 See blowfish.c for more information about this file.
 */
 
+typedef unsigned int u32;
   
 typedef struct {
-  unsigned long P[16 + 2];
-  unsigned long S[4][256];
+  u32 P[16 + 2];
+  u32 S[4][256];
 } BLOWFISH_CTX;
 
 void Blowfish_Init(BLOWFISH_CTX *ctx, unsigned char *key, int keyLen);
-void Blowfish_Encrypt(BLOWFISH_CTX *ctx, unsigned long *xl, unsigned long *xr);
-void Blowfish_Decrypt(BLOWFISH_CTX *ctx, unsigned long *xl, unsigned long *xr);
+void Blowfish_Encrypt(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr);
+void Blowfish_Decrypt(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr);
 
 
 

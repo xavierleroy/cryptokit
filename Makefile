@@ -38,7 +38,6 @@ C_OBJS=\
   sha1.o stubs-sha1.o \
   sha256.o stubs-sha256.o \
   ripemd160.o stubs-ripemd160.o \
-  blowfish.o stubs-blowfish.o \
   stubs-md5.o \
   stubs-zlib.o \
   stubs-misc.o \
