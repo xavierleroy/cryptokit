@@ -50,10 +50,9 @@ let tohex s = transform_string (Hexa.encode()) s
 let _ =
   testing_function "Hex conversion";
   test 1 "6162636465666768696a6b6c6d6e6f70710a"
-         (transform_string (Hexa.encode()) "abcdefghijklmnopq\n");
+         (tohex "abcdefghijklmnopq\n");
   test 2 "abcdefghijklmnopq\n"
-         (transform_string (Hexa.decode())
-              "616263 64656667 \n 68696a6b 6c6d6e6f\t70710a")
+         (hex "616263 64656667 \n 68696a6b 6c6d6e6f\t70710a")
 
 (* Basic ciphers and hashes *)
 
@@ -199,6 +198,55 @@ let _ =
   do_test 5 6 "0000000000000000" "0000000000000000" "de188941a3375d3a";
   do_test 7 8 "ef012345" "00000000000000000000" "d6a141a7ec3c38dfbd61"
 
+(* Blowfish *)
+
+let _ =
+  testing_function "Blowfish";
+  let testcnt = ref 0 in
+  let res = String.create 8 in
+  let do_test (key, plain, cipher) =
+    let key = hex key and plain = hex plain and cipher = hex cipher in
+    let c = new Block.blowfish_encrypt key
+    and d = new Block.blowfish_decrypt key in
+    c#transform plain 0 res 0;  incr testcnt; test !testcnt res cipher;
+    d#transform cipher 0 res 0; incr testcnt; test !testcnt res plain in
+  List.iter do_test [
+    ("0000000000000000", "0000000000000000", "4EF997456198DD78");
+    ("FFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFF", "51866FD5B85ECB8A");
+    ("3000000000000000", "1000000000000001", "7D856F9A613063F2");
+    ("1111111111111111", "1111111111111111", "2466DD878B963C9D");
+    ("0123456789ABCDEF", "1111111111111111", "61F9C3802281B096");
+    ("1111111111111111", "0123456789ABCDEF", "7D0CC630AFDA1EC7");
+    ("0000000000000000", "0000000000000000", "4EF997456198DD78");
+    ("FEDCBA9876543210", "0123456789ABCDEF", "0ACEAB0FC6A0A28D");
+    ("7CA110454A1A6E57", "01A1D6D039776742", "59C68245EB05282B");
+    ("0131D9619DC1376E", "5CD54CA83DEF57DA", "B1B8CC0B250F09A0");
+    ("07A1133E4A0B2686", "0248D43806F67172", "1730E5778BEA1DA4");
+    ("3849674C2602319E", "51454B582DDF440A", "A25E7856CF2651EB");
+    ("04B915BA43FEB5B6", "42FD443059577FA2", "353882B109CE8F1A");
+    ("0113B970FD34F2CE", "059B5E0851CF143A", "48F4D0884C379918");
+    ("0170F175468FB5E6", "0756D8E0774761D2", "432193B78951FC98");
+    ("43297FAD38E373FE", "762514B829BF486A", "13F04154D69D1AE5");
+    ("07A7137045DA2A16", "3BDD119049372802", "2EEDDA93FFD39C79");
+    ("04689104C2FD3B2F", "26955F6835AF609A", "D887E0393C2DA6E3");
+    ("37D06BB516CB7546", "164D5E404F275232", "5F99D04F5B163969");
+    ("1F08260D1AC2465E", "6B056E18759F5CCA", "4A057A3B24D3977B");
+    ("584023641ABA6176", "004BD6EF09176062", "452031C1E4FADA8E");
+    ("025816164629B007", "480D39006EE762F2", "7555AE39F59B87BD");
+    ("49793EBC79B3258F", "437540C8698F3CFA", "53C55F9CB49FC019");
+    ("4FB05E1515AB73A7", "072D43A077075292", "7A8E7BFA937E89A3");
+    ("49E95D6D4CA229BF", "02FE55778117F12A", "CF9C5D7A4986ADB5");
+    ("018310DC409B26D6", "1D9D5C5018F728C2", "D1ABB290658BC778");
+    ("1C587F1C13924FEF", "305532286D6F295A", "55CB3774D13EF201");
+    ("0101010101010101", "0123456789ABCDEF", "FA34EC4847B268B2");
+    ("1F1F1F1F0E0E0E0E", "0123456789ABCDEF", "A790795108EA3CAE");
+    ("E0FEE0FEF1FEF1FE", "0123456789ABCDEF", "C39E072D9FAC631D");
+    ("0000000000000000", "FFFFFFFFFFFFFFFF", "014933E0CDAFF6E4");
+    ("FFFFFFFFFFFFFFFF", "0000000000000000", "F21E9A77B71C49BC");
+    ("0123456789ABCDEF", "0000000000000000", "245946885754369A");
+    ("FEDCBA9876543210", "FFFFFFFFFFFFFFFF", "6B5C5A9C5D9E0A5A")
+  ]
+
 (* SHA-1 *)
 let _ =
   testing_function "SHA-1";
@@ -313,6 +361,58 @@ let _ =
   test_enc_dec 1 (des ~mode:(OFB 8)) "abcdefgh";
   test_enc_dec 2 (des ~mode:(OFB 8)) "abcdefgh01234567";
   test_enc_dec 3 (des ~mode:(OFB 8) ~pad:Padding._8000) "abcdefghijklmnopqrstuvwxyz"
+
+(* HMAC-SHA256 *)
+
+let _ =
+  testing_function "HMAC-SHA256";
+  List.iter
+    (fun (testno, hexkey, msg, hexhash) ->
+      test testno
+        (hash_string (MAC.hmac_sha256 (hex hexkey)) msg)
+        (hex hexhash))
+[
+(1,
+ "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20",
+ "abc",
+ "a21b1f5d4cf4f73a4dd939750f7a066a7f98cc131cb16a6692759021cfab8181");
+(2,
+ "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20",
+ "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
+ "104fdc1257328f08184ba73131c53caee698e36119421149ea8c712456697d30");
+(3,
+ "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20",
+ "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopqabcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
+ "470305fc7e40fe34d3eeb3e773d95aab73acf0fd060447a5eb4595bf33a9d1a3");
+(4,
+ "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+ "Hi There",
+ "198a607eb44bfbc69903a0f1cf2bbdc5ba0aa3f3d9ae3c1c7a3b1696a0b68cf7");
+(5,
+ "4a656665", (* "Jefe" *)
+ "what do ya want for nothing?",
+ "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843");
+(6,
+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+ "\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd\xdd",
+ "cdcb1220d1ecccea91e53aba3092f962e549fe6ce9ed7fdc43191fbde45c30b0");
+(7,
+ "0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425",
+ "\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd",
+ "d4633c17f6fb8d744c66dee0f8f074556ec4af55ef07998541468eb49bd2e917");
+(8,
+ "0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c",
+ "Test With Truncation",
+ "7546af01841fc09b1ab9c3749a5f1c17d4f589668a587b2700a9c97c1193cf42");
+(9,
+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+ "Test Using Larger Than Block-Size Key - Hash Key First",
+ "6953025ed96f0c09f80a96f78e6538dbe2e7b820e3dd970e7ddd39091b32352f");
+(10,
+ "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+ "Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data",
+ "6355ac22e890d0a3c8481a5ca4825bc884d3e7a1ff98a2fc2ac7d8e064c3b2e6")
+]
 
 (* HMAC-MD5 *)
 

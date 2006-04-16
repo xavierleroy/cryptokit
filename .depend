@@ -18,6 +18,8 @@ stubs-sha256.o: stubs-sha256.c sha256.h
 stubs-zlib.o: stubs-zlib.c
 cryptokit.cmo: cryptokit.cmi 
 cryptokit.cmx: cryptokit.cmi 
+mkrandom.cmo: cryptokit.cmi 
+mkrandom.cmx: cryptokit.cmx 
 speedtest.cmo: cryptokit.cmi 
 speedtest.cmx: cryptokit.cmx 
 test.cmo: cryptokit.cmi 

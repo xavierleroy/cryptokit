@@ -111,8 +111,8 @@ class type transform =
           returns the size of input blocks for the current transform.
           If [input_block_size > 1], the user of the transform
           must ensure that the total length of input data provided
-          between the creation of the cipher and the call to
-          [finish] is an integral multiple of [input_block_size].
+          between calls to [flush] and [finish] is an integral
+          multiple of [input_block_size].
           If [input_block_size = 1], the transform can accept
           input data of arbitrary length. *)
     method output_block_size: int
@@ -231,7 +231,7 @@ module Random : sig
     (** A high-quality random number generator, using hard-to-predict
         system data to generate entropy.  This generator either uses
         the OS-provided RNG, if any, or reads from
-        [/dev/random] on systems that supports it, or interrogate
+        [/dev/random] on systems that supports it, or interrogates
         the EGD daemon otherwise (see [http://egd.sourceforge.net/]).
         For EGD, the following paths are tried to locate the Unix socket
         used to communicate with EGD:
@@ -462,7 +462,6 @@ module Cipher : sig
 
         The [blowfish] function returns a transform that performs encryption
         or decryption, depending on the direction argument. *)
-
 end
 
 (** The [Hash] module implements unkeyed cryptographic hashes (SHA-1,
@@ -511,6 +510,18 @@ module MAC: sig
         applied to SHA-1.  The returned hash values are 160 bits (20 bytes)
         long.  The [key] argument is the MAC key; it can have any length,
         but a minimal length of 20 bytes is recommended. *)
+  val hmac_sha256: string -> hash
+    (** [hmac_sha256 key] returns a MAC based on the HMAC construction
+        (RFC2104) applied to SHA-256.  The returned hash values are
+        256 bits (32 bytes) long.  The [key] argument is the MAC key;
+        it can have any length, but a minimal length of 32 bytes is
+        recommended. *)
+  val hmac_ripemd160: string -> hash
+    (** [hmac_ripemd160 key] returns a MAC based on the HMAC
+        construction (RFC2104) applied to RIPEMD-160.  The returned
+        hash values are 160 bits (20 bytes) long.  The [key] argument
+        is the MAC key; it can have any length, but a minimal length
+        of 20 bytes is recommended. *)
   val hmac_md5: string -> hash
     (** [hmac_md5 key] returns a MAC based on the HMAC construction (RFC2104)
         applied to MD5.  The returned hash values are 128 bits (16 bytes)
