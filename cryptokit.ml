@@ -2126,7 +2126,6 @@ class compress level =
 
     method flush =
       self#ensure_capacity 256;
-      let avail_out = String.length obuf - oend in
       let (_, _, used_out) =
          deflate zs
                  "" 0 0
