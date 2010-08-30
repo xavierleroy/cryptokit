@@ -1,34 +1,5 @@
-### Configuration section
 
-# Comment next line if the Zlib library is not available
-ZLIB=-DHAVE_ZLIB
-
-# The name of the Zlib library.  Usually -lz.  
-# Leave blank if you don't have Zlib.
-ZLIB_LIB=-lz
-
-# The directory containing the Zlib library (libz.a or libz.so)
-# Leave blank if you don't have Zlib.
-ZLIB_LIBDIR=/usr/lib
-#ZLIB_LIBDIR=/usr/lib64    # for x86-64 Linux
-
-# The directory containing the Zlib header file (zlib.h)
-ZLIB_INCLUDE=/usr/include
-
-# Where to install the library. By default: OCaml's standard library directory.
-INSTALLDIR=`$(OCAMLC) -where`
-
-# Flags for the C compiler.
-CFLAGS=-O -I$(ZLIB_INCLUDE) $(ZLIB)
-
-### End of configuration section
-
-OCAMLRUN=ocamlrun
-OCAMLC=ocamlc -g
-OCAMLOPT=ocamlopt
-OCAMLDEP=ocamldep
-MKLIB=ocamlmklib
-OCAMLDOC=ocamldoc
+include ../Makefile.conf
 
 C_OBJS=\
   rijndael-alg-fst.o stubs-aes.o \
@@ -58,22 +29,6 @@ cryptokit.cma: $(CAML_OBJS)
 cryptokit.cmxa: $(CAML_OBJS:.cmo=.cmx)
 	$(MKLIB) -o cryptokit $(CAML_OBJS:.cmo=.cmx) -L$(ZLIB_LIBDIR) $(ZLIB_LIB)
 
-test: test.byt
-	$(OCAMLRUN) -I . ./test.byt
-
-test.byt: libcryptokit.a cryptokit.cma test.ml
-	$(OCAMLC) -o test.byt unix.cma nums.cma cryptokit.cma test.ml
-
-clean::
-	rm -f test.byt
-
-speedtest: libcryptokit.a cryptokit.cmxa speedtest.ml
-	$(OCAMLOPT) -o speedtest -ccopt -L. \
-                unix.cmxa nums.cmxa cryptokit.cmxa speedtest.ml
-
-clean::
-	rm -f speedtest
-
 install:
 	cp cryptokit.cmi cryptokit.cma cryptokit.mli $(INSTALLDIR)
 	cp libcryptokit.a $(INSTALLDIR)
@@ -81,7 +36,7 @@ install:
 	if test -f cryptokit.cmxa; then cp cryptokit.cmxa cryptokit.cmx cryptokit.a $(INSTALLDIR); fi
 
 doc: FORCE
-	cd doc; $(OCAMLDOC) -html -I .. ../cryptokit.mli
+	$(OCAMLDOC) -html -d ../doc cryptokit.mli
 
 FORCE:
 
@@ -100,7 +55,7 @@ FORCE:
 	$(OCAMLC) -c -ccopt "$(CFLAGS)" $<
 
 clean::
-	rm -f *.cm* *.o *.a *.so
+	-$(RM) *.cm* *.o *.a *.so
 
 depend:
 	gcc -MM -I `$(OCAMLC) -where` -isystem `$(OCAMLC) -where ` *.c > .depend
