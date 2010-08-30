@@ -1,18 +1,6 @@
-### Configuration section
 
-# Where to install the library. By default: OCaml's standard library directory.
-INSTALLDIR=$(OCAMLSTDLIB)
+include ../Makefile.conf
 
-# Which Win32 port of OCaml is used?
-#TOOLCHAIN=msvc     # Native Win32 port with Microsoft compilers
-TOOLCHAIN=mingw    # Native Win32 port with Mingw compilers
-
-### End of configuration section
-
-OCAMLRUN=ocamlrun
-OCAMLC=ocamlc -g
-OCAMLOPT=ocamlopt
-OCAMLDEP=ocamldep
 OCAMLSTDLIB="$(shell $(OCAMLC) -where)"
 
 ifeq ($(strip $(TOOLCHAIN)),mingw)
