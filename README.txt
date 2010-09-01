@@ -1,39 +1,37 @@
-                  The Cryptokit library
+(* OASIS_START *)
+(* DO NOT EDIT (digest: 82f5eefc7d5475d7953fc87e0649c997) *)
+This is the README file for the cryptokit distribution.
 
-OVERVIEW:
+Cryptographic primitives
 
-  The Cryptokit library for Objective Caml provides a variety of
-  cryptographic primitives that can be used to implement cryptographic
-  protocols in security-sensitive applications.  The primitives provided
-  include:
+This library provides a variety of cryptographic primitives that can be used
+to implement cryptographic protocols in security-sensitive applications.  The
+primitives provided include:
 
-  - Symmetric-key ciphers: AES, DES, Triple-DES, Blowfish, ARCfour,
-      in ECB, CBC, CFB and OFB modes.
-  - Public-key cryptography: RSA encryption, Diffie-Hellman key agreement.
-  - Hash functions and MACs: SHA-1, SHA-256, RIPEMD-160, MD5,
-      and MACs based on AES and DES.
-  - Random number generation.
-  - Encodings and compression: base 64, hexadecimal, Zlib compression.
+- Symmetric-key ciphers: AES, DES, Triple-DES, ARCfour, in ECB, CBC, CFB and
+OFB modes. - Public-key cryptography: RSA encryption, Diffie-Hellman key
+agreement. - Hash functions and MACs: SHA-1, MD5, and MACs based on AES and
+DES. - Random number generation. - Encodings and compression: base 64,
+hexadecimal, Zlib compression.
 
-  Additional ciphers and hashes can easily be used in conjunction with
-  the library.  In particular, basic mechanisms such as chaining modes,
-  output buffering, and padding are provided by generic classes that can
-  easily be composed with user-provided ciphers.  More generally, the library
-  promotes a "Lego"-like style of constructing and composing
-  transformations over character streams.
+Additional ciphers and hashes can easily be used in conjunction with the
+library. In particular, basic mechanisms such as chaining modes, output
+buffering, and padding are provided by generic classes that can easily be
+composed with user-provided ciphers. More generally, the library promotes a
+"Lego"-like style of constructing and composing transformations over
+character streams.
 
-  This library is distributed under the conditions of the 
-  GNU Library General Public license version 2, with the special
-  exception on linking described in file LICENSE.
+See the files INSTALL.txt for building and installation instructions. 
 
-REQUIREMENTS:
 
-  - Objective Caml 3.08 or up.
+(* OASIS_STOP *)
+
+EXTRA REQUIREMENTS:
 
   - The Zlib C library, version 1.1.3 or up is recommended.
     If it is not installed on your system (look for libz.a or libz.so),
-    get it from http://www.gzip.org/, or indicate in the Makefile
-    that you do not have it.
+    get it from http://www.gzip.org/, or call configure with the flag
+    "--disable-zlib".
     If you are running Linux or BSD, chances are that your distribution
     provides precompiled binaries for this library.
 
@@ -42,47 +40,6 @@ REQUIREMENTS:
     entropy gathering daemon http://egd.sourceforge.net/
     Without /dev/random nor EGD, this library cannot generate random data
     and RSA keys.  The remainder of the library still works, though.
-
-
-INSTALLATION FOR UNIX (including Linux, MacOS X, and Cygwin):
-
-  - Edit the variables at the beginning of the Makefile to reflect
-    the location where Zlib is installed on your system.  The defaults
-    are OK for Linux.
-
-  - Do "make all".
-
-  - If the Objective Caml native-code compiler is available on your platform
-    (look for the "ocamlopt" executable), do "make allopt".
-
-  - (Optional)  To test the library, do "make test".  You must have
-    either /dev/random or EGD available for the test to succeed.
-
-  - Become super-user if necessary and do "make install".
-    This installs the library in the standard Objective Caml library directory.
-
-INSTALLATION FOR MS WINDOWS:
-
-  - Edit the variables at the beginning of Makefile.win32 to select
-    either the MSVC or the Mingw port of OCaml.
-
-  - Start a Cygwin shell and do "make -f Makefile.win all allopt".
-
-  - (Optional)  To test the library, do "make -f Makefile.win test".
-
-  - Do "make -f Makefile.win install".
-    This installs the library in the standard Objective Caml library directory.
-
-
-DOCUMENTATION:
-
-  See the HTML documentation in doc/index.html, or the extensive comments 
-  in file cryptokit.mli
-
-  Compilation options:      none
-  ocamlc linking options:   unix.cma nums.cma cryptokit.cma
-  ocamlopt linking options: unix.cmxa nums.cmxa cryptokit.cmxa
-
 
 WARNINGS AND DISCLAIMERS:
 
