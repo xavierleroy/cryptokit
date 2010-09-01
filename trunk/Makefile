@@ -1,26 +1,39 @@
+BUILDFLAGS=-classic-display
+# OASIS_START
+# DO NOT EDIT (digest: bc1e05bfc8b39b664f29dae8dbd3ebbb)
 
-MKFILE=Makefile
+SETUP = ocaml setup.ml
 
-depend:
-	$(MAKE) -f $(MKFILE) -C src $@
+build: setup.data
+	$(SETUP) -build $(BUILDFLAGS)
 
-all:
-	$(MAKE) -f $(MKFILE) -C src $@
+doc: setup.data build
+	$(SETUP) -doc $(DOCFLAGS)
 
-allopt:
-	$(MAKE) -f $(MKFILE) -C src $@
+test: setup.data build
+	$(SETUP) -test $(TESTFLAGS)
 
-test:
-	$(MAKE) -f $(MKFILE) -C test $@ 
+all: 
+	$(SETUP) -all $(ALLFLAGS)
 
-install:
-	$(MAKE) -f $(MKFILE) -C src $@
+install: setup.data
+	$(SETUP) -install $(INSTALLFLAGS)
 
-clean:
-	$(MAKE) -f $(MKFILE) -C src clean
-	$(MAKE) -f $(MKFILE) -C test clean
+uninstall: setup.data
+	$(SETUP) -uninstall $(UNINSTALLFLAGS)
 
-doc:
-	$(MAKE) -f $(MKFILE) -C src doc
+reinstall: setup.data
+	$(SETUP) -reinstall $(REINSTALLFLAGS)
 
-.PHONY: depend all allopt test install clean doc
+clean: 
+	$(SETUP) -clean $(CLEANFLAGS)
+
+distclean: 
+	$(SETUP) -distclean $(DISTCLEANFLAGS)
+
+setup.data:
+	$(SETUP) -configure $(CONFIGUREFLAGS)
+
+.PHONY: build doc test all install uninstall reinstall clean distclean configure
+
+# OASIS_STOP

@@ -1,3 +1,0 @@
-include Makefile
-
-MKFILES=Makefile.win32
