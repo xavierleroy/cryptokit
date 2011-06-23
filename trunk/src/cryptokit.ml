@@ -1827,7 +1827,7 @@ module Base64 = struct
 let base64_conv_table =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
-class encode multiline =
+class encode multiline padding =
   object (self)
     method input_block_size = 1
     method output_block_size = 1
@@ -1889,7 +1889,7 @@ class encode multiline =
           oend <- oend + 3
       | _ -> ()
       end;
-      if multiline then begin
+      if multiline or padding then begin
         let num_equals =
           match ipos with 1 -> 2 | 2 -> 1 | _ -> 0 in
         self#ensure_capacity num_equals;
@@ -1907,8 +1907,9 @@ class encode multiline =
       wipe_string ibuf; output_buffer#wipe
   end
 
-let encode_multiline () = new encode true
-let encode_compact () = new  encode false
+let encode_multiline () = new encode true true
+let encode_compact () = new  encode false false
+let encode_compact_pad () = new encode false true
 
 let base64_decode_char c =
   match c with
