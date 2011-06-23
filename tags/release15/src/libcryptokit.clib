@@ -1,0 +1,21 @@
+# OASIS_START
+# DO NOT EDIT (digest: 7845322068f8077675d28d75638038bf)
+arcfour.o
+stubs-arcfour.o
+blowfish.o
+stubs-blowfish.o
+d3des.o
+stubs-des.o
+rijndael-alg-fst.o
+ripemd160.o
+stubs-ripemd160.o
+sha1.o
+stubs-sha1.o
+sha256.o
+stubs-sha256.o
+stubs-aes.o
+stubs-md5.o
+stubs-misc.o
+stubs-rng.o
+stubs-zlib.o
+# OASIS_STOP
