@@ -267,9 +267,17 @@ class buffered_output initial_buffer_size =
           oend <- oend - obeg;
           obeg <- 0
         end else begin
-          let newlen = min (2 * len) Sys.max_string_length in
-          if oend - obeg + n > newlen then raise(Error Output_buffer_overflow);
-          let newbuf = String.create newlen in
+          let newlen = ref (2 * len) in
+          while oend - obeg + n > (!newlen) do
+            newlen := (!newlen) * 2
+          done;
+          if (!newlen) > Sys.max_string_length then begin
+            if (oend - obeg + n) <= Sys.max_string_length then
+              newlen := Sys.max_string_length
+            else
+              raise (Error Output_buffer_overflow)
+          end;
+          let newbuf = String.create (!newlen) in
           String.blit obuf obeg newbuf 0 (oend - obeg);
           obuf <- newbuf;
           oend <- oend - obeg;
