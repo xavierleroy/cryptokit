@@ -1,5 +1,18 @@
 # OASIS_START
-# DO NOT EDIT (digest: 6b94833c26c16fe87ccb72a7acfd378f)
+# DO NOT EDIT (digest: 2c205e7bb4760209c0426b9556c7ccad)
+# Ignore VCS directories, you can use the same kind of rule outside 
+# OASIS_START/STOP if you want to exclude directories that contains 
+# useless stuff for the build process
+<**/.svn>: -traverse
+<**/.svn>: not_hygienic
+".bzr": -traverse
+".bzr": not_hygienic
+".hg": -traverse
+".hg": not_hygienic
+".git": -traverse
+".git": not_hygienic
+"_darcs": -traverse
+"_darcs": not_hygienic
 # Library cryptokit
 "src": include
 <src/*.ml{,i}>: oasis_library_cryptokit_ccopt
@@ -65,16 +78,16 @@
 "src/stubs-rng.c": pkg_num
 "src/stubs-zlib.c": pkg_unix
 "src/stubs-zlib.c": pkg_num
-# Executable speedtest
-"test/speedtest.native": use_cryptokit
-"test/speedtest.native": pkg_unix
-"test/speedtest.native": pkg_num
 # Executable test
 "test/test.byte": use_cryptokit
 "test/test.byte": pkg_unix
 "test/test.byte": pkg_num
+"test/test.byte": custom
+# Executable speedtest
+"test/speedtest.native": use_cryptokit
+"test/speedtest.native": pkg_unix
+"test/speedtest.native": pkg_num
 <test/*.ml{,i}>: use_cryptokit
 <test/*.ml{,i}>: pkg_unix
 <test/*.ml{,i}>: pkg_num
-"test/test.byte": custom
 # OASIS_STOP
