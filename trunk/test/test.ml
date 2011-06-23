@@ -196,7 +196,10 @@ let _ =
   do_test 1 2 "0123456789abcdef" "0123456789abcdef" "75b7878099e0c596";
   do_test 3 4 "0123456789abcdef" "0000000000000000" "7494c2e7104b0879";
   do_test 5 6 "0000000000000000" "0000000000000000" "de188941a3375d3a";
-  do_test 7 8 "ef012345" "00000000000000000000" "d6a141a7ec3c38dfbd61"
+  do_test 7 8 "ef012345" "00000000000000000000" "d6a141a7ec3c38dfbd61";
+  let c2 = Cipher.arcfour "key" Cipher.Encrypt in
+  c2#put_string (String.create 1024);
+  test 9 c2#available_output 1024
 
 (* Blowfish *)
 
