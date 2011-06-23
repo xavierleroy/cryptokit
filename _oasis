@@ -102,9 +102,9 @@ Document "api-cryptokit"
 SourceRepository head
   Type:     svn
   Location: http://scm.ocamlcore.org/svnroot/cryptokit/trunk
-  Browse:   https://forge.ocamlcore.org/scm/browser.php?group_id=133
+  Browser:  https://forge.ocamlcore.org/scm/browser.php?group_id=133
   
 SourceRepository this 
   Type:     svn
   Location: http://scm.ocamlcore.org/svnroot/tags/release15
-  Browse:   https://forge.ocamlcore.org/scm/browser.php?group_id=133
+  Browser:  https://forge.ocamlcore.org/scm/browser.php?group_id=133

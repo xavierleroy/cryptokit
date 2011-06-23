@@ -1,3 +1,7 @@
+Release 1.5:
+- Fix bug check in buffered_output#ensure_capacity (Closes: #879)
+- Allow to have padding in Base64 (Closes: #897)
+
 Release 1.4:
 - Added Blowfish block cipher.
 - Added MAC functions based on HMAC construction applied to 
