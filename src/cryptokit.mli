@@ -905,6 +905,9 @@ module Base64: sig
         split into lines, and no final padding is added.
         This is adequate for encoding short strings for
         transmission as part of URLs, for instance. *)
+  val encode_compact_pad : unit -> transform
+    (** Same as {!Cryptokit.Base64.encode_compact}, but the output is
+        padded with [=] characters at the end (if necessary). *)
   val decode : unit -> transform
     (** Return a transform that performs base 64 decoding.
         The input must consist of valid base 64 characters;
