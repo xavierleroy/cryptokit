@@ -1,3 +1,6 @@
+Release 1.6:
+- Regenerate setup.ml with oasis 0.3.0~rc6 version
+
 Release 1.5:
 - Fix bug check in buffered_output#ensure_capacity (Closes: #879)
 - Allow to have padding in Base64 (Closes: #897)
