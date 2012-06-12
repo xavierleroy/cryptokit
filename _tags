@@ -91,3 +91,5 @@
 <test/*.ml{,i}>: pkg_unix
 <test/*.ml{,i}>: pkg_num
 # OASIS_STOP
+"build": not_hygienic
+"build": -traverse
