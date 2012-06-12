@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 82f5eefc7d5475d7953fc87e0649c997) *)
+(* DO NOT EDIT (digest: 2b665a99f48c402d82851ffc8430f1f3) *)
 This is the README file for the cryptokit distribution.
 
 Cryptographic primitives
@@ -8,8 +8,8 @@ This library provides a variety of cryptographic primitives that can be used
 to implement cryptographic protocols in security-sensitive applications.  The
 primitives provided include:
 
-- Symmetric-key ciphers: AES, DES, Triple-DES, ARCfour, in ECB, CBC, CFB and
-OFB modes. - Public-key cryptography: RSA encryption, Diffie-Hellman key
+- Symmetric-key ciphers: AES, DES, Triple-DES, ARCfour,   in ECB, CBC, CFB
+and OFB modes. - Public-key cryptography: RSA encryption, Diffie-Hellman key
 agreement. - Hash functions and MACs: SHA-1, MD5, and MACs based on AES and
 DES. - Random number generation. - Encodings and compression: base 64,
 hexadecimal, Zlib compression.
