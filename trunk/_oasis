@@ -1,6 +1,6 @@
 OASISFormat: 0.1
 Name:        cryptokit
-Version:     1.5
+Version:     1.6
 Authors:     Xavier Leroy
 License:     LGPL-2 with OCaml linking exception
 BuildTools:  ocamlbuild, ocamldoc
