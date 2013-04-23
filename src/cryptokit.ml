@@ -62,6 +62,11 @@ external sha1_final: string -> string = "caml_sha1_final"
 external sha256_init: unit -> string = "caml_sha256_init"
 external sha256_update: string -> string -> int -> int -> unit = "caml_sha256_update"
 external sha256_final: string -> string = "caml_sha256_final"
+type sha3_context
+external sha3_init: int -> sha3_context = "caml_sha3_init"
+external sha3_absorb: sha3_context -> string -> int -> int -> unit = "caml_sha3_absorb"
+external sha3_extract: sha3_context -> string = "caml_sha3_extract"
+external sha3_wipe: sha3_context -> unit = "caml_sha3_wipe"
 external ripemd160_init: unit -> string = "caml_ripemd160_init"
 external ripemd160_update: string -> string -> int -> int -> unit = "caml_ripemd160_update"
 external ripemd160_final: string -> string = "caml_ripemd160_final"
@@ -858,6 +863,31 @@ class sha256 =
   end
 
 let sha256 () = new sha256
+
+class sha3 sz =
+  object(self)
+    val context =
+      if sz = 224 || sz = 256 || sz = 384 || sz = 512
+      then sha3_init sz
+      else raise (Error Wrong_key_size)
+    method hash_size = sz / 8
+    method add_substring src ofs len =
+      if ofs < 0 || ofs + len > String.length src
+      then invalid_arg "sha3#add_substring";
+      sha3_absorb context src ofs len
+    method add_string src =
+      sha3_absorb context src 0 (String.length src)
+    method add_char c =
+      self#add_string (String.make 1 c)
+    method add_byte b =
+      self#add_char (Char.unsafe_chr b)
+    method result =
+      sha3_extract context
+    method wipe =
+      sha3_wipe context
+  end
+
+let sha3 sz = new sha3 sz
 
 class ripemd160 =
   object(self)

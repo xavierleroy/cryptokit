@@ -88,6 +88,14 @@ let _ =
     (hash (Hash.sha1()) 1000000 16);
   time_fn "SHA-256, 16_000_000 bytes, 16-byte chunks"
     (hash (Hash.sha256()) 1000000 16);
+  time_fn "SHA-3 224, 16_000_000 bytes, 16-byte chunks"
+    (hash (Hash.sha3 224) 1000000 16);
+  time_fn "SHA-3 256, 16_000_000 bytes, 16-byte chunks"
+    (hash (Hash.sha3 256) 1000000 16);
+  time_fn "SHA-3 384, 16_000_000 bytes, 16-byte chunks"
+    (hash (Hash.sha3 384) 1000000 16);
+  time_fn "SHA-3 512, 16_000_000 bytes, 16-byte chunks"
+    (hash (Hash.sha3 512) 1000000 16);
   time_fn "RIPEMD-160, 16_000_000 bytes, 16-byte chunks"
     (hash (Hash.sha256()) 1000000 16);
   time_fn "MD5, 16_000_000 bytes, 16-byte chunks"

@@ -1,6 +1,6 @@
 OASISFormat: 0.1
 Name:        cryptokit
-Version:     1.6
+Version:     1.7
 Authors:     Xavier Leroy
 License:     LGPL-2 with OCaml linking exception
 BuildTools:  ocamlbuild, ocamldoc
@@ -15,7 +15,8 @@ Description:
   - Symmetric-key ciphers: AES, DES, Triple-DES, ARCfour,
     in ECB, CBC, CFB and OFB modes.
   - Public-key cryptography: RSA encryption, Diffie-Hellman key agreement.
-  - Hash functions and MACs: SHA-1, MD5, and MACs based on AES and DES.
+  - Hash functions and MACs: SHA-1, SHA-256, SHA-3, RIPEMD160, MD5,
+    and MACs based on AES and DES.
   - Random number generation.
   - Encodings and compression: base 64, hexadecimal, Zlib compression.
   .
@@ -57,7 +58,10 @@ Library cryptokit
             stubs-md5.c,
             stubs-misc.c,
             stubs-rng.c,
-            stubs-zlib.c
+            stubs-zlib.c,
+            keccak.h,
+            keccak.c,
+            stubs-sha3.c
   BuildDepends: unix, num
   if flag(zlib)
     CCOpt: -O -DHAVE_ZLIB
@@ -93,7 +97,7 @@ Test bench
 
 Document "api-cryptokit"
   Title:                API reference for Cryptokit
-  Type:                 ocamlbuild (0.2)
+  Type:                 ocamlbuild (0.3)
   InstallDir:           $htmldir/cryptokit
   BuildTools+:          ocamldoc
   XOCamlBuildPath:      src/

@@ -19,7 +19,8 @@
     - Symmetric-key ciphers: AES, DES, Triple-DES, ARCfour,
       in ECB, CBC, CFB and OFB modes.
     - Public-key cryptography: RSA encryption, Diffie-Hellman key agreement.
-    - Hash functions and MACs: SHA-1, MD5, and MACs based on AES and DES.
+    - Hash functions and MACs: SHA-1, SHA-256, SHA-3, RIPEMD-160, MD5,
+      and MACs based on AES and DES.
     - Random number generation.
     - Encodings and compression: base 64, hexadecimal, Zlib compression.
 
@@ -477,10 +478,15 @@ module Hash : sig
   val sha1: unit -> hash
     (** SHA-1 is the Secure Hash Algorithm revision 1.  It is a NIST
         standard, is widely used, and produces 160-bit hashes (20 bytes).
-        Recent results suggest that it is not collision-resistant. *)
+        Recent results suggest that it may not be collision-resistant. *)
   val sha256: unit -> hash
     (** SHA-256, another NIST standard, is a variant of SHA-1 that
         produces 256-bit hashes (32 bytes). *)
+  val sha3: int -> hash
+    (** SHA-3, the latest NIST standard for cryptographic hashing,
+        produces hashes of 224, 256, 384 or 512 bits (24, 32, 48 or 64
+        bytes).  The parameter is the desired size of the hash, in
+        bits.  It must be one of 224, 256, 384 or 512. *)
   val ripemd160: unit -> hash
     (** RIPEMD-160 produces 160-bit hashes (20 bytes). *)
   val md5: unit -> hash
@@ -501,9 +507,9 @@ end
     and if it matches the transmitted MAC, be reasonably certain that
     the text was authentified by someone who possesses the secret key.
 
-    The module [MAC] provides two MAC functions based on the hashes
-    SHA-1 and MD5, and four MAC functions based on the block ciphers
-    AES, DES, and Triple-DES. *)
+    The module [MAC] provides four MAC functions based on the hashes
+    SHA-1, SHA256, RIPEMD160 and MD5, and four MAC functions based on
+    the block ciphers AES, DES, and Triple-DES. *)
 module MAC: sig
   val hmac_sha1: string -> hash
     (** [hmac_sha1 key] returns a MAC based on the HMAC construction (RFC2104)
