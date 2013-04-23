@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 2bceaf29cc85a8c5f9eed1a1139fb314)
+# DO NOT EDIT (digest: 8a7166c77fa91d73228ad5c60f221d79)
 # Ignore VCS directories, you can use the same kind of rule outside 
 # OASIS_START/STOP if you want to exclude directories that contains 
 # useless stuff for the build process
@@ -34,6 +34,8 @@
 "src/stubs-misc.c": oasis_library_cryptokit_ccopt
 "src/stubs-rng.c": oasis_library_cryptokit_ccopt
 "src/stubs-zlib.c": oasis_library_cryptokit_ccopt
+"src/keccak.c": oasis_library_cryptokit_ccopt
+"src/stubs-sha3.c": oasis_library_cryptokit_ccopt
 <src/cryptokit.{cma,cmxa}>: oasis_library_cryptokit_cclib
 "src/libcryptokit_stubs.lib": oasis_library_cryptokit_cclib
 "src/dllcryptokit_stubs.dll": oasis_library_cryptokit_cclib
@@ -78,6 +80,10 @@
 "src/stubs-rng.c": pkg_num
 "src/stubs-zlib.c": pkg_unix
 "src/stubs-zlib.c": pkg_num
+"src/keccak.c": pkg_unix
+"src/keccak.c": pkg_num
+"src/stubs-sha3.c": pkg_unix
+"src/stubs-sha3.c": pkg_num
 # Executable test
 "test/test.byte": use_cryptokit
 "test/test.byte": pkg_unix

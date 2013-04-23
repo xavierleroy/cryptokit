@@ -275,6 +275,70 @@ let _ =
   test 3 (hash (String.make 1000000 'a'))
     (hex "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0")
 
+(* SHA-3 *)
+let _ =
+  testing_function "SHA-3";
+  let hash n s = hash_string (Hash.sha3 n) s in
+  let s = "abc" in
+  test 1 (hash 224 s)
+    (hex "c30411768506ebe1 c2871b1ee2e87d38 df342317300a9b97 a95ec6a8");
+  test 2 (hash 256 s)
+    (hex "4e03657aea45a94f c7d47ba826c8d667 c0d1e6e33a64a036 ec44f58fa12d6c45");
+  test 3 (hash 384 s)
+    (hex "f7df1165f033337b e098e7d288ad6a2f 74409d7a60b49c36 642218de161b1f99 f8c681e4afaf31a3 4db29fb763e3c28e");
+  test 4 (hash 512 s)
+    (hex "18587dc2ea106b9a 1563e32b3312421c a164c7f1f07bc922 a9c83d77cea3a1e5 d0c6991073902537 2dc14ac964262937 9540c17e2a65b19d 77aa511a9d00bb96");
+  let s = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq" in
+  test 5 (hash 224 s)
+    (hex "e51faa2b4655150b 931ee8d700dc202f 763ca5f962c529ea e55012b6");
+  test 6 (hash 256 s)
+    (hex "45d3b367a6904e6e 8d502ee04999a7c2 7647f91fa845d456 525fd352ae3d7371");
+  test 7 (hash 384 s)
+    (hex "b41e8896428f1bcb b51e17abd6acc980 52a3502e0d5bf7fa 1af949b4d3c855e7 c4dc2c390326b3f3 e74c7b1e2b9a3657");
+  test 8 (hash 512 s)
+    (hex "6aa6d3669597df6d 5a007b00d09c2079 5b5c4218234e1698 a944757a488ecdc0 9965435d97ca32c3 cfed7201ff30e070 cd947f1fc12b9d92 14c467d342bcba5d");
+  let s = "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu" in
+  test 9 (hash 224 s)
+    (hex "344298994b1b0687 3eae2ce739c425c4 7291a2e24189e01b 524f88dc");
+  test 10 (hash 256 s)
+    (hex "f519747ed599024f 3882238e5ab43960 132572b7345fbeb9 a90769dafd21ad67");
+  test 11 (hash 384 s)
+    (hex "cc063f3468513536 8b34f7449108f6d1 0fa727b09d696ec5 331771da46a923b6 c34dbd1d4f77e595 689c1f3800681c28");
+  test 12 (hash 512 s)
+    (hex "ac2fb35251825d3a a48468a9948c0a91 b8256f6d97d8fa41 60faff2dd9dfcc24 f3f1db7a983dad13 d53439ccac0b37e2 4037e7b95f80f59f 37a2f683c4ba4682");
+  let s = String.make 1000000 'a' in
+  test 13 (hash 224 s)
+    (hex "19f9167be2a04c43 abd0ed554788101b 9c339031acc8e146 8531303f");
+  test 14 (hash 256 s)
+    (hex "fadae6b49f129bbb 812be8407b7b2894 f34aecf6dbd1f9b0 f0c7e9853098fc96");
+  test 15 (hash 384 s)
+    (hex "0c8324e1ebc18282 2c5e2a086cac07c2 fe00e3bce61d01ba 8ad6b71780e2dec5 fb89e5ae90cb593e 57bc6258fdd94e17");
+  test 16 (hash 512 s)
+    (hex "5cf53f2e556be5a6 24425ede23d0e8b2 c7814b4ba0e4e09c bbf3c2fac7056f61 e048fc341262875e bc58a5183fea6514 47124370c1ebf4d6 c89bc9a7731063bb");
+  let s = "" in
+  test 17 (hash 224 s)
+    (hex "f71837502ba8e108 37bdd8d365adb855 91895602fc552b48 b7390abd");
+  test 18 (hash 256 s)
+    (hex "c5d2460186f7233c 927e7db2dcc703c0 e500b653ca82273b 7bfad8045d85a470");
+  test 19 (hash 384 s)
+    (hex "2c23146a63a29acf 99e73b88f8c24eaa 7dc60aa771780ccc 006afbfa8fe2479b 2dd2b21362337441 ac12b515911957ff");
+  test 20 (hash 512 s)
+    (hex "0eab42de4c3ceb92 35fc91acffe746b2 9c29a8c366b7c60e 4e67c466f36a4304 c00fa9caf9d87976 ba469bcbe06713b4 35f091ef2769fb16 0cdab33d3670680e")
+
+(*
+Input message: the extremely-long message "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmno" repeated 16,777,216 times: a bit string of length 233 bits. This test is from the SHA-3 Candidate Algorithm Submissions document [5]. The results for SHA-3 are from the Keccak Known Answer Tests [4]. The other results are by our own computation.
+Algorithm	Output
+SHA-1	7789f0c9 ef7bfc40 d9331114 3dfbe69e 2017f592
+SHA-224	b5989713 ca4fe47a 009f8621 980b34e6 d63ed306 3b2a0a2c 867d8a85
+SHA-256	50e72a0e 26442fe2 552dc393 8ac58658 228c0cbf b1d2ca87 2ae43526 6fcd055e
+SHA-384	5441235cc0235341 ed806a64fb354742 b5e5c02a3c5cb71b 5f63fb793458d8fd ae599c8cd8884943 c04f11b31b89f023
+SHA-512	b47c933421ea2db1 49ad6e10fce6c7f9 3d0752380180ffd7 f4629a712134831d 77be6091b819ed35 2c2967a2e2d4fa50 50723c9630691f1a 05a7281dbe6c1086
+SHA-3-224	c42e4aee858e1a8a d2976896b9d23dd1 87f64436ee15969a fdbc68c5
+SHA-3-256	5f313c39963dcf79 2b5470d4ade9f3a3 56a3e4021748690a 958372e2b06f82a4
+SHA-3-384	9b7168b4494a80a8 6408e6b9dc4e5a18 37c85dd8ff452ed4 10f2832959c08c8c 0d040a892eb9a755 776372d4a8732315
+SHA-3-512	3e122edaf3739823 1cfaca4c7c216c9d 66d5b899ec1d7ac6 17c40c7261906a45 fc01617a021e5da3 bd8d4182695b5cb7 85a28237cbb16759 0e34718e56d8aab8
+*)
+
 (* RIPEMD-160 *)
 let _ =
   testing_function "RIPEMD-160";

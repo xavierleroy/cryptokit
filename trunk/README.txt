@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 2b665a99f48c402d82851ffc8430f1f3) *)
+(* DO NOT EDIT (digest: 3e3b7c51f89302eab212ba452da24e7d) *)
 This is the README file for the cryptokit distribution.
 
 Cryptographic primitives
@@ -10,9 +10,9 @@ primitives provided include:
 
 - Symmetric-key ciphers: AES, DES, Triple-DES, ARCfour,   in ECB, CBC, CFB
 and OFB modes. - Public-key cryptography: RSA encryption, Diffie-Hellman key
-agreement. - Hash functions and MACs: SHA-1, MD5, and MACs based on AES and
-DES. - Random number generation. - Encodings and compression: base 64,
-hexadecimal, Zlib compression.
+agreement. - Hash functions and MACs: SHA-1, SHA-256, SHA-3, RIPEMD160, MD5, 
+ and MACs based on AES and DES. - Random number generation. - Encodings and
+compression: base 64, hexadecimal, Zlib compression.
 
 Additional ciphers and hashes can easily be used in conjunction with the
 library. In particular, basic mechanisms such as chaining modes, output
@@ -92,6 +92,10 @@ DESIGN NOTES AND REFERENCES:
 
   SHA-256 is implemented from scratch based on FIPS publication 180-2.
   It passes the FIPS test vectors.
+
+  SHA-3 is based on the "readable implementation" written and released by
+  Markku-Juhani O. Saarinen.  It passes the provisional test vectors
+  listed at http://www.di-mgt.com.au/sha_testvectors.html
 
   RIPEMD-160 is based on the reference implementation by A.Bosselaers.
   It passes the test vectors listed at

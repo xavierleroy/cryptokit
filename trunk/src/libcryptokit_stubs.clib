@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 7845322068f8077675d28d75638038bf)
+# DO NOT EDIT (digest: 5e9eced2deea37efe462dfd9e5f6e78f)
 arcfour.o
 stubs-arcfour.o
 blowfish.o
@@ -18,4 +18,6 @@ stubs-md5.o
 stubs-misc.o
 stubs-rng.o
 stubs-zlib.o
+keccak.o
+stubs-sha3.o
 # OASIS_STOP
