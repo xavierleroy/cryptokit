@@ -1,17 +1,17 @@
-OASISFormat: 0.1
+OASISFormat: 0.3
 Name:        cryptokit
-Version:     1.7
+Version:     1.8
 Authors:     Xavier Leroy
 License:     LGPL-2 with OCaml linking exception
 BuildTools:  ocamlbuild, ocamldoc
-Plugins:     META (0.2), DevFiles (0.2), StdFiles (0.2)
+Plugins:     META (0.3), DevFiles (0.3), StdFiles (0.3)
 
 Synopsis: Cryptographic primitives
 Description:
   This library provides a variety of cryptographic primitives that can be used
-  to implement cryptographic protocols in security-sensitive applications.  The
+  to implement cryptographic protocols in security-sensitive applications. The
   primitives provided include:
-  . 
+  .
   - Symmetric-key ciphers: AES, DES, Triple-DES, ARCfour,
     in ECB, CBC, CFB and OFB modes.
   - Public-key cryptography: RSA encryption, Diffie-Hellman key agreement.
@@ -27,7 +27,7 @@ Description:
   promotes a "Lego"-like style of constructing and composing
   transformations over character streams.
 
-Flag zlib 
+Flag zlib
   Description: Enable ZLib
   Default$: !os_type(Win32)
 
@@ -66,18 +66,19 @@ Library cryptokit
   if flag(zlib)
     CCOpt: -O -DHAVE_ZLIB
     CCLib: -lz
-  
+
 Executable test
   Path:         test
   MainIs:       test.ml
   Custom:       true
   BuildDepends: cryptokit
+  Build$:       flag(tests)
   Install:      false
-  
+
 Test main
   Command:   $test
   TestTools: test
-  
+
 Flag bench
   Description: Build and run benchmark
   Default: false
@@ -89,7 +90,7 @@ Executable speedtest
   BuildDepends:   cryptokit
   Install:        false
   Build$:         flag(bench)
-  
+
 Test bench
   Command:   $speedtest
   Run$:      flag(bench)
@@ -102,13 +103,13 @@ Document "api-cryptokit"
   BuildTools+:          ocamldoc
   XOCamlBuildPath:      src/
   XOCamlbuildLibraries: cryptokit
-  
+
 SourceRepository head
   Type:     svn
   Location: http://scm.ocamlcore.org/svnroot/cryptokit/trunk
   Browser:  https://forge.ocamlcore.org/scm/browser.php?group_id=133
-  
-SourceRepository this 
+
+SourceRepository this
   Type:     svn
   Location: http://scm.ocamlcore.org/svnroot/tags/release15
   Browser:  https://forge.ocamlcore.org/scm/browser.php?group_id=133

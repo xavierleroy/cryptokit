@@ -1,11 +1,11 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 3e3b7c51f89302eab212ba452da24e7d) *)
+(* DO NOT EDIT (digest: e0e395579ad4c8ec0401e3ef76bfc6ab) *)
 This is the README file for the cryptokit distribution.
 
 Cryptographic primitives
 
 This library provides a variety of cryptographic primitives that can be used
-to implement cryptographic protocols in security-sensitive applications.  The
+to implement cryptographic protocols in security-sensitive applications. The
 primitives provided include:
 
 - Symmetric-key ciphers: AES, DES, Triple-DES, ARCfour,   in ECB, CBC, CFB
