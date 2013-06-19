@@ -1,6 +1,6 @@
 # OASIS_START
-# DO NOT EDIT (digest: ce2dd1c0189db8d7b3d30f585c8d221f)
-version = "1.7"
+# DO NOT EDIT (digest: 9bfbe7e80d3d10afc170190f6fb1eb61)
+version = "1.8"
 description = "Cryptographic primitives"
 requires = "unix num"
 archive(byte) = "cryptokit.cma"

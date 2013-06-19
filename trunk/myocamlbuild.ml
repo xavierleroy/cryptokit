@@ -1,7 +1,7 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 2efcf770eb6caebc8d3ea31c7d139137) *)
+(* DO NOT EDIT (digest: 43898f78e1238084816e5a7e42ca5b46) *)
 module OASISGettext = struct
-(* # 21 "/home/xleroy/.opam/4.00.1/build/oasis.0.3.0/src/oasis/OASISGettext.ml" *)
+# 21 "/home/gildor/programmation/oasis/src/oasis/OASISGettext.ml"
 
   let ns_ str =
     str
@@ -24,7 +24,7 @@ module OASISGettext = struct
 end
 
 module OASISExpr = struct
-(* # 21 "/home/xleroy/.opam/4.00.1/build/oasis.0.3.0/src/oasis/OASISExpr.ml" *)
+# 21 "/home/gildor/programmation/oasis/src/oasis/OASISExpr.ml"
 
 
 
@@ -116,7 +116,7 @@ end
 
 # 117 "myocamlbuild.ml"
 module BaseEnvLight = struct
-(* # 21 "/home/xleroy/.opam/4.00.1/build/oasis.0.3.0/src/base/BaseEnvLight.ml" *)
+# 21 "/home/gildor/programmation/oasis/src/base/BaseEnvLight.ml"
 
   module MapString = Map.Make(String)
 
@@ -214,7 +214,7 @@ end
 
 # 215 "myocamlbuild.ml"
 module MyOCamlbuildFindlib = struct
-(* # 21 "/home/xleroy/.opam/4.00.1/build/oasis.0.3.0/src/plugins/ocamlbuild/MyOCamlbuildFindlib.ml" *)
+# 21 "/home/gildor/programmation/oasis/src/plugins/ocamlbuild/MyOCamlbuildFindlib.ml"
 
   (** OCamlbuild extension, copied from 
     * http://brion.inria.fr/gallium/index.php/Using_ocamlfind_with_ocamlbuild
@@ -234,19 +234,21 @@ module MyOCamlbuildFindlib = struct
     Ocamlbuild_pack.Lexers.blank_sep_strings
 
   let split s ch =
-    let x = 
-      ref [] 
+    let buf = Buffer.create 13 in
+    let x = ref [] in
+    let flush () = 
+      x := (Buffer.contents buf) :: !x;
+      Buffer.clear buf
     in
-    let rec go s =
-      let pos = 
-        String.index s ch 
-      in
-        x := (String.before s pos)::!x;
-        go (String.after s (pos + 1))
-    in
-      try
-        go s
-      with Not_found -> !x
+      String.iter 
+        (fun c ->
+           if c = ch then 
+             flush ()
+           else
+             Buffer.add_char buf c)
+        s;
+      flush ();
+      List.rev !x
 
   let split_nl s = split s '\n'
 
@@ -287,11 +289,20 @@ module MyOCamlbuildFindlib = struct
            * linking. *)
           List.iter 
             begin fun pkg ->
-              flag ["ocaml"; "compile";  "pkg_"^pkg] & S[A"-package"; A pkg];
-              flag ["ocaml"; "ocamldep"; "pkg_"^pkg] & S[A"-package"; A pkg];
-              flag ["ocaml"; "doc";      "pkg_"^pkg] & S[A"-package"; A pkg];
-              flag ["ocaml"; "link";     "pkg_"^pkg] & S[A"-package"; A pkg];
-              flag ["ocaml"; "infer_interface"; "pkg_"^pkg] & S[A"-package"; A pkg];
+              let base_args = [A"-package"; A pkg] in
+              let syn_args = [A"-syntax"; A "camlp4o"] in
+              let args =
+  			  (* heuristic to identify syntax extensions: 
+  				 whether they end in ".syntax"; some might not *)
+                if Filename.check_suffix pkg "syntax"
+                then syn_args @ base_args
+                else base_args
+              in
+              flag ["ocaml"; "compile";  "pkg_"^pkg] & S args;
+              flag ["ocaml"; "ocamldep"; "pkg_"^pkg] & S args;
+              flag ["ocaml"; "doc";      "pkg_"^pkg] & S args;
+              flag ["ocaml"; "link";     "pkg_"^pkg] & S base_args;
+              flag ["ocaml"; "infer_interface"; "pkg_"^pkg] & S args;
             end 
             (find_packages ());
 
@@ -323,7 +334,7 @@ module MyOCamlbuildFindlib = struct
 end
 
 module MyOCamlbuildBase = struct
-(* # 21 "/home/xleroy/.opam/4.00.1/build/oasis.0.3.0/src/plugins/ocamlbuild/MyOCamlbuildBase.ml" *)
+# 21 "/home/gildor/programmation/oasis/src/plugins/ocamlbuild/MyOCamlbuildBase.ml"
 
   (** Base functions for writing myocamlbuild.ml
       @author Sylvain Le Gall
@@ -339,7 +350,7 @@ module MyOCamlbuildBase = struct
   type name = string 
   type tag = string 
 
-(* # 56 "/home/xleroy/.opam/4.00.1/build/oasis.0.3.0/src/plugins/ocamlbuild/MyOCamlbuildBase.ml" *)
+# 56 "/home/gildor/programmation/oasis/src/plugins/ocamlbuild/MyOCamlbuildBase.ml"
 
   type t =
       {
@@ -473,7 +484,7 @@ module MyOCamlbuildBase = struct
 end
 
 
-# 476 "myocamlbuild.ml"
+# 487 "myocamlbuild.ml"
 open Ocamlbuild_plugin;;
 let package_default =
   {
@@ -518,6 +529,6 @@ let package_default =
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default package_default;;
 
-# 522 "myocamlbuild.ml"
+# 533 "myocamlbuild.ml"
 (* OASIS_STOP *)
 Ocamlbuild_plugin.dispatch dispatch_default;;
