@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 43898f78e1238084816e5a7e42ca5b46) *)
+(* DO NOT EDIT (digest: 698f81c2591872fc6117a44cc65d0962) *)
 module OASISGettext = struct
 # 21 "/home/gildor/programmation/oasis/src/oasis/OASISGettext.ml"
 
@@ -289,20 +289,11 @@ module MyOCamlbuildFindlib = struct
            * linking. *)
           List.iter 
             begin fun pkg ->
-              let base_args = [A"-package"; A pkg] in
-              let syn_args = [A"-syntax"; A "camlp4o"] in
-              let args =
-  			  (* heuristic to identify syntax extensions: 
-  				 whether they end in ".syntax"; some might not *)
-                if Filename.check_suffix pkg "syntax"
-                then syn_args @ base_args
-                else base_args
-              in
-              flag ["ocaml"; "compile";  "pkg_"^pkg] & S args;
-              flag ["ocaml"; "ocamldep"; "pkg_"^pkg] & S args;
-              flag ["ocaml"; "doc";      "pkg_"^pkg] & S args;
-              flag ["ocaml"; "link";     "pkg_"^pkg] & S base_args;
-              flag ["ocaml"; "infer_interface"; "pkg_"^pkg] & S args;
+              flag ["ocaml"; "compile";  "pkg_"^pkg] & S[A"-package"; A pkg];
+              flag ["ocaml"; "ocamldep"; "pkg_"^pkg] & S[A"-package"; A pkg];
+              flag ["ocaml"; "doc";      "pkg_"^pkg] & S[A"-package"; A pkg];
+              flag ["ocaml"; "link";     "pkg_"^pkg] & S[A"-package"; A pkg];
+              flag ["ocaml"; "infer_interface"; "pkg_"^pkg] & S[A"-package"; A pkg];
             end 
             (find_packages ());
 
@@ -484,7 +475,7 @@ module MyOCamlbuildBase = struct
 end
 
 
-# 487 "myocamlbuild.ml"
+# 478 "myocamlbuild.ml"
 open Ocamlbuild_plugin;;
 let package_default =
   {
@@ -515,12 +506,15 @@ let package_default =
           (["oasis_library_cryptokit_cclib"; "link"],
             [
                (OASISExpr.EBool true, S []);
-               (OASISExpr.EFlag "zlib", S [A "-cclib"; A "-lz"])
+               (OASISExpr.EFlag "zlib", S [A "-cclib"; A "-lz"]);
+               (OASISExpr.ETest ("os_type", "Win32"),
+                 S [A "-cclib"; A "advapi32.lib"])
             ]);
           (["oasis_library_cryptokit_cclib"; "ocamlmklib"; "c"],
             [
                (OASISExpr.EBool true, S []);
-               (OASISExpr.EFlag "zlib", S [A "-lz"])
+               (OASISExpr.EFlag "zlib", S [A "-lz"]);
+               (OASISExpr.ETest ("os_type", "Win32"), S [A "advapi32.lib"])
             ])
        ];
      includes = [("test", ["src"])];
@@ -529,6 +523,6 @@ let package_default =
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default package_default;;
 
-# 533 "myocamlbuild.ml"
+# 527 "myocamlbuild.ml"
 (* OASIS_STOP *)
 Ocamlbuild_plugin.dispatch dispatch_default;;
