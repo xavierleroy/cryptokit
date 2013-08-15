@@ -525,4 +525,47 @@ let dispatch_default = MyOCamlbuildBase.dispatch_default package_default;;
 
 # 527 "myocamlbuild.ml"
 (* OASIS_STOP *)
+
+let package_default = 
+  (* TODO: use path to expand variable and there will be no need to load
+   * environment at this stage.
+   *)
+  let env = 
+    BaseEnvLight.load 
+      ~filename:MyOCamlbuildBase.env_filename 
+      ~allow_empty:true
+      ()
+  in
+  let zlib_include = 
+    try BaseEnvLight.var_get "zlib_include" env with Not_found -> "" 
+  in
+  let zlib_libdir = 
+    try BaseEnvLight.var_get "zlib_libdir" env with Not_found -> "" 
+  in
+    {package_default with 
+         MyOCamlbuildBase.flags = 
+            (["oasis_library_cryptokit_ccopt"; "compile"],
+              [
+                (OASISExpr.EBool true, S []);
+                (OASISExpr.EBool (zlib_include <> ""),
+                 S [A "-ccopt"; A "-I"; A "-ccopt"; P zlib_include])
+              ])
+            ::
+            (["oasis_library_cryptokit_cclib"; "link"],
+              [
+                (OASISExpr.EBool true, S []);
+                (OASISExpr.EBool (zlib_libdir <> ""), 
+                 S [A "-cclib"; A "-L"; A "-cclib"; P zlib_libdir])
+              ])
+            ::
+            (["oasis_library_cryptokit_cclib"; "ocamlmklib"; "c"],
+              [
+                (OASISExpr.EBool true, S []);
+                (OASISExpr.EBool (zlib_libdir <> ""), 
+                 S [P ("-L"^zlib_libdir)])
+              ])
+            :: package_default.MyOCamlbuildBase.flags}
+
+let dispatch_default = MyOCamlbuildBase.dispatch_default package_default;;
+
 Ocamlbuild_plugin.dispatch dispatch_default;;

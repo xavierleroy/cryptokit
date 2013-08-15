@@ -6378,4 +6378,21 @@ let setup () = BaseSetup.setup setup_t;;
 
 # 6380 "setup.ml"
 (* OASIS_STOP *)
+
+let zlib_include = 
+  BaseEnv.var_define
+    ~cli:BaseEnv.CLIAuto
+    ~arg_help:"dir"
+    ~short_desc:(fun () -> "Define include path for zlib.")
+    "zlib_include"
+    (fun () -> "")
+
+let zlib_libdir = 
+  BaseEnv.var_define
+    ~cli:BaseEnv.CLIAuto
+    ~arg_help:"dir"
+    ~short_desc:(fun () -> "Define library path for zlib.")
+    "zlib_libdir"
+    (fun () -> "")
+
 let () = setup ();;
