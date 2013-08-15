@@ -1,0 +1,12 @@
+# OASIS_START
+# DO NOT EDIT (digest: 9bfbe7e80d3d10afc170190f6fb1eb61)
+version = "1.8"
+description = "Cryptographic primitives"
+requires = "unix num"
+archive(byte) = "cryptokit.cma"
+archive(byte, plugin) = "cryptokit.cma"
+archive(native) = "cryptokit.cmxa"
+archive(native, plugin) = "cryptokit.cmxs"
+exists_if = "cryptokit.cma"
+# OASIS_STOP
+
