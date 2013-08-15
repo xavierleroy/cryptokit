@@ -1,3 +1,9 @@
+Release 1.8:
+ - Build .cmxs with C bindings (Closes: #1303)
+ - Use advapi32 on Windows (Close: #1055)
+ - Allow to define --zlib-include and --zlib-libdir if zlib is not installed in
+   the standard location.
+
 Release 1.7:
 - Added SHA-3 hash function.
 
