@@ -66,6 +66,8 @@ Library cryptokit
   if flag(zlib)
     CCOpt: -O -DHAVE_ZLIB
     CCLib: -lz
+  if os_type(Win32)
+    CCLib: advapi32.lib
 
 Executable test
   Path:         test
