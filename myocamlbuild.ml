@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 698f81c2591872fc6117a44cc65d0962) *)
+(* DO NOT EDIT (digest: 057107233606b6ea9ab1878fbf84e419) *)
 module OASISGettext = struct
 # 21 "/home/gildor/programmation/oasis/src/oasis/OASISGettext.ml"
 
@@ -506,15 +506,286 @@ let package_default =
           (["oasis_library_cryptokit_cclib"; "link"],
             [
                (OASISExpr.EBool true, S []);
-               (OASISExpr.EFlag "zlib", S [A "-cclib"; A "-lz"]);
-               (OASISExpr.ETest ("os_type", "Win32"),
-                 S [A "-cclib"; A "advapi32.lib"])
+               (OASISExpr.EAnd
+                  (OASISExpr.ENot
+                     (OASISExpr.EOr
+                        (OASISExpr.ETest ("system", "win32"),
+                          OASISExpr.ETest ("system", "win64"))),
+                    OASISExpr.EOr
+                      (OASISExpr.ETest ("system", "mingw"),
+                        OASISExpr.ETest ("system", "mingw64"))),
+                 S [A "-cclib"; A "-ladvapi32"]);
+               (OASISExpr.EOr
+                  (OASISExpr.ETest ("system", "win32"),
+                    OASISExpr.ETest ("system", "win64")),
+                 S [A "-cclib"; A "advapi32.lib"]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EOr
+                     (OASISExpr.ETest ("system", "win32"),
+                       OASISExpr.ETest ("system", "win64")),
+                    OASISExpr.EAnd
+                      (OASISExpr.ENot
+                         (OASISExpr.EOr
+                            (OASISExpr.ETest ("system", "win32"),
+                              OASISExpr.ETest ("system", "win64"))),
+                        OASISExpr.EOr
+                          (OASISExpr.ETest ("system", "mingw"),
+                            OASISExpr.ETest ("system", "mingw64")))),
+                 S [A "-cclib"; A "advapi32.lib"; A "-cclib"; A "-ladvapi32"]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EFlag "zlib",
+                    OASISExpr.EOr
+                      (OASISExpr.ETest ("system", "win32"),
+                        OASISExpr.ETest ("system", "win64"))),
+                 S [A "-cclib"; A "zlib.lib"]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EAnd
+                     (OASISExpr.EFlag "zlib",
+                       OASISExpr.EOr
+                         (OASISExpr.ETest ("system", "win32"),
+                           OASISExpr.ETest ("system", "win64"))),
+                    OASISExpr.EAnd
+                      (OASISExpr.ENot
+                         (OASISExpr.EOr
+                            (OASISExpr.ETest ("system", "win32"),
+                              OASISExpr.ETest ("system", "win64"))),
+                        OASISExpr.EOr
+                          (OASISExpr.ETest ("system", "mingw"),
+                            OASISExpr.ETest ("system", "mingw64")))),
+                 S [A "-cclib"; A "zlib.lib"; A "-cclib"; A "-ladvapi32"]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EAnd
+                     (OASISExpr.EFlag "zlib",
+                       OASISExpr.EOr
+                         (OASISExpr.ETest ("system", "win32"),
+                           OASISExpr.ETest ("system", "win64"))),
+                    OASISExpr.EOr
+                      (OASISExpr.ETest ("system", "win32"),
+                        OASISExpr.ETest ("system", "win64"))),
+                 S [A "-cclib"; A "zlib.lib"; A "-cclib"; A "advapi32.lib"]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EAnd
+                     (OASISExpr.EAnd
+                        (OASISExpr.EFlag "zlib",
+                          OASISExpr.EOr
+                            (OASISExpr.ETest ("system", "win32"),
+                              OASISExpr.ETest ("system", "win64"))),
+                       OASISExpr.EOr
+                         (OASISExpr.ETest ("system", "win32"),
+                           OASISExpr.ETest ("system", "win64"))),
+                    OASISExpr.EAnd
+                      (OASISExpr.ENot
+                         (OASISExpr.EOr
+                            (OASISExpr.ETest ("system", "win32"),
+                              OASISExpr.ETest ("system", "win64"))),
+                        OASISExpr.EOr
+                          (OASISExpr.ETest ("system", "mingw"),
+                            OASISExpr.ETest ("system", "mingw64")))),
+                 S
+                   [
+                      A "-cclib";
+                      A "zlib.lib";
+                      A "-cclib";
+                      A "advapi32.lib";
+                      A "-cclib";
+                      A "-ladvapi32"
+                   ]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EFlag "zlib",
+                    OASISExpr.ENot
+                      (OASISExpr.EOr
+                         (OASISExpr.ETest ("system", "win32"),
+                           OASISExpr.ETest ("system", "win64")))),
+                 S [A "-cclib"; A "-lz"]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EAnd
+                     (OASISExpr.EFlag "zlib",
+                       OASISExpr.ENot
+                         (OASISExpr.EOr
+                            (OASISExpr.ETest ("system", "win32"),
+                              OASISExpr.ETest ("system", "win64")))),
+                    OASISExpr.EAnd
+                      (OASISExpr.ENot
+                         (OASISExpr.EOr
+                            (OASISExpr.ETest ("system", "win32"),
+                              OASISExpr.ETest ("system", "win64"))),
+                        OASISExpr.EOr
+                          (OASISExpr.ETest ("system", "mingw"),
+                            OASISExpr.ETest ("system", "mingw64")))),
+                 S [A "-cclib"; A "-lz"; A "-cclib"; A "-ladvapi32"]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EAnd
+                     (OASISExpr.EFlag "zlib",
+                       OASISExpr.ENot
+                         (OASISExpr.EOr
+                            (OASISExpr.ETest ("system", "win32"),
+                              OASISExpr.ETest ("system", "win64")))),
+                    OASISExpr.EOr
+                      (OASISExpr.ETest ("system", "win32"),
+                        OASISExpr.ETest ("system", "win64"))),
+                 S [A "-cclib"; A "-lz"; A "-cclib"; A "advapi32.lib"]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EAnd
+                     (OASISExpr.EAnd
+                        (OASISExpr.EFlag "zlib",
+                          OASISExpr.ENot
+                            (OASISExpr.EOr
+                               (OASISExpr.ETest ("system", "win32"),
+                                 OASISExpr.ETest ("system", "win64")))),
+                       OASISExpr.EOr
+                         (OASISExpr.ETest ("system", "win32"),
+                           OASISExpr.ETest ("system", "win64"))),
+                    OASISExpr.EAnd
+                      (OASISExpr.ENot
+                         (OASISExpr.EOr
+                            (OASISExpr.ETest ("system", "win32"),
+                              OASISExpr.ETest ("system", "win64"))),
+                        OASISExpr.EOr
+                          (OASISExpr.ETest ("system", "mingw"),
+                            OASISExpr.ETest ("system", "mingw64")))),
+                 S
+                   [
+                      A "-cclib";
+                      A "-lz";
+                      A "-cclib";
+                      A "advapi32.lib";
+                      A "-cclib";
+                      A "-ladvapi32"
+                   ])
             ]);
           (["oasis_library_cryptokit_cclib"; "ocamlmklib"; "c"],
             [
                (OASISExpr.EBool true, S []);
-               (OASISExpr.EFlag "zlib", S [A "-lz"]);
-               (OASISExpr.ETest ("os_type", "Win32"), S [A "advapi32.lib"])
+               (OASISExpr.EAnd
+                  (OASISExpr.ENot
+                     (OASISExpr.EOr
+                        (OASISExpr.ETest ("system", "win32"),
+                          OASISExpr.ETest ("system", "win64"))),
+                    OASISExpr.EOr
+                      (OASISExpr.ETest ("system", "mingw"),
+                        OASISExpr.ETest ("system", "mingw64"))),
+                 S [A "-ladvapi32"]);
+               (OASISExpr.EOr
+                  (OASISExpr.ETest ("system", "win32"),
+                    OASISExpr.ETest ("system", "win64")),
+                 S [A "advapi32.lib"]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EOr
+                     (OASISExpr.ETest ("system", "win32"),
+                       OASISExpr.ETest ("system", "win64")),
+                    OASISExpr.EAnd
+                      (OASISExpr.ENot
+                         (OASISExpr.EOr
+                            (OASISExpr.ETest ("system", "win32"),
+                              OASISExpr.ETest ("system", "win64"))),
+                        OASISExpr.EOr
+                          (OASISExpr.ETest ("system", "mingw"),
+                            OASISExpr.ETest ("system", "mingw64")))),
+                 S [A "advapi32.lib"; A "-ladvapi32"]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EFlag "zlib",
+                    OASISExpr.EOr
+                      (OASISExpr.ETest ("system", "win32"),
+                        OASISExpr.ETest ("system", "win64"))),
+                 S [A "zlib.lib"]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EAnd
+                     (OASISExpr.EFlag "zlib",
+                       OASISExpr.EOr
+                         (OASISExpr.ETest ("system", "win32"),
+                           OASISExpr.ETest ("system", "win64"))),
+                    OASISExpr.EAnd
+                      (OASISExpr.ENot
+                         (OASISExpr.EOr
+                            (OASISExpr.ETest ("system", "win32"),
+                              OASISExpr.ETest ("system", "win64"))),
+                        OASISExpr.EOr
+                          (OASISExpr.ETest ("system", "mingw"),
+                            OASISExpr.ETest ("system", "mingw64")))),
+                 S [A "zlib.lib"; A "-ladvapi32"]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EAnd
+                     (OASISExpr.EFlag "zlib",
+                       OASISExpr.EOr
+                         (OASISExpr.ETest ("system", "win32"),
+                           OASISExpr.ETest ("system", "win64"))),
+                    OASISExpr.EOr
+                      (OASISExpr.ETest ("system", "win32"),
+                        OASISExpr.ETest ("system", "win64"))),
+                 S [A "zlib.lib"; A "advapi32.lib"]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EAnd
+                     (OASISExpr.EAnd
+                        (OASISExpr.EFlag "zlib",
+                          OASISExpr.EOr
+                            (OASISExpr.ETest ("system", "win32"),
+                              OASISExpr.ETest ("system", "win64"))),
+                       OASISExpr.EOr
+                         (OASISExpr.ETest ("system", "win32"),
+                           OASISExpr.ETest ("system", "win64"))),
+                    OASISExpr.EAnd
+                      (OASISExpr.ENot
+                         (OASISExpr.EOr
+                            (OASISExpr.ETest ("system", "win32"),
+                              OASISExpr.ETest ("system", "win64"))),
+                        OASISExpr.EOr
+                          (OASISExpr.ETest ("system", "mingw"),
+                            OASISExpr.ETest ("system", "mingw64")))),
+                 S [A "zlib.lib"; A "advapi32.lib"; A "-ladvapi32"]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EFlag "zlib",
+                    OASISExpr.ENot
+                      (OASISExpr.EOr
+                         (OASISExpr.ETest ("system", "win32"),
+                           OASISExpr.ETest ("system", "win64")))),
+                 S [A "-lz"]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EAnd
+                     (OASISExpr.EFlag "zlib",
+                       OASISExpr.ENot
+                         (OASISExpr.EOr
+                            (OASISExpr.ETest ("system", "win32"),
+                              OASISExpr.ETest ("system", "win64")))),
+                    OASISExpr.EAnd
+                      (OASISExpr.ENot
+                         (OASISExpr.EOr
+                            (OASISExpr.ETest ("system", "win32"),
+                              OASISExpr.ETest ("system", "win64"))),
+                        OASISExpr.EOr
+                          (OASISExpr.ETest ("system", "mingw"),
+                            OASISExpr.ETest ("system", "mingw64")))),
+                 S [A "-lz"; A "-ladvapi32"]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EAnd
+                     (OASISExpr.EFlag "zlib",
+                       OASISExpr.ENot
+                         (OASISExpr.EOr
+                            (OASISExpr.ETest ("system", "win32"),
+                              OASISExpr.ETest ("system", "win64")))),
+                    OASISExpr.EOr
+                      (OASISExpr.ETest ("system", "win32"),
+                        OASISExpr.ETest ("system", "win64"))),
+                 S [A "-lz"; A "advapi32.lib"]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EAnd
+                     (OASISExpr.EAnd
+                        (OASISExpr.EFlag "zlib",
+                          OASISExpr.ENot
+                            (OASISExpr.EOr
+                               (OASISExpr.ETest ("system", "win32"),
+                                 OASISExpr.ETest ("system", "win64")))),
+                       OASISExpr.EOr
+                         (OASISExpr.ETest ("system", "win32"),
+                           OASISExpr.ETest ("system", "win64"))),
+                    OASISExpr.EAnd
+                      (OASISExpr.ENot
+                         (OASISExpr.EOr
+                            (OASISExpr.ETest ("system", "win32"),
+                              OASISExpr.ETest ("system", "win64"))),
+                        OASISExpr.EOr
+                          (OASISExpr.ETest ("system", "mingw"),
+                            OASISExpr.ETest ("system", "mingw64")))),
+                 S [A "-lz"; A "advapi32.lib"; A "-ladvapi32"])
             ])
        ];
      includes = [("test", ["src"])];
@@ -523,7 +794,7 @@ let package_default =
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default package_default;;
 
-# 527 "myocamlbuild.ml"
+# 798 "myocamlbuild.ml"
 (* OASIS_STOP *)
 
 let package_default = 
