@@ -65,9 +65,14 @@ Library cryptokit
   BuildDepends: unix, num
   if flag(zlib)
     CCOpt: -O -DHAVE_ZLIB
-    CCLib: -lz
-  if os_type(Win32)
-    CCLib: advapi32.lib
+    if system(win32) || system(win64)
+      CCLib: zlib.lib
+    else
+      CCLib: -lz
+  if system(win32) || system(win64)
+    CCLib+: advapi32.lib
+  else if system(mingw) || system(mingw64)
+    CCLib+: -ladvapi32
 
 Executable test
   Path:         test
