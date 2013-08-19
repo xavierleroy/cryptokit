@@ -1,3 +1,6 @@
+Release 1.9:
+ - More fixes to build in Windows with zlib (mingw and msvc).
+
 Release 1.8:
  - Build .cmxs with C bindings (Closes: #1303)
  - Use advapi32 on Windows (Close: #1055)
