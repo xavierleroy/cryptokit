@@ -558,6 +558,34 @@ class ofb ?iv:iv_init chunksize (cipher : block_cipher) =
       wipe_string iv
   end
 
+let rec increment_counter c lim pos =
+  if pos >= lim then begin
+    let i = 1 + Char.code c.[pos] in
+    c.[pos] <- Char.unsafe_chr i;
+    if i = 0x100 then increment_counter c lim (pos - 1)
+  end
+
+class ctr ?iv:iv_init ?inc (cipher : block_cipher) =
+  let blocksize = cipher#blocksize in
+  let nincr =
+    match inc with
+    | None -> blocksize
+    | Some n -> assert (n > 0 && n <= blocksize); n in
+  object(self)
+    val iv = make_initial_iv blocksize iv_init
+    val out = String.create blocksize
+    method blocksize = blocksize
+    method transform src src_off dst dst_off =
+      cipher#transform iv 0 out 0;
+      String.blit src src_off dst dst_off blocksize;
+      xor_string out 0 dst dst_off blocksize;
+      increment_counter iv (blocksize - nincr) (blocksize - 1)
+    method wipe =
+      cipher#wipe;
+      wipe_string iv;
+      wipe_string out
+  end
+
 (* Wrapping of a block cipher as a transform *)
 
 class cipher (cipher : block_cipher) =
@@ -946,6 +974,8 @@ type chaining_mode =
   | CBC
   | CFB of int
   | OFB of int
+  | CTR
+  | CTR_N of int
 
 let make_block_cipher ?(mode = CBC) ?pad ?iv dir block_cipher =
   let chained_cipher =
@@ -955,7 +985,9 @@ let make_block_cipher ?(mode = CBC) ?pad ?iv dir block_cipher =
     | (CBC, Decrypt) -> new Block.cbc_decrypt ?iv block_cipher
     | (CFB n, Encrypt) -> new Block.cfb_encrypt ?iv n block_cipher
     | (CFB n, Decrypt) -> new Block.cfb_decrypt ?iv n block_cipher
-    | (OFB n, _) -> new Block.ofb ?iv n block_cipher in
+    | (OFB n, _) -> new Block.ofb ?iv n block_cipher
+    | (CTR, _) -> new Block.ctr ?iv block_cipher
+    | (CTR_N n, _) -> new Block.ctr ?iv ~inc:n block_cipher in
   match pad with
     None -> new Block.cipher chained_cipher
   | Some p ->
@@ -965,7 +997,7 @@ let make_block_cipher ?(mode = CBC) ?pad ?iv dir block_cipher =
 
 let normalize_dir mode dir =
   match mode with
-    Some(CFB _) | Some(OFB _) -> Encrypt
+  | Some(CFB _) | Some(OFB _) | Some(CTR) | Some(CTR_N _) -> Encrypt
   | _ -> dir
 
 let aes ?mode ?pad ?iv key dir =

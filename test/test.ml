@@ -429,6 +429,13 @@ let _ =
   test_enc_dec 2 (des ~mode:(OFB 8)) "abcdefgh01234567";
   test_enc_dec 3 (des ~mode:(OFB 8) ~pad:Padding._8000) "abcdefghijklmnopqrstuvwxyz"
 
+let _ =
+  testing_function "CTR";
+  test_enc_dec 1 (des ~mode:CTR) "abcdefgh";
+  test_enc_dec 2 (des ~mode:CTR) "abcdefgh01234567";
+  test_enc_dec 3 (des ~mode:CTR ~pad:Padding._8000) "abcdefghijklmnopqrstuvwxyz";
+  test_enc_dec 4 (des ~mode:CTR ~iv:"\000\000\000\000\255\255\255\255" ~pad:Padding._8000) "abcdefghijklmnopqrstuvwxyz"
+
 (* HMAC-SHA256 *)
 
 let _ =
