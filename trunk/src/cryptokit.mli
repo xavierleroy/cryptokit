@@ -340,14 +340,21 @@ module Cipher : sig
     | CBC
     | CFB of int
     | OFB of int
+    | CTR
+    | CTR_N of int
     (** Block ciphers such as AES or DES map a fixed-sized block of
         input data to a block of output data of the same size.
         A chaining mode indicates how to extend them to multiple blocks
-        of data.  The four chaining modes supported in this library are:
+        of data.  The five chaining modes supported in this library are:
         - [ECB]: Electronic Code Book mode.
         - [CBC]: Cipher Block Chaining mode.
         - [CFB n]:  Cipher Feedback Block with [n] bytes.
-        - [OFB n]: Output Feedback Block with [n] bytes.
+        - [OFB n]: Output Feedback Block with [n] bytes
+        - [CTR]: Counter mode, incrementing all the bytes of the IV
+        - [CTR_N n]: Counter mode, incrementing only the final [n]
+          bytes of the IV.  For example, [CTR_N 4] increments
+          the final 32 bits of the IV, as in NIST Special Publication
+          800-38D.
 
         A detailed description of these modes is beyond the scope of
         this documentation; refer to a good cryptography book.
@@ -355,7 +362,9 @@ module Cipher : sig
         note that the blocksize is reduced to [n], but encryption
         speed drops by a factor of [blocksize / n], where [blocksize]
         is the block size of the underlying cipher; moreover, [n]
-        must be between [1] and [blocksize] included. *)
+        must be between [1] and [blocksize] included.  For [CTR_N n],
+        [n] must be between [1] and [blocksize] included.
+        [CTR] is equivalent to [CTR_N blocksize]. *)
 
   val aes: ?mode:chaining_mode -> ?pad:Padding.scheme -> ?iv:string ->
              string -> direction -> transform
@@ -376,9 +385,9 @@ module Cipher : sig
         of the cleartext must be an integral number of blocks.
 
         The optional [iv] argument is the initialization vector used
-        in modes CBC, CFB and OFB.  It is ignored in ECB mode.
-        If provided, it must be a string of the same size as the block size
-        (16 bytes).  If omitted, the null initialization vector
+        by the chaining mode.  It is ignored in ECB mode.  If
+        provided, it must be a string of the same size as the block
+        size (16 bytes).  If omitted, the null initialization vector
         (16 zero bytes) is used.
 
         The [aes] function returns a transform that performs encryption
@@ -456,10 +465,10 @@ module Cipher : sig
         of the cleartext must be an integral number of blocks.
 
         The optional [iv] argument is the initialization vector used
-        in modes CBC, CFB and OFB.  It is ignored in ECB mode.
+        by the chaining mode.  It is ignored in ECB mode.
         If provided, it must be a string of the same size as the block size
-        (16 bytes).  If omitted, the null initialization vector
-        (16 zero bytes) is used.
+        (8 bytes).  If omitted, the null initialization vector
+        (8 zero bytes) is used.
 
         The [blowfish] function returns a transform that performs encryption
         or decryption, depending on the direction argument. *)
@@ -860,6 +869,19 @@ module Block : sig
         the block size of the underlying cipher, included.        
         The returned block cipher has block size [n].
         It is usable both for encryption and decryption. *)
+  class ctr: ?iv: string -> ?inc:int -> block_cipher -> block_cipher
+    (** Add Counter mode to the given block cipher.  Viewing the IV
+        as a [blocksize]-byte integer in big-endian representation,
+        the blocks [IV], [IV+1], [IV+2], ... are encrypted using
+        the given block cipher, and the result is xor-ed with the
+        input blocks to produce the output blocks.  The additions
+        [IV+n] are performed modulo 2 to the [8 * inc] power.
+        In other words, only the low [inc] bytes of the [IV] are
+        subject to incrementation; the high [blocksize - inc] bytes
+        are unaffected.  [inc] defaults to [blocksize].
+        The returned block cipher has the same block size as
+        the underlying block cipher, and is usable both for
+        encryption and decryption. *)
 end
 
 (** The [Stream] module provides classes that implement

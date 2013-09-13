@@ -1,3 +1,5 @@
+- Add support for CTR (Counter) chaining mode.
+
 Release 1.9:
  - More fixes to build in Windows with zlib (mingw and msvc).
 
