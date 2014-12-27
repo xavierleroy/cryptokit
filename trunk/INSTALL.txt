@@ -1,14 +1,16 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 5875d34710956262bf8450dd73a4ab67) *)
+(* DO NOT EDIT (digest: 730a19b32dfccf7f96bfa6585a302c44) *)
+
 This is the INSTALL file for the cryptokit distribution.
 
 This package uses OASIS to generate its build system. See section OASIS for
-full information. 
+full information.
 
 Dependencies
 ============
 
 In order to compile this package, you will need:
+
 * ocaml for all, test bench, test main, doc api-cryptokit
 * findlib
 
@@ -23,7 +25,7 @@ Installing
 Uninstalling
 ============
 
-1. Go to the root of the package 
+1. Go to the root of the package
 2. Run 'ocaml setup.ml -uninstall'
 
 OASIS
