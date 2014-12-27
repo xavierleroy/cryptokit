@@ -56,7 +56,7 @@ Library cryptokit
             stubs-sha256.c,
             sha512.c,
             sha512.h,
-            stubs_sha512.c,
+            stubs-sha512.c,
             stubs-aes.c,
             stubs-md5.c,
             stubs-misc.c,

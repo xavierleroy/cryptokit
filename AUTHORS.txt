@@ -1,5 +1,8 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 5b4688f86f9f3738147f4b2993e8495a) *)
-Authors of cryptokit
-Xavier Leroy
+(* DO NOT EDIT (digest: e625e8e0d101a44e16ea9cac5c37eaa0) *)
+
+Authors of cryptokit:
+
+* Xavier Leroy
+
 (* OASIS_STOP *)
