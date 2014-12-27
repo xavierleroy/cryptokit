@@ -60,8 +60,15 @@ external sha1_init: unit -> string = "caml_sha1_init"
 external sha1_update: string -> string -> int -> int -> unit = "caml_sha1_update"
 external sha1_final: string -> string = "caml_sha1_final"
 external sha256_init: unit -> string = "caml_sha256_init"
+external sha224_init: unit -> string = "caml_sha224_init"
 external sha256_update: string -> string -> int -> int -> unit = "caml_sha256_update"
 external sha256_final: string -> string = "caml_sha256_final"
+external sha224_final: string -> string = "caml_sha224_final"
+external sha512_init: unit -> string = "caml_sha512_init"
+external sha384_init: unit -> string = "caml_sha384_init"
+external sha512_update: string -> string -> int -> int -> unit = "caml_sha512_update"
+external sha512_final: string -> string = "caml_sha512_final"
+external sha384_final: string -> string = "caml_sha384_final"
 type sha3_context
 external sha3_init: int -> sha3_context = "caml_sha3_init"
 external sha3_absorb: sha3_context -> string -> int -> int -> unit = "caml_sha3_absorb"
@@ -870,6 +877,28 @@ class sha1 =
 
 let sha1 () = new sha1
 
+class sha224 =
+  object(self)
+    val context = sha224_init()
+    method hash_size = 24
+    method add_substring src ofs len =
+      if ofs < 0 || ofs + len > String.length src
+      then invalid_arg "sha224#add_substring";
+      sha256_update context src ofs len
+    method add_string src =
+      sha256_update context src 0 (String.length src)
+    method add_char c =
+      self#add_string (String.make 1 c)
+    method add_byte b =
+      self#add_char (Char.unsafe_chr b)
+    method result =
+      sha224_final context
+    method wipe =
+      wipe_string context
+  end
+
+let sha224 () = new sha224
+
 class sha256 =
   object(self)
     val context = sha256_init()
@@ -891,6 +920,58 @@ class sha256 =
   end
 
 let sha256 () = new sha256
+
+class sha384 =
+  object(self)
+    val context = sha384_init()
+    method hash_size = 48
+    method add_substring src ofs len =
+      if ofs < 0 || ofs + len > String.length src
+      then invalid_arg "sha384#add_substring";
+      sha512_update context src ofs len
+    method add_string src =
+      sha512_update context src 0 (String.length src)
+    method add_char c =
+      self#add_string (String.make 1 c)
+    method add_byte b =
+      self#add_char (Char.unsafe_chr b)
+    method result =
+      sha384_final context
+    method wipe =
+      wipe_string context
+  end
+
+let sha384 () = new sha384
+
+class sha512 =
+  object(self)
+    val context = sha512_init()
+    method hash_size = 64
+    method add_substring src ofs len =
+      if ofs < 0 || ofs + len > String.length src
+      then invalid_arg "sha512#add_substring";
+      sha512_update context src ofs len
+    method add_string src =
+      sha512_update context src 0 (String.length src)
+    method add_char c =
+      self#add_string (String.make 1 c)
+    method add_byte b =
+      self#add_char (Char.unsafe_chr b)
+    method result =
+      sha512_final context
+    method wipe =
+      wipe_string context
+  end
+
+let sha512 () = new sha512
+
+let sha2 sz =
+  match sz with
+  | 224 -> new sha224
+  | 256 -> new sha256
+  | 384 -> new sha384
+  | 512 -> new sha512
+  |  _  -> raise (Error Wrong_key_size)
 
 class sha3 sz =
   object(self)
@@ -1065,6 +1146,8 @@ module HMAC_SHA1 =
   HMAC(struct class h = Hash.sha1  let blocksize = 64 end)
 module HMAC_SHA256 =
   HMAC(struct class h = Hash.sha256  let blocksize = 64 end)
+module HMAC_SHA512 =
+  HMAC(struct class h = Hash.sha512  let blocksize = 128 end)
 module HMAC_RIPEMD160 = 
   HMAC(struct class h = Hash.ripemd160  let blocksize = 64 end)
 module HMAC_MD5 =
@@ -1072,6 +1155,7 @@ module HMAC_MD5 =
 
 let hmac_sha1 key = new HMAC_SHA1.hmac key
 let hmac_sha256 key = new HMAC_SHA256.hmac key
+let hmac_sha512 key = new HMAC_SHA512.hmac key
 let hmac_ripemd160 key = new HMAC_RIPEMD160.hmac key
 let hmac_md5 key = new HMAC_MD5.hmac key
 
@@ -1959,7 +2043,7 @@ class encode multiline padding =
           oend <- oend + 3
       | _ -> ()
       end;
-      if multiline or padding then begin
+      if multiline || padding then begin
         let num_equals =
           match ipos with 1 -> 2 | 2 -> 1 | _ -> 0 in
         self#ensure_capacity num_equals;
@@ -1998,7 +2082,7 @@ class decode =
     method input_block_size = 1
     method output_block_size = 1
 
-    val ibuf = Array.create 4 0
+    val ibuf = Array.make 4 0
     val mutable ipos = 0
     val mutable finished = false
 
@@ -2103,7 +2187,7 @@ class decode =
     method input_block_size = 1
     method output_block_size = 1
 
-    val ibuf = Array.create 2 0
+    val ibuf = Array.make 2 0
     val mutable ipos = 0
 
     method put_char c =

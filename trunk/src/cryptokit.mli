@@ -19,7 +19,7 @@
     - Symmetric-key ciphers: AES, DES, Triple-DES, ARCfour,
       in ECB, CBC, CFB and OFB modes.
     - Public-key cryptography: RSA encryption, Diffie-Hellman key agreement.
-    - Hash functions and MACs: SHA-1, SHA-256, SHA-3, RIPEMD-160, MD5,
+    - Hash functions and MACs: SHA-1, SHA-256, SHA-512. SHA-3, RIPEMD-160, MD5,
       and MACs based on AES and DES.
     - Random number generation.
     - Encodings and compression: base 64, hexadecimal, Zlib compression.
@@ -475,7 +475,8 @@ module Cipher : sig
 end
 
 (** The [Hash] module implements unkeyed cryptographic hashes (SHA-1,
-    SHA-256, RIPEMD-160 and MD5), also known as message digest functions.  
+    SHA-256, SHA-512, SHA-3, RIPEMD-160 and MD5), also known as
+    message digest functions.
     Hash functions used in cryptography are characterized as being
     <I>one-way</I> (given a hash value, it is computationally
     infeasible to find a text that hashes to this value) and
@@ -488,14 +489,24 @@ module Hash : sig
     (** SHA-1 is the Secure Hash Algorithm revision 1.  It is a NIST
         standard, is widely used, and produces 160-bit hashes (20 bytes).
         Recent results suggest that it may not be collision-resistant. *)
-  val sha256: unit -> hash
-    (** SHA-256, another NIST standard, is a variant of SHA-1 that
-        produces 256-bit hashes (32 bytes). *)
+  val sha2: int -> hash
+    (** SHA-2, another NIST standard for cryptographic hashing, produces
+        hashes of 224, 256, 384, or 512 bits (24, 32, 48 or 64 bytes).
+        The parameter is the desired size of the hash, in
+        bits.  It must be one of 224, 256, 384 or 512. *)
   val sha3: int -> hash
     (** SHA-3, the latest NIST standard for cryptographic hashing,
         produces hashes of 224, 256, 384 or 512 bits (24, 32, 48 or 64
         bytes).  The parameter is the desired size of the hash, in
         bits.  It must be one of 224, 256, 384 or 512. *)
+  val sha224: unit -> hash
+    (** SHA-224 is SHA-2 specialized to 224 bit hashes (24 bytes). *)
+  val sha256: unit -> hash
+    (** SHA-256 is SHA-2 specialized to 256 bit hashes (32 bytes). *)
+  val sha384: unit -> hash
+    (** SHA-384 is SHA-2 specialized to 384 bit hashes (48 bytes). *)
+  val sha512: unit -> hash
+    (** SHA-512 is SHA-2 specialized to 512 bit hashes (64 bytes). *)
   val ripemd160: unit -> hash
     (** RIPEMD-160 produces 160-bit hashes (20 bytes). *)
   val md5: unit -> hash
@@ -516,8 +527,8 @@ end
     and if it matches the transmitted MAC, be reasonably certain that
     the text was authentified by someone who possesses the secret key.
 
-    The module [MAC] provides four MAC functions based on the hashes
-    SHA-1, SHA256, RIPEMD160 and MD5, and four MAC functions based on
+    The module [MAC] provides five MAC functions based on the hashes
+    SHA-1, SHA256, SHA512, RIPEMD160 and MD5, and four MAC functions based on
     the block ciphers AES, DES, and Triple-DES. *)
 module MAC: sig
   val hmac_sha1: string -> hash
@@ -530,6 +541,12 @@ module MAC: sig
         (RFC2104) applied to SHA-256.  The returned hash values are
         256 bits (32 bytes) long.  The [key] argument is the MAC key;
         it can have any length, but a minimal length of 32 bytes is
+        recommended. *)
+  val hmac_sha512: string -> hash
+    (** [hmac_sha512 key] returns a MAC based on the HMAC construction
+        (RFC2104) applied to SHA-512.  The returned hash values are
+        512 bits (64 bytes) long.  The [key] argument is the MAC key;
+        it can have any length, but a minimal length of 64 bytes is
         recommended. *)
   val hmac_ripemd160: string -> hash
     (** [hmac_ripemd160 key] returns a MAC based on the HMAC

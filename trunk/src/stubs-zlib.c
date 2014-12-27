@@ -95,9 +95,9 @@ value caml_zlib_deflate(value vzs, value srcbuf, value srcpos, value srclen,
   long used_in, used_out;
   value res;
 
-  zs->next_in = &Byte(srcbuf, Long_val(srcpos));
+  zs->next_in = &Byte_u(srcbuf, Long_val(srcpos));
   zs->avail_in = Long_val(srclen);
-  zs->next_out = &Byte(dstbuf, Long_val(dstpos));
+  zs->next_out = &Byte_u(dstbuf, Long_val(dstpos));
   zs->avail_out = Long_val(dstlen);
   retcode = deflate(zs, caml_zlib_flush_table[Int_val(vflush)]);
   if (retcode < 0) caml_zlib_error("Zlib.deflate", vzs);
@@ -140,9 +140,9 @@ value caml_zlib_inflate(value vzs, value srcbuf, value srcpos, value srclen,
   long used_in, used_out;
   value res;
 
-  zs->next_in = &Byte(srcbuf, Long_val(srcpos));
+  zs->next_in = &Byte_u(srcbuf, Long_val(srcpos));
   zs->avail_in = Long_val(srclen);
-  zs->next_out = &Byte(dstbuf, Long_val(dstpos));
+  zs->next_out = &Byte_u(dstbuf, Long_val(dstpos));
   zs->avail_out = Long_val(dstlen);
   retcode = inflate(zs, caml_zlib_flush_table[Int_val(vflush)]);
   if (retcode < 0 || retcode == Z_NEED_DICT)

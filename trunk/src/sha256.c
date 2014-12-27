@@ -129,16 +129,35 @@ static void SHA256_transform(struct SHA256Context * ctx)
   ctx->state[7] += h;
 }
 
-void SHA256_init(struct SHA256Context * ctx)
+void SHA256_init(struct SHA256Context * ctx, int bitsize)
 {
-  ctx->state[0] = 0x6A09E667;
-  ctx->state[1] = 0xBB67AE85;
-  ctx->state[2] = 0x3C6EF372;
-  ctx->state[3] = 0xA54FF53A;
-  ctx->state[4] = 0x510E527F;
-  ctx->state[5] = 0x9B05688C;
-  ctx->state[6] = 0x1F83D9AB;
-  ctx->state[7] = 0x5BE0CD19;
+  switch (bitsize) {
+  case 224:
+    ctx->state[0] = 0xc1059ed8;
+    ctx->state[1] = 0x367cd507;
+    ctx->state[2] = 0x3070dd17;
+    ctx->state[3] = 0xf70e5939;
+    ctx->state[4] = 0xffc00b31;
+    ctx->state[5] = 0x68581511;
+    ctx->state[6] = 0x64f98fa7;
+    ctx->state[7] = 0xbefa4fa4;
+    break;
+  case 256:
+    ctx->state[0] = 0x6A09E667;
+    ctx->state[1] = 0xBB67AE85;
+    ctx->state[2] = 0x3C6EF372;
+    ctx->state[3] = 0xA54FF53A;
+    ctx->state[4] = 0x510E527F;
+    ctx->state[5] = 0x9B05688C;
+    ctx->state[6] = 0x1F83D9AB;
+    ctx->state[7] = 0x5BE0CD19;
+    break;
+  default:
+    /* The bit size is wrong.  Just zero the state to produce 
+       incorrect hashes. */
+    memset(ctx->state, 0, sizeof(ctx->state));
+    break;
+  }
   ctx->numbytes = 0;
   ctx->length[0] = 0;
   ctx->length[1] = 0;
@@ -180,7 +199,8 @@ void SHA256_add_data(struct SHA256Context * ctx, unsigned char * data,
   ctx->numbytes = len;
 }
 
-void SHA256_finish(struct SHA256Context * ctx, unsigned char output[32])
+void SHA256_finish(struct SHA256Context * ctx, int bitsize,
+                   unsigned char * output)
 {
   int i = ctx->numbytes;
 
@@ -200,5 +220,13 @@ void SHA256_finish(struct SHA256Context * ctx, unsigned char output[32])
   /* Munge the final block */
   SHA256_transform(ctx);
   /* Final hash value is in ctx->state modulo big-endian conversion */
-  SHA256_copy_and_swap(ctx->state, output, 8);
+  switch (bitsize) {
+  case 256:
+    SHA256_copy_and_swap(ctx->state, output, 8);
+    break;
+  case 224:
+    SHA256_copy_and_swap(ctx->state, output, 7);
+    break;
+  /* default: The bit size is wrong.  Produce no output. */
+  }
 }

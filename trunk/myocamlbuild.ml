@@ -492,6 +492,7 @@ let package_default =
                "src/ripemd160.h";
                "src/sha1.h";
                "src/sha256.h";
+               "src/sha512.h";
                "src/keccak.h"
             ])
        ];

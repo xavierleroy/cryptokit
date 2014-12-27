@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 5e9eced2deea37efe462dfd9e5f6e78f)
+# DO NOT EDIT (digest: 02203f621ea04eb4a8fb3dea9b27872c)
 arcfour.o
 stubs-arcfour.o
 blowfish.o
@@ -13,6 +13,8 @@ sha1.o
 stubs-sha1.o
 sha256.o
 stubs-sha256.o
+sha512.o
+stubs-sha512.o
 stubs-aes.o
 stubs-md5.o
 stubs-misc.o
