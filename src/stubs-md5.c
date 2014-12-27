@@ -17,9 +17,16 @@
 #include <caml/memory.h>
 #include <caml/alloc.h>
 
+#ifndef _MSC_VER
+#include <stdint.h>
+typedef uint32_t u32;
+#else
+typedef unsigned int u32;
+#endif
+
 struct MD5Context {
-        uint32 buf[4];
-        uint32 bits[2];
+        u32 buf[4];
+        u32 bits[2];
         unsigned char in[64];
 };
 

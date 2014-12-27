@@ -4,34 +4,34 @@
 /*                                                                     */
 /*            Xavier Leroy, projet Cristal, INRIA Rocquencourt         */
 /*                                                                     */
-/*  Copyright 2002 Institut National de Recherche en Informatique et   */
+/*  Copyright 2015 Institut National de Recherche en Informatique et   */
 /*  en Automatique.  All rights reserved.  This file is distributed    */
 /*  under the terms of the GNU Library General Public License, with    */
 /*  the special exception on linking described in file LICENSE.        */
 /*                                                                     */
 /***********************************************************************/
 
-/* $Id$ */
+/* $Id: sha256.h 53 2010-08-30 10:53:00Z gildor-admin $ */
 
-/* SHA-256 hashing */
+/* SHA-512 hashing */
 
 #ifndef _MSC_VER
 #include <stdint.h>
-typedef uint32_t u32;
+typedef uint64_t u64;
 #else
-typedef unsigned int u32;
+typedef unsigned __int64 u64;
+#define UINT64_C(x) x##ui64
 #endif
 
-struct SHA256Context {
-  u32 state[8];
-  u32 length[2];
+struct SHA512Context {
+  u64 state[8];
+  u64 length[2];
   int numbytes;
-  unsigned char buffer[64];
+  unsigned char buffer[128];
 };
 
-extern void SHA256_init(struct SHA256Context * ctx, int bitsize);
-extern void SHA256_add_data(struct SHA256Context * ctx, unsigned char * data,
+extern void SHA512_init(struct SHA512Context * ctx, int bitsize);
+extern void SHA512_add_data(struct SHA512Context * ctx, unsigned char * data,
                             unsigned long len);
-extern void SHA256_finish(struct SHA256Context * ctx, 
-                          int bitsize,
+extern void SHA512_finish(struct SHA512Context * ctx, int bitsize,
                           unsigned char * output);

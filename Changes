@@ -1,4 +1,8 @@
+- Add all SHA-2 hash functions: SHA-224, SHA-384 and SHA-512 
+  in addition to the existing SHA-256.  (Closes: #1223)
 - Add support for CTR (Counter) chaining mode.
+- Fix compilation error with OCaml 4.03+dev.
+- Avoid using some obsolete OCaml stdlib functions.
 
 Release 1.9:
  - More fixes to build in Windows with zlib (mingw and msvc).

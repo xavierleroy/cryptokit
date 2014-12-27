@@ -250,6 +250,20 @@ let _ =
     ("FEDCBA9876543210", "FFFFFFFFFFFFFFFF", "6B5C5A9C5D9E0A5A")
   ]
 
+(* Input message: a million 'a' *)
+let hash_million_a (h: hash) =
+  for i = 1 to 10_000 do
+    h#add_string "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  done;
+  h#result
+
+(* Input message: the extremely-long message "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmno" repeated 16,777,216 times: a bit string of length 233 bits. This test is from the SHA-3 Candidate Algorithm Submissions document. *)
+let hash_extremely_long (h: hash) =
+  for i = 1 to 16_777_216 do
+    h#add_string "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmno"
+  done;
+  h#result
+
 (* SHA-1 *)
 let _ =
   testing_function "SHA-1";
@@ -261,19 +275,68 @@ let _ =
          (hex "32d10c7b8cf96570ca04ce37f2a19d84240d3a89");
   test 5 (hash "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")
          (hex "84983E441C3BD26EBAAE4AA1F95129E5E54670F1");
-  test 6 (hash (String.make 1000000 'a'))
-         (hex "34AA973CD4C4DAA4F61EEB2BDBAD27316534016F")
+  test 6 (hash_million_a (Hash.sha1()))
+         (hex "34AA973CD4C4DAA4F61EEB2BDBAD27316534016F");
+  test 99 (hash_extremely_long (Hash.sha1()))
+         (hex "7789f0c9 ef7bfc40 d9331114 3dfbe69e 2017f592")
+
+(* SHA-224 *)
+let _ =
+  testing_function "SHA-2 224";
+  let hash s = hash_string (Hash.sha2 224) s in
+  test 1 (hash "abc")
+    (hex "23097d22 3405d822 8642a477 bda255b3 2aadbce4 bda0b3f7 e36c9da7");
+  test 2 (hash "")
+    (hex "d14a028c 2a3a2bc9 476102bb 288234c4 15a2b01f 828ea62a c5b3e42f");
+  test 3 (hash "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")
+    (hex "75388b16 512776cc 5dba5da1 fd890150 b0c6455c b4f58b19 52522525");
+  test 4 (hash_million_a (Hash.sha2 224))
+    (hex "20794655 980c91d8 bbb4c1ea 97618a4b f03f4258 1948b2ee 4ee7ad67")
 
 (* SHA-256 *)
 let _ =
-  testing_function "SHA-256";
-  let hash s = hash_string (Hash.sha256()) s in
+  testing_function "SHA-2 256";
+  let hash s = hash_string (Hash.sha2 256) s in
   test 1 (hash "abc")
     (hex "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
-  test 2 (hash "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")
+  test 2 (hash "")
+    (hex "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+  test 3 (hash "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")
     (hex "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1");
-  test 3 (hash (String.make 1000000 'a'))
-    (hex "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0")
+  test 4 (hash_million_a (Hash.sha2 256))
+    (hex "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0");
+  test 99 (hash_extremely_long (Hash.sha256()))
+         (hex "50e72a0e 26442fe2 552dc393 8ac58658 228c0cbf b1d2ca87 2ae43526 6fcd055e")
+
+(* SHA-384 *)
+let _ =
+  testing_function "SHA-2 384";
+  let hash s = hash_string (Hash.sha2 384) s in
+  test 1 (hash "abc")
+    (hex "cb00753f45a35e8b b5a03d699ac65007 272c32ab0eded163 1a8b605a43ff5bed 8086072ba1e7cc23 58baeca134c825a7");
+  test 2 (hash "")
+    (hex "38b060a751ac9638 4cd9327eb1b1e36a 21fdb71114be0743 4c0cc7bf63f6e1da 274edebfe76f65fb d51ad2f14898b95b");
+  test 3 (hash "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")
+    (hex "3391fdddfc8dc739 3707a65b1b470939 7cf8b1d162af05ab fe8f450de5f36bc6 b0455a8520bc4e6f 5fe95b1fe3c8452b");
+  test 4 (hash_million_a (Hash.sha2 384))
+    (hex "9d0e1809716474cb 086e834e310a4a1c ed149e9c00f24852 7972cec5704c2a5b 07b8b3dc38ecc4eb ae97ddd87f3d8985")
+
+(* SHA-512 *)
+let _ =
+  testing_function "SHA-2 512";
+  let hash s = hash_string (Hash.sha2 512) s in
+  test 1 (hash "abc")
+    (hex "ddaf35a193617aba cc417349ae204131 12e6fa4e89a97ea2 0a9eeee64b55d39a 2192992a274fc1a8 36ba3c23a3feebbd 454d4423643ce80e 2a9ac94fa54ca49f");
+  test 2 (hash "")
+    (hex "cf83e1357eefb8bd f1542850d66d8007 d620e4050b5715dc 83f4a921d36ce9ce 47d0d13c5d85f2b0 ff8318d2877eec2f 63b931bd47417a81 a538327af927da3e");
+  test 3 (hash "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")
+    (hex "204a8fc6dda82f0a 0ced7beb8e08a416 57c16ef468b228a8 279be331a703c335 96fd15c13b1b07f9 aa1d3bea57789ca0 31ad85c7a71dd703 54ec631238ca3445");
+  test 4 (hash "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu")
+    (hex "8e959b75dae313da 8cf4f72814fc143f 8f7779c6eb9f7fa1 7299aeadb6889018 501d289e4900f7e4 331b99dec4b5433a c7d329eeb6dd2654 5e96e55b874be909");
+  test 5 (hash_million_a (Hash.sha2 512))
+    (hex "e718483d0ce76964 4e2e42c7bc15b463 8e1f98b13b204428 5632a803afa973eb de0ff244877ea60a 4cb0432ce577c31b eb009c5c2c49aa2e 4eadb217ad8cc09b");
+  test 99 (hash_extremely_long (Hash.sha2 512))
+         (hex "b47c933421ea2db1 49ad6e10fce6c7f9 3d0752380180ffd7 f4629a712134831d 77be6091b819ed35 2c2967a2e2d4fa50 50723c9630691f1a 05a7281dbe6c1086")
 
 (* SHA-3 *)
 let _ =
@@ -306,14 +369,13 @@ let _ =
     (hex "cc063f3468513536 8b34f7449108f6d1 0fa727b09d696ec5 331771da46a923b6 c34dbd1d4f77e595 689c1f3800681c28");
   test 12 (hash 512 s)
     (hex "ac2fb35251825d3a a48468a9948c0a91 b8256f6d97d8fa41 60faff2dd9dfcc24 f3f1db7a983dad13 d53439ccac0b37e2 4037e7b95f80f59f 37a2f683c4ba4682");
-  let s = String.make 1000000 'a' in
-  test 13 (hash 224 s)
+  test 13 (hash_million_a (Hash.sha3 224))
     (hex "19f9167be2a04c43 abd0ed554788101b 9c339031acc8e146 8531303f");
-  test 14 (hash 256 s)
+  test 14 (hash_million_a (Hash.sha3 256))
     (hex "fadae6b49f129bbb 812be8407b7b2894 f34aecf6dbd1f9b0 f0c7e9853098fc96");
-  test 15 (hash 384 s)
+  test 15 (hash_million_a (Hash.sha3 384))
     (hex "0c8324e1ebc18282 2c5e2a086cac07c2 fe00e3bce61d01ba 8ad6b71780e2dec5 fb89e5ae90cb593e 57bc6258fdd94e17");
-  test 16 (hash 512 s)
+  test 16 (hash_million_a (Hash.sha3 512))
     (hex "5cf53f2e556be5a6 24425ede23d0e8b2 c7814b4ba0e4e09c bbf3c2fac7056f61 e048fc341262875e bc58a5183fea6514 47124370c1ebf4d6 c89bc9a7731063bb");
   let s = "" in
   test 17 (hash 224 s)
@@ -323,21 +385,13 @@ let _ =
   test 19 (hash 384 s)
     (hex "2c23146a63a29acf 99e73b88f8c24eaa 7dc60aa771780ccc 006afbfa8fe2479b 2dd2b21362337441 ac12b515911957ff");
   test 20 (hash 512 s)
-    (hex "0eab42de4c3ceb92 35fc91acffe746b2 9c29a8c366b7c60e 4e67c466f36a4304 c00fa9caf9d87976 ba469bcbe06713b4 35f091ef2769fb16 0cdab33d3670680e")
-
+    (hex "0eab42de4c3ceb92 35fc91acffe746b2 9c29a8c366b7c60e 4e67c466f36a4304 c00fa9caf9d87976 ba469bcbe06713b4 35f091ef2769fb16 0cdab33d3670680e");
 (*
-Input message: the extremely-long message "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmno" repeated 16,777,216 times: a bit string of length 233 bits. This test is from the SHA-3 Candidate Algorithm Submissions document [5]. The results for SHA-3 are from the Keccak Known Answer Tests [4]. The other results are by our own computation.
-Algorithm	Output
-SHA-1	7789f0c9 ef7bfc40 d9331114 3dfbe69e 2017f592
-SHA-224	b5989713 ca4fe47a 009f8621 980b34e6 d63ed306 3b2a0a2c 867d8a85
-SHA-256	50e72a0e 26442fe2 552dc393 8ac58658 228c0cbf b1d2ca87 2ae43526 6fcd055e
-SHA-384	5441235cc0235341 ed806a64fb354742 b5e5c02a3c5cb71b 5f63fb793458d8fd ae599c8cd8884943 c04f11b31b89f023
-SHA-512	b47c933421ea2db1 49ad6e10fce6c7f9 3d0752380180ffd7 f4629a712134831d 77be6091b819ed35 2c2967a2e2d4fa50 50723c9630691f1a 05a7281dbe6c1086
-SHA-3-224	c42e4aee858e1a8a d2976896b9d23dd1 87f64436ee15969a fdbc68c5
-SHA-3-256	5f313c39963dcf79 2b5470d4ade9f3a3 56a3e4021748690a 958372e2b06f82a4
-SHA-3-384	9b7168b4494a80a8 6408e6b9dc4e5a18 37c85dd8ff452ed4 10f2832959c08c8c 0d040a892eb9a755 776372d4a8732315
-SHA-3-512	3e122edaf3739823 1cfaca4c7c216c9d 66d5b899ec1d7ac6 17c40c7261906a45 fc01617a021e5da3 bd8d4182695b5cb7 85a28237cbb16759 0e34718e56d8aab8
+  test 98 (hash_extremely_long (Hash.sha3 256))
+         (hex "5f313c39963dcf79 2b5470d4ade9f3a3 56a3e4021748690a 958372e2b06f82a4");
 *)
+  test 99 (hash_extremely_long (Hash.sha3 512))
+         (hex "3e122edaf3739823 1cfaca4c7c216c9d 66d5b899ec1d7ac6 17c40c7261906a45 fc01617a021e5da3 bd8d4182695b5cb7 85a28237cbb16759 0e34718e56d8aab8")
 
 (* RIPEMD-160 *)
 let _ =
@@ -487,6 +541,50 @@ let _ =
  "Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data",
  "6355ac22e890d0a3c8481a5ca4825bc884d3e7a1ff98a2fc2ac7d8e064c3b2e6")
 ]
+
+(* HMAC-SHA512 *)
+
+let _ =
+  testing_function "HMAC-SHA512";
+  List.iter
+    (fun (testno, hexkey, hexmsg, hexhash) ->
+      test testno
+        (hash_string (MAC.hmac_sha512 (hex hexkey)) (hex hexmsg))
+        (hex hexhash))
+ [(1,
+   "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b\
+    0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b\
+    0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b\
+    0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+   "4869205468657265",
+   "637edc6e01dce7e6742a99451aae82df\
+    23da3e92439e590e43e761b33e910fb8\
+    ac2878ebd5803f6f0b61dbce5e251ff8\
+    789a4722c1be65aea45fd464e89f8f5b");
+  (2,
+   "4a6566654a6566654a6566654a656665\
+    4a6566654a6566654a6566654a656665\
+    4a6566654a6566654a6566654a656665\
+    4a6566654a6566654a6566654a656665",
+   "7768617420646f2079612077616e7420\
+    666f72206e6f7468696e673f",
+   "cb370917ae8a7ce28cfd1d8f4705d614\
+    1c173b2a9362c15df235dfb251b15454\
+    6aa334ae9fb9afc2184932d8695e397b\
+    fa0ffb93466cfcceaae38c833b7dba38");
+  (3,
+   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "dddddddddddddddddddddddddddddddd\
+    dddddddddddddddddddddddddddddddd\
+    dddddddddddddddddddddddddddddddd\
+    dddd",
+   "2ee7acd783624ca9398710f3ee05ae41\
+    b9f9b0510c87e49e586cc9bf961733d8\
+    623c7b55cebefccf02d5581acc1c9d5f\
+    b1ff68a1de45509fbe4da9a433922655")]
 
 (* HMAC-MD5 *)
 
