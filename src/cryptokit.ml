@@ -860,7 +860,7 @@ class sha1 =
     val context = sha1_init()
     method hash_size = 20
     method add_substring src ofs len =
-      if ofs < 0 || ofs + len > String.length src
+      if ofs < 0 || len < 0 || ofs > String.length src - len
       then invalid_arg "sha1#add_substring";
       sha1_update context src ofs len
     method add_string src =
@@ -882,7 +882,7 @@ class sha224 =
     val context = sha224_init()
     method hash_size = 24
     method add_substring src ofs len =
-      if ofs < 0 || ofs + len > String.length src
+      if ofs < 0 || len < 0 || ofs > String.length src - len
       then invalid_arg "sha224#add_substring";
       sha256_update context src ofs len
     method add_string src =
@@ -904,7 +904,7 @@ class sha256 =
     val context = sha256_init()
     method hash_size = 32
     method add_substring src ofs len =
-      if ofs < 0 || ofs + len > String.length src
+      if ofs < 0 || len < 0 || ofs > String.length src - len
       then invalid_arg "sha256#add_substring";
       sha256_update context src ofs len
     method add_string src =
@@ -926,7 +926,7 @@ class sha384 =
     val context = sha384_init()
     method hash_size = 48
     method add_substring src ofs len =
-      if ofs < 0 || ofs + len > String.length src
+      if ofs < 0 || len < 0 || ofs > String.length src - len
       then invalid_arg "sha384#add_substring";
       sha512_update context src ofs len
     method add_string src =
@@ -948,7 +948,7 @@ class sha512 =
     val context = sha512_init()
     method hash_size = 64
     method add_substring src ofs len =
-      if ofs < 0 || ofs + len > String.length src
+      if ofs < 0 || len < 0 || ofs > String.length src - len
       then invalid_arg "sha512#add_substring";
       sha512_update context src ofs len
     method add_string src =
@@ -981,7 +981,7 @@ class sha3 sz =
       else raise (Error Wrong_key_size)
     method hash_size = sz / 8
     method add_substring src ofs len =
-      if ofs < 0 || ofs + len > String.length src
+      if ofs < 0 || len < 0 || ofs > String.length src - len
       then invalid_arg "sha3#add_substring";
       sha3_absorb context src ofs len
     method add_string src =
@@ -1003,7 +1003,7 @@ class ripemd160 =
     val context = ripemd160_init()
     method hash_size = 32
     method add_substring src ofs len =
-      if ofs < 0 || ofs + len > String.length src
+      if ofs < 0 || len < 0 || ofs > String.length src - len
       then invalid_arg "ripemd160#add_substring";
       ripemd160_update context src ofs len
     method add_string src =
@@ -1025,7 +1025,7 @@ class md5 =
     val context = md5_init()
     method hash_size = 16
     method add_substring src ofs len =
-      if ofs < 0 || ofs + len > String.length src
+      if ofs < 0 || len < 0 || ofs > String.length src - len
       then invalid_arg "md5#add_substring";
       md5_update context src ofs len
     method add_string src =
