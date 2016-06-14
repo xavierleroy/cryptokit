@@ -342,56 +342,52 @@ let _ =
 let _ =
   testing_function "SHA-3";
   let hash n s = hash_string (Hash.sha3 n) s in
-  let s = "abc" in
-  test 1 (hash 224 s)
-    (hex "c30411768506ebe1 c2871b1ee2e87d38 df342317300a9b97 a95ec6a8");
-  test 2 (hash 256 s)
-    (hex "4e03657aea45a94f c7d47ba826c8d667 c0d1e6e33a64a036 ec44f58fa12d6c45");
-  test 3 (hash 384 s)
-    (hex "f7df1165f033337b e098e7d288ad6a2f 74409d7a60b49c36 642218de161b1f99 f8c681e4afaf31a3 4db29fb763e3c28e");
-  test 4 (hash 512 s)
-    (hex "18587dc2ea106b9a 1563e32b3312421c a164c7f1f07bc922 a9c83d77cea3a1e5 d0c6991073902537 2dc14ac964262937 9540c17e2a65b19d 77aa511a9d00bb96");
-  let s = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq" in
-  test 5 (hash 224 s)
-    (hex "e51faa2b4655150b 931ee8d700dc202f 763ca5f962c529ea e55012b6");
-  test 6 (hash 256 s)
-    (hex "45d3b367a6904e6e 8d502ee04999a7c2 7647f91fa845d456 525fd352ae3d7371");
-  test 7 (hash 384 s)
-    (hex "b41e8896428f1bcb b51e17abd6acc980 52a3502e0d5bf7fa 1af949b4d3c855e7 c4dc2c390326b3f3 e74c7b1e2b9a3657");
-  test 8 (hash 512 s)
-    (hex "6aa6d3669597df6d 5a007b00d09c2079 5b5c4218234e1698 a944757a488ecdc0 9965435d97ca32c3 cfed7201ff30e070 cd947f1fc12b9d92 14c467d342bcba5d");
-  let s = "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu" in
-  test 9 (hash 224 s)
-    (hex "344298994b1b0687 3eae2ce739c425c4 7291a2e24189e01b 524f88dc");
-  test 10 (hash 256 s)
-    (hex "f519747ed599024f 3882238e5ab43960 132572b7345fbeb9 a90769dafd21ad67");
-  test 11 (hash 384 s)
-    (hex "cc063f3468513536 8b34f7449108f6d1 0fa727b09d696ec5 331771da46a923b6 c34dbd1d4f77e595 689c1f3800681c28");
-  test 12 (hash 512 s)
-    (hex "ac2fb35251825d3a a48468a9948c0a91 b8256f6d97d8fa41 60faff2dd9dfcc24 f3f1db7a983dad13 d53439ccac0b37e2 4037e7b95f80f59f 37a2f683c4ba4682");
-  test 13 (hash_million_a (Hash.sha3 224))
-    (hex "19f9167be2a04c43 abd0ed554788101b 9c339031acc8e146 8531303f");
-  test 14 (hash_million_a (Hash.sha3 256))
-    (hex "fadae6b49f129bbb 812be8407b7b2894 f34aecf6dbd1f9b0 f0c7e9853098fc96");
-  test 15 (hash_million_a (Hash.sha3 384))
-    (hex "0c8324e1ebc18282 2c5e2a086cac07c2 fe00e3bce61d01ba 8ad6b71780e2dec5 fb89e5ae90cb593e 57bc6258fdd94e17");
-  test 16 (hash_million_a (Hash.sha3 512))
-    (hex "5cf53f2e556be5a6 24425ede23d0e8b2 c7814b4ba0e4e09c bbf3c2fac7056f61 e048fc341262875e bc58a5183fea6514 47124370c1ebf4d6 c89bc9a7731063bb");
   let s = "" in
-  test 17 (hash 224 s)
-    (hex "f71837502ba8e108 37bdd8d365adb855 91895602fc552b48 b7390abd");
-  test 18 (hash 256 s)
-    (hex "c5d2460186f7233c 927e7db2dcc703c0 e500b653ca82273b 7bfad8045d85a470");
-  test 19 (hash 384 s)
-    (hex "2c23146a63a29acf 99e73b88f8c24eaa 7dc60aa771780ccc 006afbfa8fe2479b 2dd2b21362337441 ac12b515911957ff");
-  test 20 (hash 512 s)
-    (hex "0eab42de4c3ceb92 35fc91acffe746b2 9c29a8c366b7c60e 4e67c466f36a4304 c00fa9caf9d87976 ba469bcbe06713b4 35f091ef2769fb16 0cdab33d3670680e");
-(*
-  test 98 (hash_extremely_long (Hash.sha3 256))
-         (hex "5f313c39963dcf79 2b5470d4ade9f3a3 56a3e4021748690a 958372e2b06f82a4");
-*)
+  test 1 (hash 224 s)
+    (hex "6b4e03423667dbb7 3b6e15454f0eb1ab d4597f9a1b078e3f 5b5a6bc7");
+  test 2 (hash 256 s)
+    (hex "a7ffc6f8bf1ed766 51c14756a061d662 f580ff4de43b49fa 82d80a4b80f8434a");
+  test 3 (hash 384 s)
+    (hex "0c63a75b845e4f7d 01107d852e4c2485 c51a50aaaa94fc61 995e71bbee983a2a c3713831264adb47 fb6bd1e058d5f004");
+  test 4 (hash 512 s)
+    (hex "a69f73cca23a9ac5 c8b567dc185a756e 97c982164fe25859 e0d1dcc1475c80a6 15b2123af1f5f94c 11e3e9402c3ac558 f500199d95b6d3e3 01758586281dcd26");
+  let s = "abc" in
+  test 5 (hash 224 s)
+    (hex "e642824c3f8cf24a d09234ee7d3c766f c9a3a5168d0c94ad 73b46fdf");
+  test 6 (hash 256 s)
+    (hex "3a985da74fe225b2 045c172d6bd390bd 855f086e3e9d525b 46bfe24511431532");
+  test 7 (hash 384 s)
+    (hex "ec01498288516fc9 26459f58e2c6ad8d f9b473cb0fc08c25 96da7cf0e49be4b2 98d88cea927ac7f5 39f1edf228376d25");
+  test 8 (hash 512 s)
+    (hex "b751850b1a57168a 5693cd924b6b096e 08f621827444f70d 884f5d0240d2712e 10e116e9192af3c9 1a7ec57647e39340 57340b4cf408d5a5 6592f8274eec53f0");
+  let s = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq" in
+  test 9 (hash 224 s)
+    (hex "8a24108b154ada21 c9fd5574494479ba 5c7e7ab76ef264ea d0fcce33");
+  test 10 (hash 256 s)
+    (hex "41c0dba2a9d62408 49100376a8235e2c 82e1b9998a999e21 db32dd97496d3376");
+  test 11 (hash 384 s)
+    (hex "991c665755eb3a4b 6bbdfb75c78a492e 8c56a22c5c4d7e42 9bfdbc32b9d4ad5a a04a1f076e62fea1 9eef51acd0657c22");
+  test 12 (hash 512 s)
+    (hex "04a371e84ecfb5b8 b77cb48610fca818 2dd457ce6f326a0f d3d7ec2f1e91636d ee691fbe0c985302 ba1b0d8dc78c0863 46b533b49c030d99 a27daf1139d6e75e");
+  let s = "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu" in
+  test 13 (hash 224 s)
+    (hex "543e6868e1666c1a 643630df77367ae5 a62a85070a51c14c bf665cbc");
+  test 14 (hash 256 s)
+    (hex "916f6061fe879741 ca6469b43971dfdb 28b1a32dc36cb325 4e812be27aad1d18");
+  test 15 (hash 384 s)
+    (hex "79407d3b5916b59c 3e30b09822974791 c313fb9ecc849e40 6f23592d04f625dc 8c709b98b43b3852 b337216179aa7fc7");
+  test 16 (hash 512 s)
+    (hex "afebb2ef542e6579 c50cad06d2e578f9 f8dd6881d7dc824d 26360feebf18a4fa 73e3261122948efc fd492e74e82e2189 ed0fb440d187f382 270cb455f21dd185");
+  test 17 (hash_million_a (Hash.sha3 224))
+    (hex "d69335b93325192e 516a912e6d19a15c b51c6ed5c15243e7 a7fd653c");
+  test 18 (hash_million_a (Hash.sha3 256))
+    (hex "5c8875ae474a3634 ba4fd55ec85bffd6 61f32aca75c6d699 d0cdcb6c115891c1");
+  test 19 (hash_million_a (Hash.sha3 384))
+    (hex "eee9e24d78c18553 37983451df97c8ad 9eedf256c6334f8e 948d252d5e0e7684 7aa0774ddb90a842 190d2c558b4b8340");
+  test 20 (hash_million_a (Hash.sha3 512))
+    (hex "3c3a876da14034ab 60627c077bb98f7e 120a2a5370212dff b3385a18d4f38859 ed311d0a9d5141ce 9cc5c66ee689b266 a8aa18ace8282a0e 0db596c90b0a7b87");
   test 99 (hash_extremely_long (Hash.sha3 512))
-         (hex "3e122edaf3739823 1cfaca4c7c216c9d 66d5b899ec1d7ac6 17c40c7261906a45 fc01617a021e5da3 bd8d4182695b5cb7 85a28237cbb16759 0e34718e56d8aab8")
+    (hex "235ffd53504ef836 a1342b488f483b39 6eabbfe642cf78ee 0d31feec788b23d0 d18d5c339550dd59 58a500d4b95363da 1b5fa18affc1bab2 292dc63b7d85097c")
 
 (* RIPEMD-160 *)
 let _ =
