@@ -1,3 +1,9 @@
+- Update SHA-3 to the official NIST standard (different padding than
+  in the Keccak submission).  (Closes: #1528)
+- Fixed bounds checking in "add_substring" methods of hash functions.
+  (Closes: #1480)
+- Rebuilt generated files with Oasis 0.4.6 for OCaml 4.03 compatibility.
+
 Release 1.10:
 - Add all SHA-2 hash functions: SHA-224, SHA-384 and SHA-512 
   in addition to the existing SHA-256.  (Closes: #1223)
