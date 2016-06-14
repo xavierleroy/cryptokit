@@ -160,7 +160,7 @@ void SHA3_extract(struct SHA3Context * ctx,
 
   /* Apply final padding */
   n = ctx->numbytes;
-  ctx->buffer[n] = 1;
+  ctx->buffer[n] = 0x06;
   n++;
   memset(ctx->buffer + n, 0, ctx->rsiz - n);
   ctx->buffer[ctx->rsiz - 1] |= 0x80;
