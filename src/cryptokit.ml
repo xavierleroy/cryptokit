@@ -338,8 +338,8 @@ class aes_encrypt key =
       else raise(Error Wrong_key_size)
     method blocksize = 16
     method transform src src_ofs dst dst_ofs =
-      if src_ofs < 0 || src_ofs + 16 > String.length src
-      || dst_ofs < 0 || dst_ofs + 16 > String.length dst
+      if src_ofs < 0 || src_ofs > String.length src - 16
+      || dst_ofs < 0 || dst_ofs > String.length dst - 16
       then invalid_arg "aes#transform";
       aes_encrypt ckey src src_ofs dst dst_ofs
     method wipe =
@@ -356,8 +356,8 @@ class aes_decrypt key =
       else raise(Error Wrong_key_size)
     method blocksize = 16
     method transform src src_ofs dst dst_ofs =
-      if src_ofs < 0 || src_ofs + 16 > String.length src
-      || dst_ofs < 0 || dst_ofs + 16 > String.length dst
+      if src_ofs < 0 || src_ofs > String.length src - 16
+      || dst_ofs < 0 || dst_ofs > String.length dst - 16
       then invalid_arg "aes#transform";
       aes_decrypt ckey src src_ofs dst dst_ofs
     method wipe =
@@ -374,8 +374,8 @@ class blowfish_encrypt key =
       else raise(Error Wrong_key_size)
     method blocksize = 8
     method transform src src_ofs dst dst_ofs =
-      if src_ofs < 0 || src_ofs + 8 > String.length src
-      || dst_ofs < 0 || dst_ofs + 8 > String.length dst
+      if src_ofs < 0 || src_ofs > String.length src - 8
+      || dst_ofs < 0 || dst_ofs > String.length dst - 8
       then invalid_arg "blowfish#transform";
       blowfish_encrypt ckey src src_ofs dst dst_ofs
     method wipe =
@@ -391,8 +391,8 @@ class blowfish_decrypt key =
       else raise(Error Wrong_key_size)
     method blocksize = 8
     method transform src src_ofs dst dst_ofs =
-      if src_ofs < 0 || src_ofs + 8 > String.length src
-      || dst_ofs < 0 || dst_ofs + 8 > String.length dst
+      if src_ofs < 0 || src_ofs > String.length src - 8
+      || dst_ofs < 0 || dst_ofs > String.length dst - 8
       then invalid_arg "blowfish#transform";
       blowfish_decrypt ckey src src_ofs dst dst_ofs
     method wipe =
@@ -407,8 +407,8 @@ class des direction key =
       else raise(Error Wrong_key_size)
     method blocksize = 8
     method transform src src_ofs dst dst_ofs =
-      if src_ofs < 0 || src_ofs + 8 > String.length src
-      || dst_ofs < 0 || dst_ofs + 8 > String.length dst
+      if src_ofs < 0 || src_ofs > String.length src - 8
+      || dst_ofs < 0 || dst_ofs > String.length dst - 8
       then invalid_arg "des#transform";
       des_transform ckey src src_ofs dst dst_ofs
     method wipe =
@@ -433,8 +433,8 @@ class triple_des_encrypt key =
   object
     method blocksize = 8
     method transform src src_ofs dst dst_ofs =
-      if src_ofs < 0 || src_ofs + 8 > String.length src
-      || dst_ofs < 0 || dst_ofs + 8 > String.length dst
+      if src_ofs < 0 || src_ofs > String.length src - 8
+      || dst_ofs < 0 || dst_ofs > String.length dst - 8
       then invalid_arg "triple_des#transform";
       des_transform ckey1 src src_ofs dst dst_ofs;
       des_transform ckey2 dst dst_ofs dst dst_ofs;
@@ -460,8 +460,8 @@ class triple_des_decrypt key =
   object
     method blocksize = 8
     method transform src src_ofs dst dst_ofs =
-      if src_ofs < 0 || src_ofs + 8 > String.length src
-      || dst_ofs < 0 || dst_ofs + 8 > String.length dst
+      if src_ofs < 0 || src_ofs > String.length src - 8
+      || dst_ofs < 0 || dst_ofs > String.length dst - 8
       then invalid_arg "triple_des#transform";
       des_transform ckey1 src src_ofs dst dst_ofs;
       des_transform ckey2 dst dst_ofs dst dst_ofs;
@@ -805,8 +805,9 @@ class arcfour key =
       then arcfour_cook_key key
       else raise(Error Wrong_key_size)
     method transform src src_ofs dst dst_ofs len =
-      if src_ofs < 0 || src_ofs + len > String.length src
-      || dst_ofs < 0 || dst_ofs + len > String.length dst
+      if len < 0
+      || src_ofs < 0 || src_ofs > String.length src - len
+      || dst_ofs < 0 || dst_ofs > String.length dst - len
       then invalid_arg "arcfour#transform";
       arcfour_transform ckey src src_ofs dst dst_ofs len
     method wipe =
@@ -2362,8 +2363,9 @@ end
 (* Utilities *)
 
 let xor_string src src_ofs dst dst_ofs len =
-  if src_ofs < 0 || src_ofs + len > String.length src
-  || dst_ofs < 0 || dst_ofs + len > String.length dst
+  if len < 0
+  || src_ofs < 0 || src_ofs > String.length src - len
+  || dst_ofs < 0 || dst_ofs > String.length dst - len
   then invalid_arg "xor_string";
   xor_string src src_ofs dst dst_ofs len
   
