@@ -259,17 +259,20 @@ void aesniEncrypt(const unsigned char * key, int nrounds,
                   const unsigned char * in,
                   unsigned char * out)
 {
-  __m128i t;
+  __m128i t, k;
   int j;
   
   t = _mm_loadu_si128 ((__m128i*) in); 
-  t = _mm_xor_si128 (t, ((__m128i*) key)[0]);
+  k = _mm_loadu_si128 ((__m128i*) key + 0);
+  t = _mm_xor_si128 (t, k);
   j = 1;
   do {
-    t = _mm_aesenc_si128 (t, ((__m128i*) key)[j]);
+    k = _mm_loadu_si128 ((__m128i*) key + j);
+    t = _mm_aesenc_si128 (t, k);
     j++;
   } while (j < nrounds);
-  t = _mm_aesenclast_si128 (t,((__m128i*) key)[j]);
+  k = _mm_loadu_si128 ((__m128i*) key + j);
+  t = _mm_aesenclast_si128 (t, k);
   _mm_storeu_si128 ((__m128i*) out, t);
 }
   
@@ -277,17 +280,20 @@ void aesniDecrypt(const unsigned char * key, int nrounds,
                   const unsigned char * in,
                   unsigned char * out)
 {
-  __m128i t;
+  __m128i t, k;
   int j;
   
   t = _mm_loadu_si128 ((__m128i*) in); 
-  t = _mm_xor_si128 (t, ((__m128i*) key)[0]);
+  k = _mm_loadu_si128 ((__m128i*) key + 0);
+  t = _mm_xor_si128 (t, k);
   j = 1;
   do {
-    t = _mm_aesdec_si128 (t, ((__m128i*) key)[j]);
+    k = _mm_loadu_si128 ((__m128i*) key + j);
+    t = _mm_aesdec_si128 (t, k);
     j++;
   } while (j < nrounds);
-  t = _mm_aesdeclast_si128 (t,((__m128i*) key)[j]);
+  k = _mm_loadu_si128 ((__m128i*) key + j);
+  t = _mm_aesdeclast_si128 (t, k);
   _mm_storeu_si128 ((__m128i*) out, t);
 }
   
