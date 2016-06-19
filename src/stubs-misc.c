@@ -13,6 +13,7 @@
 
 /* $Id$ */
 
+#include <string.h>
 #include <caml/mlvalues.h>
 
 #define ALIGNMENT_OF(x) ((long)(x) & (sizeof(long) - 1))
@@ -48,4 +49,10 @@ CAMLprim value caml_xor_string(value src, value src_ofs,
   return Val_unit;
 }
 
-  
+CAMLprim value caml_wipe_z(value v)
+{
+  if (Is_block(v) && Tag_val(v) == Custom_tag) {
+    memset(Data_custom_val(v), 0, (Wosize_val(v) - 1) * sizeof(value));
+  }
+  return Val_unit;
+}
