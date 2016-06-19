@@ -511,8 +511,8 @@ module Hash : sig
     (** RIPEMD-160 produces 160-bit hashes (20 bytes). *)
   val md5: unit -> hash
     (** MD5 is an older hash function, producing 128-bit hashes (16 bytes).
-        While popular in many legacy applications, it is now
-        considered as unsecure.  In particular, it is not
+        While popular in many legacy applications, it is now known
+        to be insecure.  In particular, it is not
         collision-resistant. *)
 end
 
@@ -632,13 +632,15 @@ module RSA: sig
   val new_key: ?rng: Random.rng -> ?e: int -> int -> key
     (** Generate a new, random RSA key.  The non-optional [int]
         argument is the desired size for the modulus, in bits
-        (e.g. 1024).  The optional [rng] argument specifies a random
+        (e.g. 2048).  The optional [rng] argument specifies a random
         number generator to use for generating the key; it defaults to
         {!Cryptokit.Random.secure_rng}.  The optional [e] argument
         specifies the public exponent desired.  If not specified, [e]
-        is chosen randomly.  Small values of [e] such as [e = 3]
-        or [e = 65537] significantly speeds up encryption and
+        is chosen randomly.  Small values of [e] such as
+        [e = 65537] significantly speeds up encryption and
         signature checking compared with a random [e].
+        Very small values of [e] such as [e = 3] can weaken security
+        and are best avoided.
         The result of [new_key] is a complete RSA key with all
         components defined: public, private, and private for use with
         the CRT. *)
