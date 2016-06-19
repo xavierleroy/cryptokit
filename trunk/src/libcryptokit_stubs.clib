@@ -1,5 +1,6 @@
 # OASIS_START
-# DO NOT EDIT (digest: 3e45dfb55ab6f6461eb6708cad34a2a1)
+# DO NOT EDIT (digest: 8925748b522861580cf6f17b03f49c4b)
+aesni.o
 arcfour.o
 stubs-arcfour.o
 blowfish.o

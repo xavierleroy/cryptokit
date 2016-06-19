@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 365eeba93424dc8fed65cd2fa47cd13f) *)
+(* DO NOT EDIT (digest: 65b2dc681772561cfcd9b9f3284e1e64) *)
 module OASISGettext = struct
 (* # 22 "src/oasis/OASISGettext.ml" *)
 
@@ -773,6 +773,7 @@ let package_default =
           ("cryptokit",
             "src",
             [
+               "src/aesni.h";
                "src/arcfour.h";
                "src/blowfish.h";
                "src/d3des.h";
@@ -789,8 +790,18 @@ let package_default =
           (["oasis_library_cryptokit_ccopt"; "compile"],
             [
                (OASISExpr.EBool true, S []);
-               (OASISExpr.EFlag "zlib",
-                 S [A "-ccopt"; A "-O"; A "-ccopt"; A "-DHAVE_ZLIB"])
+               (OASISExpr.EFlag "hardwaresupport",
+                 S [A "-ccopt"; A "-march=native"]);
+               (OASISExpr.EFlag "zlib", S [A "-ccopt"; A "-DHAVE_ZLIB"]);
+               (OASISExpr.EAnd
+                  (OASISExpr.EFlag "zlib", OASISExpr.EFlag "hardwaresupport"),
+                 S
+                   [
+                      A "-ccopt";
+                      A "-DHAVE_ZLIB";
+                      A "-ccopt";
+                      A "-march=native"
+                   ])
             ]);
           (["oasis_library_cryptokit_cclib"; "link"],
             [
@@ -1085,6 +1096,6 @@ let conf = {MyOCamlbuildFindlib.no_automatic_syntax = false}
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default conf package_default;;
 
-# 1089 "myocamlbuild.ml"
+# 1100 "myocamlbuild.ml"
 (* OASIS_STOP *)
 Ocamlbuild_plugin.dispatch dispatch_default;;
