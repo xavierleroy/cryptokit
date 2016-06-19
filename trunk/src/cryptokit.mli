@@ -395,9 +395,9 @@ module Cipher : sig
 
   val des: ?mode:chaining_mode -> ?pad:Padding.scheme -> ?iv:string ->
              string -> direction -> transform
-    (** DES is the Data Encryption Standard.  Probably still the
-        most widely used cipher today, although it can be broken
-        relatively easily by brute force, due to its small key size (56 bits).
+    (** DES is the Data Encryption Standard.  Very popular in the past,
+        but now completely insecure owing to its small key size (56 bits)
+        which can easily be broken by brute-force enumeration.
         It should therefore be considered as weak encryption.
         Its block size is 64 bits (8 bytes).
         The arguments to the [des] function have the same meaning as
