@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 730a19b32dfccf7f96bfa6585a302c44) *)
+(* DO NOT EDIT (digest: 2db6139613bebbb21b8bceb9f1e7d363) *)
 
 This is the INSTALL file for the cryptokit distribution.
 
@@ -13,6 +13,7 @@ In order to compile this package, you will need:
 
 * ocaml for all, test bench, test main, doc api-cryptokit
 * findlib
+* zarith for library cryptokit
 
 Installing
 ==========

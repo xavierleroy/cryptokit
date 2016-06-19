@@ -1,7 +1,15 @@
+Release 1.11:
 - Update SHA-3 to the official NIST standard (different padding than
   in the Keccak submission).  (Closes: #1528)
-- Fixed bounds checking in "add_substring" methods of hash functions.
+- Fixed bounds checking in "add_substring" methods of hash functions
+  and other functions that operate on a substring of a string.
   (Closes: #1480)
+- Use hardware implementation of AES when available on x86 processors.
+  (Faster than the software implementation and less sensitive to
+   side channel attacks.)
+- Use the Zarith library to implement RSA.
+  (Faster than the previous implementation and less sensitive to
+   side channel attacks.)
 - Rebuilt generated files with Oasis 0.4.6 for OCaml 4.03 compatibility.
 
 Release 1.10:

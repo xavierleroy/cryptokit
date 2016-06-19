@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 592916c399140f33e2d314e1d2389ed4) *)
+(* DO NOT EDIT (digest: 54340abf9f934bc8c8a02312afd5aa74) *)
 
 cryptokit - Cryptographic primitives
 ====================================
@@ -9,7 +9,7 @@ to implement cryptographic protocols in security-sensitive applications. The
 primitives provided include:
 
 - Symmetric-key ciphers: AES, DES, Triple-DES, ARCfour,
-  in ECB, CBC, CFB and OFB modes.
+  in ECB, CBC, CFB, OFB and counter modes.
 - Public-key cryptography: RSA encryption, Diffie-Hellman key agreement. -
 Hash functions and MACs: SHA-1, SHA-2, SHA-3, RIPEMD160, MD5,
   and MACs based on AES and DES.
