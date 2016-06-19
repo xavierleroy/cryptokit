@@ -54,63 +54,63 @@ let hash h niter blocksize () =
   ignore(h#result)
 
 let _ =
-  time_fn "Raw AES 128, 16_000_000 bytes"
-    (raw_block_cipher (new Block.aes_encrypt "0123456789ABCDEF")  1000000);
-  time_fn "Raw AES 192, 16_000_000 bytes"
-    (raw_block_cipher (new Block.aes_encrypt "0123456789ABCDEF01234567")  1000000);
-  time_fn "Raw AES 256, 16_000_000 bytes"
-    (raw_block_cipher (new Block.aes_encrypt "0123456789ABCDEF0123456789ABCDEF")  1000000);
+  time_fn "Raw AES 128, 64_000_000 bytes"
+    (raw_block_cipher (new Block.aes_encrypt "0123456789ABCDEF") 4000000);
+  time_fn "Raw AES 192, 64_000_000 bytes"
+    (raw_block_cipher (new Block.aes_encrypt "0123456789ABCDEF01234567") 4000000);
+  time_fn "Raw AES 256, 64_000_000 bytes"
+    (raw_block_cipher (new Block.aes_encrypt "0123456789ABCDEF0123456789ABCDEF")  4000000);
   time_fn "Raw DES, 16_000_000 bytes"
     (raw_block_cipher (new Block.des_encrypt "01234567") 2000000);
   time_fn "Raw 3DES, 16_000_000 bytes"
     (raw_block_cipher (new Block.triple_des_encrypt "0123456789ABCDEF") 2000000);
-  time_fn "Raw ARCfour, 16_000_000 bytes, 16-byte chunks"
-    (raw_stream_cipher (new Stream.arcfour "0123456789ABCDEF") 1000000 16);
-  time_fn "Raw ARCfour, 16_000_000 bytes, 64-byte chunks"
-    (raw_stream_cipher (new Stream.arcfour "0123456789ABCDEF") 250000 64);
-  time_fn "Raw Blowfish 128, 16_000_000 bytes"
-    (raw_block_cipher (new Block.blowfish_encrypt "0123456789ABCDEF")  2000000);
-  time_fn "Wrapped AES 128 CBC, 16_000_000 bytes"
-    (transform (Cipher.aes "0123456789ABCDEF" Cipher.Encrypt) 1000000 16);
-  time_fn "Wrapped AES 192 CBC, 16_000_000 bytes"
-    (transform (Cipher.aes "0123456789ABCDEF01234567" Cipher.Encrypt) 1000000 16);
-  time_fn "Wrapped AES 256 CBC, 16_000_000 bytes"
-    (transform (Cipher.aes "0123456789ABCDEF0123456789ABCDEF" Cipher.Encrypt) 1000000 16);
+  time_fn "Raw ARCfour, 64_000_000 bytes, 16-byte chunks"
+    (raw_stream_cipher (new Stream.arcfour "0123456789ABCDEF") 4000000 16);
+  time_fn "Raw ARCfour, 64_000_000 bytes, 64-byte chunks"
+    (raw_stream_cipher (new Stream.arcfour "0123456789ABCDEF") 1000000 64);
+  time_fn "Raw Blowfish 128, 64_000_000 bytes"
+    (raw_block_cipher (new Block.blowfish_encrypt "0123456789ABCDEF")  8000000);
+  time_fn "Wrapped AES 128 CBC, 64_000_000 bytes"
+    (transform (Cipher.aes "0123456789ABCDEF" Cipher.Encrypt) 4000000 16);
+  time_fn "Wrapped AES 192 CBC, 64_000_000 bytes"
+    (transform (Cipher.aes "0123456789ABCDEF01234567" Cipher.Encrypt) 4000000 16);
+  time_fn "Wrapped AES 256 CBC, 64_000_000 bytes"
+    (transform (Cipher.aes "0123456789ABCDEF0123456789ABCDEF" Cipher.Encrypt) 4000000 16);
   time_fn "Wrapped DES CBC, 16_000_000 bytes"
     (transform (Cipher.des "01234567" Cipher.Encrypt) 1000000 16);
   time_fn "Wrapped 3DES CBC, 16_000_000 bytes"
     (transform (Cipher.triple_des "0123456789ABCDEF" Cipher.Encrypt) 1000000 16);
-  time_fn "Wrapped ARCfour, 16_000_000 bytes"
-    (transform (Cipher.arcfour "0123456789ABCDEF" Cipher.Encrypt) 1000000 16);
-  time_fn "Wrapped Blowfish 128 CBC, 16_000_000 bytes"
-    (transform (Cipher.blowfish "0123456789ABCDEF" Cipher.Encrypt) 1000000 16);
-  time_fn "SHA-1, 16_000_000 bytes, 16-byte chunks"
-    (hash (Hash.sha1()) 1000000 16);
-  time_fn "SHA-256, 16_000_000 bytes, 16-byte chunks"
-    (hash (Hash.sha256()) 1000000 16);
-  time_fn "SHA-3 224, 16_000_000 bytes, 16-byte chunks"
-    (hash (Hash.sha3 224) 1000000 16);
-  time_fn "SHA-3 256, 16_000_000 bytes, 16-byte chunks"
-    (hash (Hash.sha3 256) 1000000 16);
-  time_fn "SHA-3 384, 16_000_000 bytes, 16-byte chunks"
-    (hash (Hash.sha3 384) 1000000 16);
-  time_fn "SHA-3 512, 16_000_000 bytes, 16-byte chunks"
-    (hash (Hash.sha3 512) 1000000 16);
-  time_fn "RIPEMD-160, 16_000_000 bytes, 16-byte chunks"
-    (hash (Hash.sha256()) 1000000 16);
-  time_fn "MD5, 16_000_000 bytes, 16-byte chunks"
-    (hash (Hash.md5()) 1000000 16);
-  time_fn "AES MAC, 16_000_000 bytes, 16-byte chunks"
-    (hash (MAC.aes "0123456789ABCDEF") 1000000 16);
-  let prng = Random.pseudo_rng (Random.string Random.secure_rng 160) in
+  time_fn "Wrapped ARCfour, 64_000_000 bytes"
+    (transform (Cipher.arcfour "0123456789ABCDEF" Cipher.Encrypt) 4000000 16);
+  time_fn "Wrapped Blowfish 128 CBC, 64_000_000 bytes"
+    (transform (Cipher.blowfish "0123456789ABCDEF" Cipher.Encrypt) 4000000 16);
+  time_fn "SHA-1, 64_000_000 bytes, 16-byte chunks"
+    (hash (Hash.sha1()) 4000000 16);
+  time_fn "SHA-256, 64_000_000 bytes, 16-byte chunks"
+    (hash (Hash.sha256()) 4000000 16);
+  time_fn "SHA-3 224, 64_000_000 bytes, 16-byte chunks"
+    (hash (Hash.sha3 224) 4000000 16);
+  time_fn "SHA-3 256, 64_000_000 bytes, 16-byte chunks"
+    (hash (Hash.sha3 256) 4000000 16);
+  time_fn "SHA-3 384, 64_000_000 bytes, 16-byte chunks"
+    (hash (Hash.sha3 384) 4000000 16);
+  time_fn "SHA-3 512, 64_000_000 bytes, 16-byte chunks"
+    (hash (Hash.sha3 512) 4000000 16);
+  time_fn "RIPEMD-160, 64_000_000 bytes, 16-byte chunks"
+    (hash (Hash.sha256()) 4000000 16);
+  time_fn "MD5, 64_000_000 bytes, 16-byte chunks"
+    (hash (Hash.md5()) 4000000 16);
+  time_fn "AES MAC, 64_000_000 bytes, 16-byte chunks"
+    (hash (MAC.aes "0123456789ABCDEF") 4000000 16);
+  let prng = Random.pseudo_rng "supercalifragilistusexpialidolcius" in
   let key =
-  time_fn "RSA key generation (1024 bits) x 10"
-    (repeat 10 (fun () -> RSA.new_key ~rng:prng ~e:65537 1024)) in
+  time_fn "RSA key generation (2048 bits) x 10"
+    (repeat 10 (fun () -> RSA.new_key ~rng:prng ~e:65537 2048)) in
   let ciphertext =
-  time_fn "RSA public-key operation (1024 bits, exponent 65537) x 1000"
+  time_fn "RSA public-key operation (2048 bits, exponent 65537) x 1000"
     (repeat 1000 (fun () -> RSA.encrypt key "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ")) in
-  time_fn "RSA private-key operation (1024 bits) x 100"
+  time_fn "RSA private-key operation (2048 bits) x 100"
     (repeat 100 (fun () -> ignore(RSA.decrypt key ciphertext)));
-  time_fn "RSA private-key operation with CRT (1024 bits) x 100"
+  time_fn "RSA private-key operation with CRT (2048 bits) x 100"
     (repeat 100 (fun () -> ignore(RSA.decrypt_CRT key ciphertext)));
   ()
