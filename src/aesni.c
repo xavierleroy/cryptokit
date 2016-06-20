@@ -16,17 +16,6 @@
 #include "stdlib.h"
 #include "aesni.h"
 
-/* Assuming that <wmmintrin.h> is in GCC since version 4.2.
-   Clang also claims to be GCC 4.2, so this should work. */
-
-#if !(__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR >= 2))
-#undef __AES__
-#endif
-
-#if ! (defined(__x86_64__) || defined (__i386))
-#undef __AES__
-#endif
-
 #ifdef __AES__
 #include <wmmintrin.h>
 
