@@ -44,6 +44,7 @@ let test test_number answer correct_answer =
 (* Useful auxiliaries *)
 
 let hex s = transform_string (Hexa.decode()) s
+let hexbytes s = Bytes.of_string (hex s)
 let tohex s = transform_string (Hexa.encode()) s
 
 (* Test hex conversion first... *)
@@ -59,12 +60,12 @@ let _ =
 (* AES *)
 let _ =
   testing_function "AES";
-  let res = String.create 16 in
+  let res = Bytes.create 16 in
   let do_test key plain cipher testno1 testno2 =
     let c = new Block.aes_encrypt (hex key)
     and d = new Block.aes_decrypt (hex key) in
-    let plain = hex plain
-    and cipher = hex cipher in
+    let plain = hexbytes plain
+    and cipher = hexbytes cipher in
     c#transform plain 0 res 0;  test testno1 res cipher;
     d#transform cipher 0 res 0; test testno2 res plain in
   do_test
@@ -87,15 +88,15 @@ let _ =
 
 let _ =
   testing_function "Blowfish";
-  let res = String.create 16 in
+  let res = Bytes.create 16 in
   let do_test key plain cipher testno =
     let c = new Block.blowfish_encrypt (hex key)
     and d = new Block.blowfish_decrypt (hex key) in
-    let plain = hex plain
-    and cipher = hex cipher in
+    let plain = hexbytes plain
+    and cipher = hexbytes cipher in
     c#transform plain 0 res 0;
     d#transform cipher 0 res 8;
-    test testno res (cipher ^ plain) in
+    test testno res (Bytes.cat cipher plain) in
   do_test "0000000000000000" "0000000000000000" "4EF997456198DD78" 1;
   do_test "FFFFFFFFFFFFFFFF" "FFFFFFFFFFFFFFFF" "51866FD5B85ECB8A" 2;
   do_test "3000000000000000" "1000000000000001" "7D856F9A613063F2" 3;
@@ -134,34 +135,35 @@ let _ =
 (* DES *)
 let _ =
   testing_function "DES";
-  let res = String.create 8 in
+  let res = Bytes.create 8 in
   let c = new Block.des_encrypt (hex "0123456789abcdef")
   and d = new Block.des_decrypt (hex "0123456789abcdef") in
-  let plain = hex "0123456789abcde7"
-  and cipher = hex "c95744256a5ed31d" in
+  let plain = hexbytes "0123456789abcde7"
+  and cipher = hexbytes "c95744256a5ed31d" in
   c#transform plain 0 res 0; test 1 res cipher;
   d#transform cipher 0 res 0; test 2 res plain;
   let rec iter n key input =
     if n <= 0 then key else begin
       let c = new Block.des_encrypt key in
-      let t1 = String.create 8 in c#transform input 0 t1 0;
-      let t2 = String.create 8 in c#transform t1 0 t2 0;
-      let d = new Block.des_decrypt t2 in
-      let t3 = String.create 8 in d#transform t1 0 t3 0;
-      iter (n-1) t3 t1
+      let t1 = Bytes.create 8 in c#transform input 0 t1 0;
+      let t2 = Bytes.create 8 in c#transform t1 0 t2 0;
+      let d = new Block.des_decrypt (Bytes.unsafe_to_string t2) in
+      let t3 = Bytes.create 8 in d#transform t1 0 t3 0;
+      iter (n-1) (Bytes.unsafe_to_string t3) t1
     end in
-  test 3 (iter 64 (hex "5555555555555555") (hex "ffffffffffffffff"))
+  test 3 (iter 64 (hex "5555555555555555")
+                  (hexbytes "ffffffffffffffff"))
          (hex "246e9db9c550381a")
 
 (* Triple DES *)
 let _ =
   testing_function "Triple DES";
-  let res = String.create 8 in
+  let res = Bytes.create 8 in
   let do_test key plain cipher testno1 testno2 =
     let c = new Block.triple_des_encrypt (hex key)
     and d = new Block.triple_des_decrypt (hex key) in
-    let plain = hex plain
-    and cipher = hex cipher in
+    let plain = hexbytes plain
+    and cipher = hexbytes cipher in
     c#transform plain 0 res 0; test testno1 res cipher;
     d#transform cipher 0 res 0; test testno2 res plain in
   do_test
@@ -185,20 +187,22 @@ let _ =
 let _ =
   testing_function "ARCfour";
   let do_test n1 n2 key input output =
-    let key = hex key and input = hex input and output = hex output in
+    let key = hex key
+    and input = hexbytes input
+    and output = hexbytes output in
     let c = new Stream.arcfour key in
     let d = new Stream.arcfour key in
-    let res = String.create (String.length input) in
-    c#transform input 0 res 0 (String.length input);
+    let res = Bytes.create (Bytes.length input) in
+    c#transform input 0 res 0 (Bytes.length input);
     test n1 res output;
-    d#transform output 0 res 0 (String.length output);
+    d#transform output 0 res 0 (Bytes.length output);
     test n2 res input in
   do_test 1 2 "0123456789abcdef" "0123456789abcdef" "75b7878099e0c596";
   do_test 3 4 "0123456789abcdef" "0000000000000000" "7494c2e7104b0879";
   do_test 5 6 "0000000000000000" "0000000000000000" "de188941a3375d3a";
   do_test 7 8 "ef012345" "00000000000000000000" "d6a141a7ec3c38dfbd61";
   let c2 = Cipher.arcfour "key" Cipher.Encrypt in
-  c2#put_string (String.create 1024);
+  c2#put_string (String.make 1024 'x');
   test 9 c2#available_output 1024
 
 (* Blowfish *)
@@ -206,9 +210,11 @@ let _ =
 let _ =
   testing_function "Blowfish";
   let testcnt = ref 0 in
-  let res = String.create 8 in
+  let res = Bytes.create 8 in
   let do_test (key, plain, cipher) =
-    let key = hex key and plain = hex plain and cipher = hex cipher in
+    let key = hex key
+    and plain = hexbytes plain
+    and cipher = hexbytes cipher in
     let c = new Block.blowfish_encrypt key
     and d = new Block.blowfish_decrypt key in
     c#transform plain 0 res 0;  incr testcnt; test !testcnt res cipher;
@@ -603,21 +609,21 @@ let _ =
 
 let some_rsa_key = {
   RSA.size = 512;
-  RSA.n = hex "c0764797b8bec8972a0ed8c90a8c334dd049add0222c09d20be0a79e338910bcae422060906ae0221de3f3fc747ccf98aecc85d6edc52d93d5b7396776160525";
-  RSA.e = hex "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010001";
-  RSA.d = hex "1ae36b7522f66487d9f4610d1550290ac202c929bedc7032cc3e02acf37e3ebc1f866ee7ef7a0868d23ae2b184c1abd6d4db8ea9bec046bd82803727f2888701";
-  RSA.p = hex "df02b615fe15928f41b02b586b51c2c02260ca396818ca4cba60bb892465be35";
-  RSA.q = hex "dceeb60d543518b4ac74834a0546c507f2e91e389a87e2f2becc6f8c67d1c931";
-  RSA.dp = hex "59487e99e375c38d732112d97d6de8687fdafc5b6b5fb16e7297d3bd1e435599";
-  RSA.dq = hex "61b550de6437774db0577718ed6c770724eee466b43114b5b69c43591d313281";
-  RSA.qinv = hex "744c79c4b9bea97c25e563c9407a2d09b57358afe09af67d71f8198cb7c956b8"
+  RSA.n = hexbytes "c0764797b8bec8972a0ed8c90a8c334dd049add0222c09d20be0a79e338910bcae422060906ae0221de3f3fc747ccf98aecc85d6edc52d93d5b7396776160525";
+  RSA.e = hexbytes "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010001";
+  RSA.d = hexbytes "1ae36b7522f66487d9f4610d1550290ac202c929bedc7032cc3e02acf37e3ebc1f866ee7ef7a0868d23ae2b184c1abd6d4db8ea9bec046bd82803727f2888701";
+  RSA.p = hexbytes "df02b615fe15928f41b02b586b51c2c02260ca396818ca4cba60bb892465be35";
+  RSA.q = hexbytes "dceeb60d543518b4ac74834a0546c507f2e91e389a87e2f2becc6f8c67d1c931";
+  RSA.dp = hexbytes "59487e99e375c38d732112d97d6de8687fdafc5b6b5fb16e7297d3bd1e435599";
+  RSA.dq = hexbytes "61b550de6437774db0577718ed6c770724eee466b43114b5b69c43591d313281";
+  RSA.qinv = hexbytes "744c79c4b9bea97c25e563c9407a2d09b57358afe09af67d71f8198cb7c956b8"
 }
 
-let some_msg = "Supercalifragilistusexpialidolcius"
+let some_msg = Bytes.of_string "Supercalifragilistusexpialidolcius"
 
 let test_same_message testno msg1 msg2 =
-  test testno msg1 (String.sub msg2 (String.length msg2 - String.length msg1)
-                                    (String.length msg1))
+  test testno msg1 (Bytes.sub msg2 (Bytes.length msg2 - Bytes.length msg1)
+                                   (Bytes.length msg1))
 
 let _ =
   testing_function "RSA";
@@ -744,8 +750,7 @@ IGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4KVGhlIHF1aWNrIGJyb3duIGZv
 eCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4KVGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBv
 dmVyIHRoZSBsYXp5IGRvZy4uLgo=
 ");
-  let binarytext = String.create 256 in
-  for i = 0 to 255 do binarytext.[i] <- Char.chr i done;
+  let binarytext = String.init 256 Char.chr in
   test 7 binarytext
     (transform_string (Base64.decode())
       (transform_string (Base64.encode_compact()) binarytext))

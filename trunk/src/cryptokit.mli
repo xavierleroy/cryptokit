@@ -42,9 +42,9 @@
     [get_string], [get_substring], [get_char] and [get_byte] methods. *)
 class type transform =
   object
-    method put_substring: string -> int -> int -> unit
-      (** [put_substring str pos len] processes [len] characters of
-          string [str], starting at character number [pos],
+    method put_substring: bytes -> int -> int -> unit
+      (** [put_substring b pos len] processes [len] characters of
+          byte sequence [b], starting at character number [pos],
           through the transform. *)
     method put_string: string -> unit
       (** [put_string str] processes all characters of string [str]
@@ -88,11 +88,11 @@ class type transform =
           available at this point.  The internal output buffer is emptied;
           in other terms, all currently available output is consumed
           (and returned to the caller) by a call to [get_string]. *)
-    method get_substring: string * int * int
+    method get_substring: bytes * int * int
       (** Return a triple [(buf,pos,len)], where [buf] is the internal
           output buffer for the transform, [pos] the position of the
           first character of available output, and [len] the number of
-          characters of available output.  The string [buf] will be
+          characters of available output.  The byte array [buf] will be
           modified later, so the caller must immediately copy
           characters [pos] to [pos+len-1] of [buf] to some other
           location.  The internal output buffer is emptied;
@@ -164,9 +164,9 @@ val compose: transform -> transform -> transform
     sequences to small, fixed-size strings.  *)
 class type hash =
   object
-    method add_substring: string -> int -> int -> unit
-      (** [add_substring str pos len] adds [len] characters from string
-          [str], starting at character number [pos], to the running
+    method add_substring: bytes -> int -> int -> unit
+      (** [add_substring b pos len] adds [len] characters from byte array
+          [b], starting at character number [pos], to the running
           hash computation. *)
     method add_string: string -> unit
       (** [add_string str] adds all characters of string [str]
@@ -215,9 +215,9 @@ module Random : sig
 
   class type rng =
     object
-      method random_bytes: string -> int -> int -> unit
+      method random_bytes: bytes -> int -> int -> unit
         (** [random_bytes buf pos len] stores [len] random bytes
-            in string [buf], starting at position [pos]. *)
+            in byte array [buf], starting at position [pos]. *)
       method wipe: unit
         (** Erases the internal state of the generator.
             Do not call [random_bytes] after calling [wipe]. *)
@@ -290,19 +290,19 @@ module Padding : sig
 
   class type scheme =
     object
-      method pad: string -> int -> unit
-        (** [pad str used] is called with a buffer string [str]
+      method pad: bytes -> int -> unit
+        (** [pad buf used] is called with a byte array [buf]
             containing valid input data at positions [0, ..., used-1].
             The [pad] method must write padding characters in positions
-            [used] to [String.length str - 1].  It is guaranteed that
-            [used < String.length str], so that at least one character of
+            [used] to [Bytes.length str - 1].  It is guaranteed that
+            [used < Bytes.length str], so that at least one character of
             padding must be added.  The padding scheme must be unambiguous
             in the following sense: from [buf] after padding, it must be
             possible to determine [used] unambiguously.  (This is what
             method {!Cryptokit.Padding.scheme.strip} does.) *)
-      method strip: string -> int
+      method strip: bytes -> int
         (** This is the converse of the [pad] operation: from a padded
-            string [buf] as built by method [pad], [strip buf] determines
+            byte array [buf] as built by method [pad], [strip buf] determines
             and returns the starting position of the padding data,
             or equivalently the length of valid, non-padded input data
             in [buf].  This method must raise [Error Bad_padding] if
@@ -610,14 +610,14 @@ module RSA: sig
 
   type key =
     { size: int;    (** Size of the modulus [n], in bits *)
-      n: string;    (** Modulus [n = p.q] *)
-      e: string;    (** Public exponent [e] *)
-      d: string;    (** Private exponent [d] *)
-      p: string;    (** Prime factor [p] of [n] *)
-      q: string;    (** The other prime factor [q] of [n] *)
-      dp: string;   (** [dp] is [d mod (p-1)] *)
-      dq: string;   (** [dq] is [d mod (q-1)] *)
-      qinv: string  (** [qinv] is a multiplicative inverse of [q] modulo [p] *)
+      n: bytes;     (** Modulus [n = p.q] *)
+      e: bytes;     (** Public exponent [e] *)
+      d: bytes;     (** Private exponent [d] *)
+      p: bytes;     (** Prime factor [p] of [n] *)
+      q: bytes;     (** The other prime factor [q] of [n] *)
+      dp: bytes;    (** [dp] is [d mod (p-1)] *)
+      dq: bytes;    (** [dq] is [d mod (q-1)] *)
+      qinv: bytes   (** [qinv] is a multiplicative inverse of [q] modulo [p] *)
     }
     (** The type of RSA keys.  Components [size], [n] and [e] define
         the public part of the key.  Components [size], [n] and [d]
@@ -645,7 +645,7 @@ module RSA: sig
         components defined: public, private, and private for use with
         the CRT. *)
 
-  val encrypt: key -> string -> string
+  val encrypt: key -> bytes -> bytes
     (** [encrypt k msg] encrypts the string [msg] with the public part
         of key [k] (components [n] and [e]).
         [msg] must be smaller than [key.n] when both strings
@@ -654,25 +654,25 @@ module RSA: sig
         using padding if necessary.  If you need to encrypt longer plaintexts
         using RSA, encrypt them with a symmetric cipher, using a
         randomly-generated key, and encrypt only that key with RSA. *)
-  val decrypt: key -> string -> string
+  val decrypt: key -> bytes -> bytes
     (** [decrypt k msg] decrypts the ciphertext string [msg] with the
         private part of key [k] (components [n] and [d]).  The size of
         [msg] is limited as described for {!Cryptokit.RSA.encrypt}. *)
-  val decrypt_CRT: key -> string -> string
+  val decrypt_CRT: key -> bytes -> bytes
     (** [decrypt_CRT k msg] decrypts the ciphertext string [msg] with
         the CRT private part of key [k] (components [n], [p], [q],
         [dp], [dq] and [qinv]).  The use of the Chinese remainder
         theorem (CRT) allows significantly faster decryption than
         {!Cryptokit.RSA.decrypt}, at no loss in security.  The size of
         [msg] is limited as described for {!Cryptokit.RSA.encrypt}. *)
-  val sign: key -> string -> string
+  val sign: key -> bytes -> bytes
     (** [sign k msg] encrypts the plaintext string [msg] with the
         private part of key [k] (components [n] and [d]), thus
         performing a digital signature on [msg].
         The size of [msg] is limited as described for {!Cryptokit.RSA.encrypt}.
         If you need to sign longer messages, compute a cryptographic
         hash of the message and sign only the hash with RSA. *)
-  val sign_CRT: key -> string -> string
+  val sign_CRT: key -> bytes -> bytes
     (** [sign_CRT k msg] encrypts the plaintext string [msg] with the
         CRT private part of key [k] (components [n], [p], [q], [dp],
         [dq] and [qinv]), thus performing a digital signature on
@@ -680,7 +680,7 @@ module RSA: sig
         significantly faster signature than {!Cryptokit.RSA.sign}, at
         no loss in security.  The size of [msg] is limited as
         described for {!Cryptokit.RSA.encrypt}. *)
-  val unwrap_signature: key -> string -> string
+  val unwrap_signature: key -> bytes -> bytes
     (** [unwrap_signature k msg] decrypts the ciphertext string [msg]
         with the public part of key [k] (components [n] and [d]),
         thus extracting the plaintext that was signed by the sender.
@@ -717,8 +717,8 @@ end
 module DH: sig
 
   type parameters =
-    { p: string;                 (** Large prime number *)
-      g: string;                 (** Generator of [Z/pZ] *)
+    { p: bytes;                  (** Large prime number *)
+      g: bytes;                  (** Generator of [Z/pZ] *)
       privlen: int               (** Length of private secrets in bits *)
     }
     (** The type of Diffie-Hellman parameters.  These parameters
@@ -741,9 +741,9 @@ module DH: sig
     (** Generate a random private secret.  
       The optional [rng] argument specifies a random number generator
       to use; it defaults to {!Cryptokit.Random.secure_rng}. *)
-  val message: parameters -> private_secret -> string
+  val message: parameters -> private_secret -> bytes
     (** Compute the message to be sent to the other party. *)
-  val shared_secret: parameters -> private_secret -> string -> string
+  val shared_secret: parameters -> private_secret -> bytes -> bytes
     (** Recover the shared secret from the private secret of the
       present party and the message received from the other party.
       The shared secret returned is a string of the same length as
@@ -777,11 +777,11 @@ module Block : sig
     object
       method blocksize: int
         (** The size in bytes of the blocks manipulated by the cipher. *)
-      method transform: string -> int -> string -> int -> unit
+      method transform: bytes -> int -> bytes -> int -> unit
         (** [transform src spos dst dpos] encrypts or decrypts one block
-            of data.  The input data is read from string [src] at
+            of data.  The input data is read from byte array [src] at
             positions [spos, ..., spos + blocksize - 1], and the output
-            data is stored in string [dst] at positions
+            data is stored in byte array [dst] at positions
             [dpos, ..., dpos + blocksize - 1]. *)
       method wipe: unit
         (** Erase the internal state of the block cipher, such as
@@ -911,11 +911,11 @@ module Stream : sig
 
   class type stream_cipher =
     object
-      method transform: string -> int -> string -> int -> int -> unit
+      method transform: bytes -> int -> bytes -> int -> int -> unit
         (** [transform src spos dst dpos len] encrypts or decrypts
-            [len] characters, read from string [src] starting at
+            [len] characters, read from byte array [src] starting at
             position [spos].  The resulting [len] characters are
-            stored in string [dst] starting at position [dpos]. *)
+            stored in byte array [dst] starting at position [dpos]. *)
       method wipe: unit
         (** Erase the internal state of the stream cipher, such as
             all key-dependent material. *)
@@ -1042,20 +1042,26 @@ exception Error of error
 
 (** {6 Miscellaneous utilities} *)
 
+val wipe_bytes : bytes -> unit
+    (** [wipe_bytes s] overwrites [s] with zeroes.  Can be used
+        to reduce the memory lifetime of sensitive data. *)
 val wipe_string : string -> unit
     (** [wipe_string s] overwrites [s] with zeroes.  Can be used
         to reduce the memory lifetime of sensitive data. *)
-val xor_string: string -> int -> string -> int -> int -> unit
+val xor_bytes: bytes -> int -> bytes -> int -> int -> unit
     (** [xor_string src spos dst dpos len] performs the xor (exclusive or)
         of characters [spos, ..., spos + len - 1] of [src]
         with characters [dpos, ..., dpos + len - 1] of [dst],
         storing the result in [dst] starting at position [dpos]. *)
-val mod_power: string -> string -> string -> string
+val xor_string: string -> int -> bytes -> int -> int -> unit
+    (** Same as [xor_bytes], but the source is a string instead of a 
+        byte array. *)
+val mod_power: bytes -> bytes -> bytes -> bytes
     (** [mod_power a b c] computes [a^b mod c], where the
-        strings [a], [b], [c] and the result string are viewed as
+        byte arrays [a], [b], [c] and the result are viewed as
         arbitrary-precision integers in big-endian format.
         Requires [a < c].  *)
-val mod_mult: string -> string -> string -> string
+val mod_mult: bytes -> bytes -> bytes -> bytes
     (** [mod_mult a b c] computes [a*b mod c], where the
-        strings [a], [b], [c] and the result string are viewed as
+        byte arrays [a], [b], [c] and the result are viewed as
         arbitrary-precision integers in big-endian format. *)
