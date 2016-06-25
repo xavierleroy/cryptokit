@@ -109,3 +109,4 @@ true: annot, bin_annot
 "build": not_hygienic
 "build": -traverse
 "src/cryptokit.cmxs": use_libcryptokit_stubs
+<*/*.cm{o,x}>: safe_string

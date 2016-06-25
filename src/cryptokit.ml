@@ -13,7 +13,8 @@
 
 (* $Id$ *)
 
-let wipe_string s = String.fill s 0 (String.length s) '\000'
+let wipe_bytes s = Bytes.fill s 0 (Bytes.length s) '\000'
+let wipe_string s = wipe_bytes (Bytes.unsafe_of_string s)
 
 type error =
   | Wrong_key_size
@@ -39,44 +40,44 @@ let _ = Callback.register_exception "Cryptokit.Error" (Error Wrong_key_size)
 
 type dir = Encrypt | Decrypt
 
-external xor_string: string -> int -> string -> int -> int -> unit = "caml_xor_string"
+external xor_bytes: bytes -> int -> bytes -> int -> int -> unit = "caml_xor_string"
+external xor_string: string -> int -> bytes -> int -> int -> unit = "caml_xor_string"
+external aes_cook_encrypt_key : string -> bytes = "caml_aes_cook_encrypt_key"
+external aes_cook_decrypt_key : string -> bytes = "caml_aes_cook_decrypt_key"
+external aes_encrypt : bytes -> bytes -> int -> bytes -> int -> unit = "caml_aes_encrypt"
+external aes_decrypt : bytes -> bytes -> int -> bytes -> int -> unit = "caml_aes_decrypt"
+external blowfish_cook_key : string -> bytes = "caml_blowfish_cook_key"
+external blowfish_encrypt : bytes -> bytes -> int -> bytes -> int -> unit = "caml_blowfish_encrypt"
+external blowfish_decrypt : bytes -> bytes -> int -> bytes -> int -> unit = "caml_blowfish_decrypt"
+external des_cook_key : string -> int -> dir -> bytes = "caml_des_cook_key"
+external des_transform : bytes -> bytes -> int -> bytes -> int -> unit = "caml_des_transform"
+external arcfour_cook_key : string -> bytes = "caml_arcfour_cook_key"
+external arcfour_transform : bytes -> bytes -> int -> bytes -> int -> int -> unit = "caml_arcfour_transform_bytecode" "caml_arcfour_transform"
 
-external aes_cook_encrypt_key : string -> string = "caml_aes_cook_encrypt_key"
-external aes_cook_decrypt_key : string -> string = "caml_aes_cook_decrypt_key"
-external aes_encrypt : string -> string -> int -> string -> int -> unit = "caml_aes_encrypt"
-external aes_decrypt : string -> string -> int -> string -> int -> unit = "caml_aes_decrypt"
-external blowfish_cook_key : string -> string = "caml_blowfish_cook_key"
-external blowfish_encrypt : string -> string -> int -> string -> int -> unit = "caml_blowfish_encrypt"
-external blowfish_decrypt : string -> string -> int -> string -> int -> unit = "caml_blowfish_decrypt"
-external des_cook_key : string -> int -> dir -> string = "caml_des_cook_key"
-external des_transform : string -> string -> int -> string -> int -> unit = "caml_des_transform"
-external arcfour_cook_key : string -> string = "caml_arcfour_cook_key"
-external arcfour_transform : string -> string -> int -> string -> int -> int -> unit = "caml_arcfour_transform_bytecode" "caml_arcfour_transform"
-
-external sha1_init: unit -> string = "caml_sha1_init"
-external sha1_update: string -> string -> int -> int -> unit = "caml_sha1_update"
-external sha1_final: string -> string = "caml_sha1_final"
-external sha256_init: unit -> string = "caml_sha256_init"
-external sha224_init: unit -> string = "caml_sha224_init"
-external sha256_update: string -> string -> int -> int -> unit = "caml_sha256_update"
-external sha256_final: string -> string = "caml_sha256_final"
-external sha224_final: string -> string = "caml_sha224_final"
-external sha512_init: unit -> string = "caml_sha512_init"
-external sha384_init: unit -> string = "caml_sha384_init"
-external sha512_update: string -> string -> int -> int -> unit = "caml_sha512_update"
-external sha512_final: string -> string = "caml_sha512_final"
-external sha384_final: string -> string = "caml_sha384_final"
+external sha1_init: unit -> bytes = "caml_sha1_init"
+external sha1_update: bytes -> bytes -> int -> int -> unit = "caml_sha1_update"
+external sha1_final: bytes -> string = "caml_sha1_final"
+external sha256_init: unit -> bytes = "caml_sha256_init"
+external sha224_init: unit -> bytes = "caml_sha224_init"
+external sha256_update: bytes -> bytes -> int -> int -> unit = "caml_sha256_update"
+external sha256_final: bytes -> string = "caml_sha256_final"
+external sha224_final: bytes -> string = "caml_sha224_final"
+external sha512_init: unit -> bytes = "caml_sha512_init"
+external sha384_init: unit -> bytes = "caml_sha384_init"
+external sha512_update: bytes -> bytes -> int -> int -> unit = "caml_sha512_update"
+external sha512_final: bytes -> string = "caml_sha512_final"
+external sha384_final: bytes -> string = "caml_sha384_final"
 type sha3_context
 external sha3_init: int -> sha3_context = "caml_sha3_init"
-external sha3_absorb: sha3_context -> string -> int -> int -> unit = "caml_sha3_absorb"
+external sha3_absorb: sha3_context -> bytes -> int -> int -> unit = "caml_sha3_absorb"
 external sha3_extract: sha3_context -> string = "caml_sha3_extract"
 external sha3_wipe: sha3_context -> unit = "caml_sha3_wipe"
-external ripemd160_init: unit -> string = "caml_ripemd160_init"
-external ripemd160_update: string -> string -> int -> int -> unit = "caml_ripemd160_update"
-external ripemd160_final: string -> string = "caml_ripemd160_final"
-external md5_init: unit -> string = "caml_md5_init"
-external md5_update: string -> string -> int -> int -> unit = "caml_md5_update"
-external md5_final: string -> string = "caml_md5_final"
+external ripemd160_init: unit -> bytes = "caml_ripemd160_init"
+external ripemd160_update: bytes -> bytes -> int -> int -> unit = "caml_ripemd160_update"
+external ripemd160_final: bytes -> string = "caml_ripemd160_final"
+external md5_init: unit -> bytes = "caml_md5_init"
+external md5_update: bytes -> bytes -> int -> int -> unit = "caml_md5_update"
+external md5_final: bytes -> string = "caml_md5_final"
 
 (* Abstract transform type *)
 
@@ -85,7 +86,7 @@ class type transform =
     method input_block_size: int
     method output_block_size: int
 
-    method put_substring: string -> int -> int -> unit
+    method put_substring: bytes -> int -> int -> unit
     method put_string: string -> unit
     method put_char: char -> unit
     method put_byte: int -> unit
@@ -96,7 +97,7 @@ class type transform =
     method available_output: int
 
     method get_string: string
-    method get_substring: string * int * int
+    method get_substring: bytes * int * int
     method get_char: char
     method get_byte: int
 
@@ -109,7 +110,7 @@ let transform_string tr s =
   let r = tr#get_string in tr#wipe; r
 
 let transform_channel tr ?len ic oc =
-  let ibuf = String.create 256 in
+  let ibuf = Bytes.create 256 in
   let rec transf_to_eof () =
     let r = input ic ibuf 0 256 in
     if r > 0 then begin
@@ -131,7 +132,7 @@ let transform_channel tr ?len ic oc =
       None -> transf_to_eof ()
     | Some l -> transf_bounded l
   end;
-  wipe_string ibuf;
+  wipe_bytes ibuf;
   tr#finish;
   let (obuf, opos, olen) = tr#get_substring in
   output oc obuf opos olen;
@@ -172,7 +173,7 @@ let compose tr1 tr2 = new compose tr1 tr2
 class type hash =
   object
     method hash_size: int
-    method add_substring: string -> int -> int -> unit
+    method add_substring: bytes -> int -> int -> unit
     method add_string: string -> unit
     method add_char: char -> unit
     method add_byte: int -> unit
@@ -187,7 +188,7 @@ let hash_string hash s =
   r
 
 let hash_channel hash ?len ic =
-  let ibuf = String.create 256 in
+  let ibuf = Bytes.create 256 in
   let rec hash_to_eof () =
     let r = input ic ibuf 0 256 in
     if r > 0 then begin
@@ -205,7 +206,7 @@ let hash_channel hash ?len ic =
       None -> hash_to_eof ()
     | Some l -> hash_bounded l
   end;
-  wipe_string ibuf;
+  wipe_bytes ibuf;
   let res = hash#result in
   hash#wipe;
   res
@@ -216,23 +217,23 @@ module Padding = struct
 
 class type scheme =
   object
-    method pad: string -> int -> unit
-    method strip: string -> int
+    method pad: bytes -> int -> unit
+    method strip: bytes -> int
   end
 
 class length =
   object
     method pad buffer used =
-      let n = String.length buffer - used in
+      let n = Bytes.length buffer - used in
       assert (n > 0 && n < 256);
-      String.fill buffer used n (Char.chr n)
+      Bytes.fill buffer used n (Char.chr n)
     method strip buffer =
-      let blocksize = String.length buffer in
-      let n = Char.code buffer.[blocksize - 1] in
+      let blocksize = Bytes.length buffer in
+      let n = Char.code (Bytes.get buffer (blocksize - 1)) in
       if n = 0 || n > blocksize then raise (Error Bad_padding);
       (* Characters blocksize - n to blocksize - 1 must be equal to n *)
       for i = blocksize - n to blocksize - 2 do
-        if Char.code buffer.[i] <> n then raise (Error Bad_padding)
+        if Char.code (Bytes.get buffer i) <> n then raise (Error Bad_padding)
       done;
       blocksize - n
   end
@@ -242,18 +243,18 @@ let length = new length
 class _8000 =
   object
     method pad buffer used =
-      buffer.[used] <- '\128';
-      for i = used + 1 to String.length buffer - 1 do
-        buffer.[i] <- '\000'
+      Bytes.set buffer used '\128';
+      for i = used + 1 to Bytes.length buffer - 1 do
+        Bytes.set buffer i '\000'
       done
     method strip buffer =
       let rec strip pos =
         if pos < 0 then raise (Error Bad_padding) else
-          match buffer.[pos] with
+          match Bytes.get buffer pos with
             '\128' -> pos
           | '\000' -> strip (pos - 1)
           |    _   -> raise (Error Bad_padding)
-      in strip (String.length buffer - 1)
+      in strip (Bytes.length buffer - 1)
   end
 
 let _8000 = new _8000
@@ -264,15 +265,15 @@ end
 
 class buffered_output initial_buffer_size =
   object(self)
-    val mutable obuf = String.create initial_buffer_size
+    val mutable obuf = Bytes.create initial_buffer_size
     val mutable obeg = 0
     val mutable oend = 0
 
     method private ensure_capacity n =
-      let len = String.length obuf in
+      let len = Bytes.length obuf in
       if oend + n > len then begin
         if oend - obeg + n < len then begin
-          String.blit obuf obeg obuf 0 (oend - obeg);
+          Bytes.blit obuf obeg obuf 0 (oend - obeg);
           oend <- oend - obeg;
           obeg <- 0
         end else begin
@@ -286,8 +287,8 @@ class buffered_output initial_buffer_size =
             else
               raise (Error Output_buffer_overflow)
           end;
-          let newbuf = String.create (!newlen) in
-          String.blit obuf obeg newbuf 0 (oend - obeg);
+          let newbuf = Bytes.create (!newlen) in
+          Bytes.blit obuf obeg newbuf 0 (oend - obeg);
           obuf <- newbuf;
           oend <- oend - obeg;
           obeg <- 0
@@ -300,11 +301,11 @@ class buffered_output initial_buffer_size =
       let res = (obuf, obeg, oend - obeg) in obeg <- 0; oend <- 0; res
 
     method get_string =
-      let res = String.sub obuf obeg (oend - obeg) in obeg <- 0; oend <- 0; res
+      let res = Bytes.sub_string obuf obeg (oend - obeg) in obeg <- 0; oend <- 0; res
 
     method get_char =
       if obeg >= oend then raise End_of_file;
-      let r = obuf.[obeg] in
+      let r = Bytes.get obuf obeg in
       obeg <- obeg + 1;
       r
 
@@ -312,7 +313,7 @@ class buffered_output initial_buffer_size =
       Char.code self#get_char          
 
     method wipe =
-      wipe_string obuf
+      wipe_bytes obuf
   end
 
 (* Block ciphers *)
@@ -322,7 +323,7 @@ module Block = struct
 class type block_cipher =
   object
     method blocksize: int
-    method transform: string -> int -> string -> int -> unit
+    method transform: bytes -> int -> bytes -> int -> unit
     method wipe: unit
   end
 
@@ -335,13 +336,13 @@ class aes_encrypt key =
       else raise(Error Wrong_key_size)
     method blocksize = 16
     method transform src src_ofs dst dst_ofs =
-      if src_ofs < 0 || src_ofs > String.length src - 16
-      || dst_ofs < 0 || dst_ofs > String.length dst - 16
+      if src_ofs < 0 || src_ofs > Bytes.length src - 16
+      || dst_ofs < 0 || dst_ofs > Bytes.length dst - 16
       then invalid_arg "aes#transform";
       aes_encrypt ckey src src_ofs dst dst_ofs
     method wipe =
-      wipe_string ckey;
-      ckey.[String.length ckey - 1] <- '\016'
+      wipe_bytes ckey;
+      Bytes.set ckey (Bytes.length ckey - 1) '\016'
   end
 
 class aes_decrypt key =
@@ -353,13 +354,13 @@ class aes_decrypt key =
       else raise(Error Wrong_key_size)
     method blocksize = 16
     method transform src src_ofs dst dst_ofs =
-      if src_ofs < 0 || src_ofs > String.length src - 16
-      || dst_ofs < 0 || dst_ofs > String.length dst - 16
+      if src_ofs < 0 || src_ofs > Bytes.length src - 16
+      || dst_ofs < 0 || dst_ofs > Bytes.length dst - 16
       then invalid_arg "aes#transform";
       aes_decrypt ckey src src_ofs dst dst_ofs
     method wipe =
-      wipe_string ckey;
-      ckey.[String.length ckey - 1] <- '\016'
+      wipe_bytes ckey;
+      Bytes.set ckey (Bytes.length ckey - 1) '\016'
   end
 
 class blowfish_encrypt key =
@@ -371,12 +372,12 @@ class blowfish_encrypt key =
       else raise(Error Wrong_key_size)
     method blocksize = 8
     method transform src src_ofs dst dst_ofs =
-      if src_ofs < 0 || src_ofs > String.length src - 8
-      || dst_ofs < 0 || dst_ofs > String.length dst - 8
+      if src_ofs < 0 || src_ofs > Bytes.length src - 8
+      || dst_ofs < 0 || dst_ofs > Bytes.length dst - 8
       then invalid_arg "blowfish#transform";
       blowfish_encrypt ckey src src_ofs dst dst_ofs
     method wipe =
-      wipe_string ckey
+      wipe_bytes ckey
   end
 
 class blowfish_decrypt key =
@@ -388,12 +389,12 @@ class blowfish_decrypt key =
       else raise(Error Wrong_key_size)
     method blocksize = 8
     method transform src src_ofs dst dst_ofs =
-      if src_ofs < 0 || src_ofs > String.length src - 8
-      || dst_ofs < 0 || dst_ofs > String.length dst - 8
+      if src_ofs < 0 || src_ofs > Bytes.length src - 8
+      || dst_ofs < 0 || dst_ofs > Bytes.length dst - 8
       then invalid_arg "blowfish#transform";
       blowfish_decrypt ckey src src_ofs dst dst_ofs
     method wipe =
-      wipe_string ckey
+      wipe_bytes ckey
   end
 
 class des direction key =
@@ -404,12 +405,12 @@ class des direction key =
       else raise(Error Wrong_key_size)
     method blocksize = 8
     method transform src src_ofs dst dst_ofs =
-      if src_ofs < 0 || src_ofs > String.length src - 8
-      || dst_ofs < 0 || dst_ofs > String.length dst - 8
+      if src_ofs < 0 || src_ofs > Bytes.length src - 8
+      || dst_ofs < 0 || dst_ofs > Bytes.length dst - 8
       then invalid_arg "des#transform";
       des_transform ckey src src_ofs dst dst_ofs
     method wipe =
-      wipe_string ckey
+      wipe_bytes ckey
   end
 
 class des_encrypt = des Encrypt
@@ -430,16 +431,16 @@ class triple_des_encrypt key =
   object
     method blocksize = 8
     method transform src src_ofs dst dst_ofs =
-      if src_ofs < 0 || src_ofs > String.length src - 8
-      || dst_ofs < 0 || dst_ofs > String.length dst - 8
+      if src_ofs < 0 || src_ofs > Bytes.length src - 8
+      || dst_ofs < 0 || dst_ofs > Bytes.length dst - 8
       then invalid_arg "triple_des#transform";
       des_transform ckey1 src src_ofs dst dst_ofs;
       des_transform ckey2 dst dst_ofs dst dst_ofs;
       des_transform ckey3 dst dst_ofs dst dst_ofs
     method wipe =
-      wipe_string ckey1;
-      wipe_string ckey2;
-      wipe_string ckey3
+      wipe_bytes ckey1;
+      wipe_bytes ckey2;
+      wipe_bytes ckey3
   end
 
 class triple_des_decrypt key =
@@ -457,26 +458,26 @@ class triple_des_decrypt key =
   object
     method blocksize = 8
     method transform src src_ofs dst dst_ofs =
-      if src_ofs < 0 || src_ofs > String.length src - 8
-      || dst_ofs < 0 || dst_ofs > String.length dst - 8
+      if src_ofs < 0 || src_ofs > Bytes.length src - 8
+      || dst_ofs < 0 || dst_ofs > Bytes.length dst - 8
       then invalid_arg "triple_des#transform";
       des_transform ckey1 src src_ofs dst dst_ofs;
       des_transform ckey2 dst dst_ofs dst dst_ofs;
       des_transform ckey3 dst dst_ofs dst dst_ofs
     method wipe =
-      wipe_string ckey1;
-      wipe_string ckey2;
-      wipe_string ckey3
+      wipe_bytes ckey1;
+      wipe_bytes ckey2;
+      wipe_bytes ckey3
   end
 
 (* Chaining modes *)
 
 let make_initial_iv blocksize = function
   | None ->
-      String.make blocksize '\000'
+      Bytes.make blocksize '\000'
   | Some s ->
       if String.length s <> blocksize then raise (Error Wrong_IV_size);
-      String.copy s
+      Bytes.of_string s
 
 class cbc_encrypt ?iv:iv_init (cipher : block_cipher) =
   let blocksize = cipher#blocksize in
@@ -484,29 +485,29 @@ class cbc_encrypt ?iv:iv_init (cipher : block_cipher) =
     val iv = make_initial_iv blocksize iv_init
     method blocksize = blocksize
     method transform src src_off dst dst_off =
-      xor_string src src_off iv 0 blocksize;
+      xor_bytes src src_off iv 0 blocksize;
       cipher#transform iv 0 dst dst_off;
-      String.blit dst dst_off iv 0 blocksize
+      Bytes.blit dst dst_off iv 0 blocksize
     method wipe =
       cipher#wipe;
-      wipe_string iv
+      wipe_bytes iv
   end
 
 class cbc_decrypt ?iv:iv_init (cipher : block_cipher) =
   let blocksize = cipher#blocksize in
   object(self)
     val iv = make_initial_iv blocksize iv_init
-    val next_iv = String.create blocksize
+    val next_iv = Bytes.create blocksize
     method blocksize = blocksize
     method transform src src_off dst dst_off =
-      String.blit src src_off next_iv 0 blocksize;
+      Bytes.blit src src_off next_iv 0 blocksize;
       cipher#transform src src_off dst dst_off;
-      xor_string iv 0 dst dst_off blocksize;
-      String.blit next_iv 0 iv 0 blocksize
+      xor_bytes iv 0 dst dst_off blocksize;
+      Bytes.blit next_iv 0 iv 0 blocksize
     method wipe =
       cipher#wipe;
-      wipe_string iv;
-      wipe_string next_iv
+      wipe_bytes iv;
+      wipe_bytes next_iv
   end
 
 class cfb_encrypt ?iv:iv_init chunksize (cipher : block_cipher) =
@@ -514,18 +515,18 @@ class cfb_encrypt ?iv:iv_init chunksize (cipher : block_cipher) =
   let _ = assert (chunksize > 0 && chunksize <= blocksize) in
   object(self)
     val iv = make_initial_iv blocksize iv_init
-    val out = String.create blocksize
+    val out = Bytes.create blocksize
     method blocksize = chunksize
     method transform src src_off dst dst_off =
       cipher#transform iv 0 out 0;
-      String.blit src src_off dst dst_off chunksize;
-      xor_string out 0 dst dst_off chunksize;
-      String.blit iv chunksize iv 0 (blocksize - chunksize);
-      String.blit dst dst_off iv (blocksize - chunksize) chunksize
+      Bytes.blit src src_off dst dst_off chunksize;
+      xor_bytes out 0 dst dst_off chunksize;
+      Bytes.blit iv chunksize iv 0 (blocksize - chunksize);
+      Bytes.blit dst dst_off iv (blocksize - chunksize) chunksize
     method wipe =
       cipher#wipe;
-      wipe_string iv;
-      wipe_string out
+      wipe_bytes iv;
+      wipe_bytes out
   end
 
 class cfb_decrypt ?iv:iv_init chunksize (cipher : block_cipher) =
@@ -533,18 +534,18 @@ class cfb_decrypt ?iv:iv_init chunksize (cipher : block_cipher) =
   let _ = assert (chunksize > 0 && chunksize <= blocksize) in
   object(self)
     val iv = make_initial_iv blocksize iv_init
-    val out = String.create blocksize
+    val out = Bytes.create blocksize
     method blocksize = chunksize
     method transform src src_off dst dst_off =
       cipher#transform iv 0 out 0;
-      String.blit iv chunksize iv 0 (blocksize - chunksize);
-      String.blit src src_off iv (blocksize - chunksize) chunksize;
-      String.blit src src_off dst dst_off chunksize;
-      xor_string out 0 dst dst_off chunksize
+      Bytes.blit iv chunksize iv 0 (blocksize - chunksize);
+      Bytes.blit src src_off iv (blocksize - chunksize) chunksize;
+      Bytes.blit src src_off dst dst_off chunksize;
+      xor_bytes out 0 dst dst_off chunksize
     method wipe =
       cipher#wipe;
-      wipe_string iv;
-      wipe_string out
+      wipe_bytes iv;
+      wipe_bytes out
   end
 
 class ofb ?iv:iv_init chunksize (cipher : block_cipher) =
@@ -555,17 +556,17 @@ class ofb ?iv:iv_init chunksize (cipher : block_cipher) =
     method blocksize = chunksize
     method transform src src_off dst dst_off =
       cipher#transform iv 0 iv 0;
-      String.blit src src_off dst dst_off chunksize;
-      xor_string iv 0 dst dst_off chunksize
+      Bytes.blit src src_off dst dst_off chunksize;
+      xor_bytes iv 0 dst dst_off chunksize
     method wipe =
       cipher#wipe;
-      wipe_string iv
+      wipe_bytes iv
   end
 
 let rec increment_counter c lim pos =
   if pos >= lim then begin
-    let i = 1 + Char.code c.[pos] in
-    c.[pos] <- Char.unsafe_chr i;
+    let i = 1 + Char.code (Bytes.get c pos) in
+    Bytes.set c pos (Char.unsafe_chr i);
     if i = 0x100 then increment_counter c lim (pos - 1)
   end
 
@@ -577,17 +578,17 @@ class ctr ?iv:iv_init ?inc (cipher : block_cipher) =
     | Some n -> assert (n > 0 && n <= blocksize); n in
   object(self)
     val iv = make_initial_iv blocksize iv_init
-    val out = String.create blocksize
+    val out = Bytes.create blocksize
     method blocksize = blocksize
     method transform src src_off dst dst_off =
       cipher#transform iv 0 out 0;
-      String.blit src src_off dst dst_off blocksize;
-      xor_string out 0 dst dst_off blocksize;
+      Bytes.blit src src_off dst dst_off blocksize;
+      xor_bytes out 0 dst dst_off blocksize;
       increment_counter iv (blocksize - nincr) (blocksize - 1)
     method wipe =
       cipher#wipe;
-      wipe_string iv;
-      wipe_string out
+      wipe_bytes iv;
+      wipe_bytes out
   end
 
 (* Wrapping of a block cipher as a transform *)
@@ -595,7 +596,7 @@ class ctr ?iv:iv_init ?inc (cipher : block_cipher) =
 class cipher (cipher : block_cipher) =
   let blocksize = cipher#blocksize in
   object(self)
-    val ibuf = String.create blocksize
+    val ibuf = Bytes.create blocksize
     val mutable used = 0
 
     inherit buffered_output (max 256 (2 * blocksize)) as output_buffer
@@ -607,12 +608,12 @@ class cipher (cipher : block_cipher) =
       if len <= 0 then () else
       if used + len <= blocksize then begin
         (* Just accumulate len characters in ibuf *)
-        String.blit src ofs ibuf used len;
+        Bytes.blit src ofs ibuf used len;
         used <- used + len
       end else begin
         (* Fill buffer and run it through cipher *)
         let n = blocksize - used in
-        String.blit src ofs ibuf used n;
+        Bytes.blit src ofs ibuf used n;
         self#ensure_capacity blocksize;
         cipher#transform ibuf 0 obuf oend;
         oend <- oend + blocksize;
@@ -622,17 +623,17 @@ class cipher (cipher : block_cipher) =
       end
 
     method put_string s =
-      self#put_substring s 0 (String.length s)
+      self#put_substring (Bytes.unsafe_of_string s) 0 (String.length s)
 
     method put_char c =
       if used < blocksize then begin
-        ibuf.[used] <- c;
+        Bytes.set ibuf used c;
         used <- used + 1
       end else begin
         self#ensure_capacity blocksize;
         cipher#transform ibuf 0 obuf oend;
         oend <- oend + blocksize;
-        ibuf.[0] <- c;
+        Bytes.set ibuf 0 c;
         used <- 1
       end
 
@@ -642,7 +643,7 @@ class cipher (cipher : block_cipher) =
     method wipe =
       cipher#wipe;
       output_buffer#wipe;
-      wipe_string ibuf
+      wipe_bytes ibuf
 
     method flush =
       if used = 0 then ()
@@ -692,7 +693,7 @@ class cipher_padded_decrypt (padding : Padding.scheme)
       cipher#transform ibuf 0 ibuf 0;
       let valid = padding#strip ibuf in
       self#ensure_capacity valid;
-      String.blit ibuf 0 obuf oend valid;
+      Bytes.blit ibuf 0 obuf oend valid;
       oend <- oend + valid
   end
 
@@ -702,7 +703,7 @@ class mac ?iv:iv_init ?(pad: Padding.scheme option) (cipher : block_cipher) =
   let blocksize = cipher#blocksize in
   object(self)
     val iv = make_initial_iv blocksize iv_init
-    val buffer = String.create blocksize
+    val buffer = Bytes.create blocksize
     val mutable used = 0
 
     method hash_size = blocksize
@@ -712,13 +713,13 @@ class mac ?iv:iv_init ?(pad: Padding.scheme option) (cipher : block_cipher) =
         if len <= 0 then () else
         if used + len <= blocksize then begin
           (* Just accumulate len characters in buffer *)
-          String.blit src src_ofs buffer used len;
+          Bytes.blit src src_ofs buffer used len;
           used <- used + len
         end else begin
           (* Fill buffer and run it through cipher *)
           let n = blocksize - used in
-          String.blit src src_ofs buffer used n;
-          xor_string iv 0 buffer 0 blocksize;
+          Bytes.blit src src_ofs buffer used n;
+          xor_bytes iv 0 buffer 0 blocksize;
           cipher#transform buffer 0 iv 0;
           used <- 0;
           (* Recurse on remainder of string *)
@@ -727,16 +728,16 @@ class mac ?iv:iv_init ?(pad: Padding.scheme option) (cipher : block_cipher) =
       in add src_ofs len
 
     method add_string s =
-      self#add_substring s 0 (String.length s)
+      self#add_substring (Bytes.unsafe_of_string s) 0 (String.length s)
 
     method add_char c =
       if used < blocksize then begin
-        buffer.[used] <- c;
+        Bytes.set buffer used c;
         used <- used + 1
       end else begin
-        xor_string iv 0 buffer 0 blocksize;
+        xor_bytes iv 0 buffer 0 blocksize;
         cipher#transform buffer 0 iv 0;
-        buffer.[0] <- c;
+        Bytes.set buffer 0 c;
         used <- 1
       end
 
@@ -745,12 +746,12 @@ class mac ?iv:iv_init ?(pad: Padding.scheme option) (cipher : block_cipher) =
 
     method wipe =
       cipher#wipe;
-      wipe_string buffer;
-      wipe_string iv
+      wipe_bytes buffer;
+      wipe_bytes iv
 
     method result =
       if used = blocksize then begin
-        xor_string iv 0 buffer 0 blocksize;
+        xor_bytes iv 0 buffer 0 blocksize;
         cipher#transform buffer 0 iv 0;
         used <- 0
       end;
@@ -759,11 +760,11 @@ class mac ?iv:iv_init ?(pad: Padding.scheme option) (cipher : block_cipher) =
           if used <> 0 then raise (Error Wrong_data_length)
       | Some p ->
           p#pad buffer used;
-          xor_string iv 0 buffer 0 blocksize;
+          xor_bytes iv 0 buffer 0 blocksize;
           cipher#transform buffer 0 iv 0;
           used <- 0
       end;
-      String.copy iv
+      Bytes.to_string iv
   end
 
 class mac_final_triple ?iv ?pad (cipher1 : block_cipher)
@@ -775,10 +776,10 @@ class mac_final_triple ?iv ?pad (cipher1 : block_cipher)
   object
     inherit mac ?iv ?pad cipher1 as super
     method result =
-      let r = super#result in
+      let r = Bytes.of_string super#result in
       cipher2#transform r 0 r 0;
       cipher3#transform r 0 r 0;
-      r
+      Bytes.unsafe_to_string r
     method wipe =
       super#wipe; cipher2#wipe; cipher3#wipe
   end
@@ -791,7 +792,7 @@ module Stream = struct
 
 class type stream_cipher =
   object
-    method transform: string -> int -> string -> int -> int -> unit
+    method transform: bytes -> int -> bytes -> int -> int -> unit
     method wipe: unit
   end
 
@@ -803,19 +804,19 @@ class arcfour key =
       else raise(Error Wrong_key_size)
     method transform src src_ofs dst dst_ofs len =
       if len < 0
-      || src_ofs < 0 || src_ofs > String.length src - len
-      || dst_ofs < 0 || dst_ofs > String.length dst - len
+      || src_ofs < 0 || src_ofs > Bytes.length src - len
+      || dst_ofs < 0 || dst_ofs > Bytes.length dst - len
       then invalid_arg "arcfour#transform";
       arcfour_transform ckey src src_ofs dst dst_ofs len
     method wipe =
-      wipe_string ckey
+      wipe_bytes ckey
   end
 
 (* Wrapping of a stream cipher as a cipher *)
 
 class cipher (cipher : stream_cipher) =
   object(self)
-    val charbuf = String.create 1
+    val charbuf = Bytes.create 1
 
     inherit buffered_output 256 as output_buffer
     method input_block_size = 1
@@ -827,10 +828,10 @@ class cipher (cipher : stream_cipher) =
       oend <- oend + len
 
     method put_string s =
-      self#put_substring s 0 (String.length s)
+      self#put_substring (Bytes.unsafe_of_string s) 0 (String.length s)
 
     method put_char c =
-      charbuf.[0] <- c;
+      Bytes.set charbuf 0 c;
       self#ensure_capacity 1;
       cipher#transform charbuf 0 obuf oend 1;
       oend <- oend + 1
@@ -844,7 +845,7 @@ class cipher (cipher : stream_cipher) =
     method wipe =
       cipher#wipe;
       output_buffer#wipe;
-      wipe_string charbuf
+      wipe_bytes charbuf
   end
 
 end
@@ -858,11 +859,11 @@ class sha1 =
     val context = sha1_init()
     method hash_size = 20
     method add_substring src ofs len =
-      if ofs < 0 || len < 0 || ofs > String.length src - len
+      if ofs < 0 || len < 0 || ofs > Bytes.length src - len
       then invalid_arg "sha1#add_substring";
       sha1_update context src ofs len
     method add_string src =
-      sha1_update context src 0 (String.length src)
+      sha1_update context (Bytes.unsafe_of_string src) 0 (String.length src)
     method add_char c =
       self#add_string (String.make 1 c)
     method add_byte b =
@@ -870,7 +871,7 @@ class sha1 =
     method result =
       sha1_final context
     method wipe =
-      wipe_string context
+      wipe_bytes context
   end
 
 let sha1 () = new sha1
@@ -880,11 +881,11 @@ class sha224 =
     val context = sha224_init()
     method hash_size = 24
     method add_substring src ofs len =
-      if ofs < 0 || len < 0 || ofs > String.length src - len
+      if ofs < 0 || len < 0 || ofs > Bytes.length src - len
       then invalid_arg "sha224#add_substring";
       sha256_update context src ofs len
     method add_string src =
-      sha256_update context src 0 (String.length src)
+      sha256_update context (Bytes.unsafe_of_string src) 0 (String.length src)
     method add_char c =
       self#add_string (String.make 1 c)
     method add_byte b =
@@ -892,7 +893,7 @@ class sha224 =
     method result =
       sha224_final context
     method wipe =
-      wipe_string context
+      wipe_bytes context
   end
 
 let sha224 () = new sha224
@@ -902,11 +903,11 @@ class sha256 =
     val context = sha256_init()
     method hash_size = 32
     method add_substring src ofs len =
-      if ofs < 0 || len < 0 || ofs > String.length src - len
+      if ofs < 0 || len < 0 || ofs > Bytes.length src - len
       then invalid_arg "sha256#add_substring";
       sha256_update context src ofs len
     method add_string src =
-      sha256_update context src 0 (String.length src)
+      sha256_update context (Bytes.unsafe_of_string src) 0 (String.length src)
     method add_char c =
       self#add_string (String.make 1 c)
     method add_byte b =
@@ -914,7 +915,7 @@ class sha256 =
     method result =
       sha256_final context
     method wipe =
-      wipe_string context
+      wipe_bytes context
   end
 
 let sha256 () = new sha256
@@ -924,11 +925,11 @@ class sha384 =
     val context = sha384_init()
     method hash_size = 48
     method add_substring src ofs len =
-      if ofs < 0 || len < 0 || ofs > String.length src - len
+      if ofs < 0 || len < 0 || ofs > Bytes.length src - len
       then invalid_arg "sha384#add_substring";
       sha512_update context src ofs len
     method add_string src =
-      sha512_update context src 0 (String.length src)
+      sha512_update context (Bytes.unsafe_of_string src) 0 (String.length src)
     method add_char c =
       self#add_string (String.make 1 c)
     method add_byte b =
@@ -936,7 +937,7 @@ class sha384 =
     method result =
       sha384_final context
     method wipe =
-      wipe_string context
+      wipe_bytes context
   end
 
 let sha384 () = new sha384
@@ -946,11 +947,11 @@ class sha512 =
     val context = sha512_init()
     method hash_size = 64
     method add_substring src ofs len =
-      if ofs < 0 || len < 0 || ofs > String.length src - len
+      if ofs < 0 || len < 0 || ofs > Bytes.length src - len
       then invalid_arg "sha512#add_substring";
       sha512_update context src ofs len
     method add_string src =
-      sha512_update context src 0 (String.length src)
+      sha512_update context (Bytes.unsafe_of_string src) 0 (String.length src)
     method add_char c =
       self#add_string (String.make 1 c)
     method add_byte b =
@@ -958,7 +959,7 @@ class sha512 =
     method result =
       sha512_final context
     method wipe =
-      wipe_string context
+      wipe_bytes context
   end
 
 let sha512 () = new sha512
@@ -979,11 +980,11 @@ class sha3 sz =
       else raise (Error Wrong_key_size)
     method hash_size = sz / 8
     method add_substring src ofs len =
-      if ofs < 0 || len < 0 || ofs > String.length src - len
+      if ofs < 0 || len < 0 || ofs > Bytes.length src - len
       then invalid_arg "sha3#add_substring";
       sha3_absorb context src ofs len
     method add_string src =
-      sha3_absorb context src 0 (String.length src)
+      sha3_absorb context (Bytes.unsafe_of_string src) 0 (String.length src)
     method add_char c =
       self#add_string (String.make 1 c)
     method add_byte b =
@@ -1001,11 +1002,11 @@ class ripemd160 =
     val context = ripemd160_init()
     method hash_size = 32
     method add_substring src ofs len =
-      if ofs < 0 || len < 0 || ofs > String.length src - len
+      if ofs < 0 || len < 0 || ofs > Bytes.length src - len
       then invalid_arg "ripemd160#add_substring";
       ripemd160_update context src ofs len
     method add_string src =
-      ripemd160_update context src 0 (String.length src)
+      ripemd160_update context (Bytes.unsafe_of_string src) 0 (String.length src)
     method add_char c =
       self#add_string (String.make 1 c)
     method add_byte b =
@@ -1013,7 +1014,7 @@ class ripemd160 =
     method result =
       ripemd160_final context
     method wipe =
-      wipe_string context
+      wipe_bytes context
   end
 
 let ripemd160 () = new ripemd160
@@ -1023,11 +1024,11 @@ class md5 =
     val context = md5_init()
     method hash_size = 16
     method add_substring src ofs len =
-      if ofs < 0 || len < 0 || ofs > String.length src - len
+      if ofs < 0 || len < 0 || ofs > Bytes.length src - len
       then invalid_arg "md5#add_substring";
       md5_update context src ofs len
     method add_string src =
-      md5_update context src 0 (String.length src)
+      md5_update context (Bytes.unsafe_of_string src) 0 (String.length src)
     method add_char c =
       self#add_string (String.make 1 c)
     method add_byte b =
@@ -1035,7 +1036,7 @@ class md5 =
     method result =
       md5_final context
     method wipe =
-      wipe_string context
+      wipe_bytes context
   end
 
 let md5 () = new md5
@@ -1114,21 +1115,21 @@ module HMAC(H: sig class h: hash  val blocksize: int end) =
         if String.length key > H.blocksize
         then hash_string (new H.h) key
         else key in
-      let r = String.make H.blocksize (Char.chr byte) in
+      let r = Bytes.make H.blocksize (Char.chr byte) in
       xor_string key 0 r 0 (String.length key);
       r
     class hmac key =
       object(self)
         inherit H.h as super
         initializer
-          (let s = hmac_pad key 0x36 in
-           self#add_string s;
-           wipe_string s)
+          (let b = hmac_pad key 0x36 in
+           self#add_substring b 0 (Bytes.length b);
+           wipe_bytes b)
         method result =
           let h' = new H.h in
-          let s = hmac_pad key 0x5C in
-          h'#add_string s;
-          wipe_string s;
+          let b = hmac_pad key 0x5C in
+          h'#add_substring b 0 (Bytes.length b);
+          wipe_bytes b;
           h'#add_string (super#result);
           let r = h'#result in
           h'#wipe;
@@ -1183,27 +1184,27 @@ module Random = struct
 
 class type rng =
   object
-    method random_bytes: string -> int -> int -> unit
+    method random_bytes: bytes -> int -> int -> unit
     method wipe: unit
   end
 
 let string rng len =
-  let res = String.create len in
+  let res = Bytes.create len in
   rng#random_bytes res 0 len;
-  res
+  Bytes.unsafe_to_string res
 
 type system_rng_handle
 external get_system_rng: unit -> system_rng_handle = "caml_get_system_rng"
 external close_system_rng: system_rng_handle -> unit = "caml_close_system_rng"
 external system_rng_random_bytes: 
-  system_rng_handle -> string -> int -> int -> bool
+  system_rng_handle -> bytes -> int -> int -> bool
   = "caml_system_rng_random_bytes"
 
 class system_rng =
   object(self)
     val h = get_system_rng ()
     method random_bytes buf ofs len =
-      if ofs < 0 || len < 0 || ofs > String.length buf - len
+      if ofs < 0 || len < 0 || ofs > Bytes.length buf - len
       then invalid_arg "random_bytes";
       if system_rng_random_bytes h buf ofs len
       then ()
@@ -1241,9 +1242,9 @@ class egd_rng socketname =
     method random_bytes buf ofs len =
       if len > 0 then begin    
         let reqd = min 255 len in
-        let msg = String.create 2 in
-        msg.[0] <- '\002'; (* read entropy blocking *)
-        msg.[1] <- Char.chr reqd;
+        let msg = Bytes.create 2 in
+        Bytes.set msg 0 '\002'; (* read entropy blocking *)
+        Bytes.set msg 1 (Char.chr reqd);
         ignore (Unix.write fd msg 0 2);
         let rec do_read ofs len =
           if len > 0 then begin
@@ -1262,7 +1263,7 @@ let egd_rng socketname = new egd_rng socketname
 
 class no_rng =
   object
-    method random_bytes (buf:string) (ofs:int) (len:int) : unit = 
+    method random_bytes (buf:bytes) (ofs:int) (len:int) : unit = 
       raise (Error No_entropy_source)
     method wipe = ()
   end
@@ -1297,10 +1298,10 @@ class pseudo_rng seed =
     val cipher =
       new Block.cbc_encrypt (new Block.aes_encrypt (String.sub seed 0 16))
     val state =
-      let s = String.make 71 '\001' in
+      let s = Bytes.make 71 '\001' in
       String.blit seed 0 s 0 (min 55 (String.length seed));
       s
-    val obuf = String.create 16
+    val obuf = Bytes.create 16
     val mutable opos = 16
 
     method random_bytes buf ofs len =
@@ -1308,24 +1309,25 @@ class pseudo_rng seed =
         if opos >= 16 then begin
           (* Clock the lagged Fibonacci generator 16 times *)
           for i = 55 to 70 do
-            state.[i] <- Char.unsafe_chr(Char.code state.[i-55] +
-                                         Char.code state.[i-24])
+            Bytes.set state i
+              (Char.unsafe_chr(Char.code (Bytes.get state (i-55)) +
+                               Char.code (Bytes.get state (i-24))))
           done;
           (* Encrypt resulting 16 bytes *)
           cipher#transform state 55 obuf 0;
           (* Shift Fibonacci generator by 16 bytes *)
-          String.blit state 16 state 0 55;
+          Bytes.blit state 16 state 0 55;
           (* We have 16 fresh bytes of pseudo-random data *)
           opos <- 0
         end;
         let r = min (16 - opos) len in
-        String.blit obuf opos buf ofs r;
+        Bytes.blit obuf opos buf ofs r;
         opos <- opos + r;
         if r < len then self#random_bytes buf (ofs + r) (len - r)
       end
 
     method wipe =
-      wipe_string obuf; wipe_string seed
+      wipe_bytes obuf; wipe_string seed
   end
 
   let pseudo_rng seed = new pseudo_rng seed
@@ -1340,24 +1342,24 @@ module RSA = struct
 
 type key =
   { size: int;
-    n: string;
-    e: string;
-    d: string;
-    p: string;
-    q: string;
-    dp: string;
-    dq: string;
-    qinv: string }
+    n: bytes;
+    e: bytes;
+    d: bytes;
+    p: bytes;
+    q: bytes;
+    dp: bytes;
+    dq: bytes;
+    qinv: bytes }
 
 let wipe_key k =
-  wipe_string k.n;
-  wipe_string k.e;
-  wipe_string k.d;
-  wipe_string k.p;
-  wipe_string k.q;
-  wipe_string k.dp;
-  wipe_string k.dq;
-  wipe_string k.qinv
+  wipe_bytes k.n;
+  wipe_bytes k.e;
+  wipe_bytes k.d;
+  wipe_bytes k.p;
+  wipe_bytes k.q;
+  wipe_bytes k.dp;
+  wipe_bytes k.dq;
+  wipe_bytes k.qinv
 
 let encrypt key msg =
   let msg = Bn.of_bytes msg in
@@ -1469,8 +1471,8 @@ end
 module DH = struct
 
 type parameters =
-  { p: string;
-    g: string;
+  { p: bytes;
+    g: bytes;
     privlen: int }
 
 let new_parameters ?(rng = Random.secure_rng) ?(privlen = 160) numbits =
@@ -1490,17 +1492,17 @@ let private_secret ?(rng = Random.secure_rng) params =
   Bn.random ~rng:(rng#random_bytes) params.privlen
 
 let message params privsec =
-  Bn.to_bytes ~numbits:(String.length params.p * 8)
+  Bn.to_bytes ~numbits:(Bytes.length params.p * 8)
     (Bn.mod_power (Bn.of_bytes params.g) privsec (Bn.of_bytes params.p))
 
 let shared_secret params privsec othermsg =
   let res =
-    Bn.to_bytes ~numbits:(String.length params.p * 8)
+    Bn.to_bytes ~numbits:(Bytes.length params.p * 8)
       (Bn.mod_power (Bn.of_bytes othermsg) privsec (Bn.of_bytes params.p))
   in Bn.wipe privsec; res
 
 let derive_key ?(diversification = "") sharedsec numbytes =
-  let result = String.create numbytes in
+  let result = Bytes.create numbytes in
   let rec derive pos counter =
     if pos < numbytes then begin
       let h =
@@ -1511,7 +1513,7 @@ let derive_key ?(diversification = "") sharedsec numbytes =
       derive (pos + String.length h) (counter + 1)
     end in
   derive 0 1;
-  result
+  Bytes.unsafe_to_string result
 
 end
 
@@ -1529,38 +1531,38 @@ class encode multiline padding =
 
     inherit buffered_output 256 as output_buffer
 
-    val ibuf = String.create 3
+    val ibuf = Bytes.create 3
     val mutable ipos = 0
     val mutable ocolumn = 0
 
     method put_char c =
-      ibuf.[ipos] <- c;
+      Bytes.set ibuf ipos c;
       ipos <- ipos + 1;
       if ipos = 3 then begin
-        let b0 = Char.code ibuf.[0]
-        and b1 = Char.code ibuf.[1]
-        and b2 = Char.code ibuf.[2] in
+        let b0 = Char.code (Bytes.get ibuf 0)
+        and b1 = Char.code (Bytes.get ibuf 1)
+        and b2 = Char.code (Bytes.get ibuf 2) in
         self#ensure_capacity 4;
-        obuf.[oend]   <- base64_conv_table.[b0 lsr 2];
-        obuf.[oend+1] <- base64_conv_table.[(b0 land 3) lsl 4 + (b1 lsr 4)];
-        obuf.[oend+2] <- base64_conv_table.[(b1 land 15) lsl 2 + (b2 lsr 6)];
-        obuf.[oend+3] <- base64_conv_table.[b2 land 63];
+        Bytes.set obuf oend     base64_conv_table.[b0 lsr 2];
+        Bytes.set obuf (oend+1) base64_conv_table.[(b0 land 3) lsl 4 + (b1 lsr 4)];
+        Bytes.set obuf (oend+2) base64_conv_table.[(b1 land 15) lsl 2 + (b2 lsr 6)];
+        Bytes.set obuf (oend+3) base64_conv_table.[b2 land 63];
         oend <- oend + 4;
         ipos <- 0;
         ocolumn <- ocolumn + 4;
         if multiline && ocolumn >= 72 then begin
           self#ensure_capacity 1;
-          obuf.[oend] <- '\n';
+          Bytes.set obuf oend '\n';
           oend <- oend + 1;
           ocolumn <- 0
         end 
       end
 
     method put_substring s ofs len =
-      for i = ofs to ofs + len - 1 do self#put_char s.[i] done
+      for i = ofs to ofs + len - 1 do self#put_char (Bytes.get s i) done
 
     method put_string s =
-      self#put_substring s 0 (String.length s)
+      String.iter self#put_char s
 
     method put_byte b = self#put_char (Char.chr b)
 
@@ -1570,17 +1572,17 @@ class encode multiline padding =
       begin match ipos with
         1 ->
           self#ensure_capacity 2;
-          let b0 = Char.code ibuf.[0] in
-          obuf.[oend]   <- base64_conv_table.[b0 lsr 2];
-          obuf.[oend+1] <- base64_conv_table.[(b0 land 3) lsl 4];
+          let b0 = Char.code (Bytes.get ibuf 0) in
+          Bytes.set obuf oend     base64_conv_table.[b0 lsr 2];
+          Bytes.set obuf (oend+1) base64_conv_table.[(b0 land 3) lsl 4];
           oend <- oend + 2
       | 2 ->
           self#ensure_capacity 3;
-          let b0 = Char.code ibuf.[0]
-          and b1 = Char.code ibuf.[1] in
-          obuf.[oend]   <- base64_conv_table.[b0 lsr 2];
-          obuf.[oend+1] <- base64_conv_table.[(b0 land 3) lsl 4 + (b1 lsr 4)];
-          obuf.[oend+2] <- base64_conv_table.[(b1 land 15) lsl 2];
+          let b0 = Char.code (Bytes.get ibuf 0)
+          and b1 = Char.code (Bytes.get ibuf 1) in
+          Bytes.set obuf oend     base64_conv_table.[b0 lsr 2];
+          Bytes.set obuf (oend+1) base64_conv_table.[(b0 land 3) lsl 4 + (b1 lsr 4)];
+          Bytes.set obuf (oend+2) (base64_conv_table.[(b1 land 15) lsl 2]);
           oend <- oend + 3
       | _ -> ()
       end;
@@ -1588,18 +1590,18 @@ class encode multiline padding =
         let num_equals =
           match ipos with 1 -> 2 | 2 -> 1 | _ -> 0 in
         self#ensure_capacity num_equals;
-        String.fill obuf oend num_equals '=';
+        Bytes.fill obuf oend num_equals '=';
         oend <- oend + num_equals
       end;
       if multiline && ocolumn > 0 then begin
         self#ensure_capacity 1;
-        obuf.[oend] <- '\n';
+        Bytes.set obuf oend '\n';
         oend <- oend + 1
       end;
       ocolumn <- 0
 
     method wipe =
-      wipe_string ibuf; output_buffer#wipe
+      wipe_bytes ibuf; output_buffer#wipe
   end
 
 let encode_multiline () = new encode true true
@@ -1636,9 +1638,9 @@ class decode =
           ipos <- ipos + 1;
           if ipos = 4 then begin
             self#ensure_capacity 3;
-            obuf.[oend]   <- Char.chr(ibuf.(0) lsl 2 + ibuf.(1) lsr 4);
-            obuf.[oend+1] <- Char.chr((ibuf.(1) land 15) lsl 4 + ibuf.(2) lsr 2);
-            obuf.[oend+2] <- Char.chr((ibuf.(2) land 3) lsl 6 + ibuf.(3));
+            Bytes.set obuf oend     (Char.chr(ibuf.(0) lsl 2 + ibuf.(1) lsr 4));
+            Bytes.set obuf (oend+1) (Char.chr((ibuf.(1) land 15) lsl 4 + ibuf.(2) lsr 2));
+            Bytes.set obuf (oend+2) (Char.chr((ibuf.(2) land 3) lsl 6 + ibuf.(3)));
             oend <- oend + 3;
             ipos <- 0
           end
@@ -1646,10 +1648,10 @@ class decode =
       end
 
     method put_substring s ofs len =
-      for i = ofs to ofs + len - 1 do self#put_char s.[i] done
+      for i = ofs to ofs + len - 1 do self#put_char (Bytes.get s i) done
 
     method put_string s =
-      self#put_substring s 0 (String.length s)
+      String.iter self#put_char s
 
     method put_byte b = self#put_char (Char.chr b)
 
@@ -1661,12 +1663,12 @@ class decode =
       | 1 -> raise(Error Bad_encoding)
       | 2 ->
           self#ensure_capacity 1;
-          obuf.[oend]   <- Char.chr(ibuf.(0) lsl 2 + ibuf.(1) lsr 4);
+          Bytes.set obuf oend     (Char.chr(ibuf.(0) lsl 2 + ibuf.(1) lsr 4));
           oend <- oend + 1
       | 3 ->
           self#ensure_capacity 2;
-          obuf.[oend]   <- Char.chr(ibuf.(0) lsl 2 + ibuf.(1) lsr 4);
-          obuf.[oend+1] <- Char.chr((ibuf.(1) land 15) lsl 4 + ibuf.(2) lsr 2);
+          Bytes.set obuf oend     (Char.chr(ibuf.(0) lsl 2 + ibuf.(1) lsr 4));
+          Bytes.set obuf (oend+1) (Char.chr((ibuf.(1) land 15) lsl 4 + ibuf.(2) lsr 2));
           oend <- oend + 2
       | _ -> ()
 
@@ -1693,17 +1695,17 @@ class encode =
 
     method put_byte b =
       self#ensure_capacity 2;
-      obuf.[oend] <- hex_conv_table.[b lsr 4];
-      obuf.[oend + 1] <- hex_conv_table.[b land 0xF];
+      Bytes.set obuf oend     (hex_conv_table.[b lsr 4]);
+      Bytes.set obuf (oend+1) (hex_conv_table.[b land 0xF]);
       oend <- oend + 2
 
     method put_char c = self#put_byte (Char.code c)
 
     method put_substring s ofs len =
-      for i = ofs to ofs + len - 1 do self#put_char s.[i] done
+      for i = ofs to ofs + len - 1 do self#put_char (Bytes.get s i) done
 
     method put_string s =
-      self#put_substring s 0 (String.length s)
+      String.iter self#put_char s
 
     method flush = ()
     method finish = ()
@@ -1738,17 +1740,17 @@ class decode =
         ipos <- ipos + 1;
         if ipos = 2 then begin
           self#ensure_capacity 1;
-          obuf.[oend]   <- Char.chr(ibuf.(0) lsl 4 lor ibuf.(1));
+          Bytes.set obuf oend (Char.chr(ibuf.(0) lsl 4 lor ibuf.(1)));
           oend <- oend + 1;
           ipos <- 0
         end
       end
 
     method put_substring s ofs len =
-      for i = ofs to ofs + len - 1 do self#put_char s.[i] done
+      for i = ofs to ofs + len - 1 do self#put_char (Bytes.get s i) done
 
     method put_string s =
-      self#put_substring s 0 (String.length s)
+      String.iter self#put_char s
 
     method put_byte b = self#put_char (Char.chr b)
 
@@ -1780,14 +1782,14 @@ type flush_command =
 
 external deflate_init: int -> bool -> stream = "caml_zlib_deflateInit"
 external deflate:
-  stream -> string -> int -> int -> string -> int -> int -> flush_command
+  stream -> bytes -> int -> int -> bytes -> int -> int -> flush_command
          -> bool * int * int
   = "caml_zlib_deflate_bytecode" "caml_zlib_deflate"
 external deflate_end: stream -> unit = "caml_zlib_deflateEnd"
 
 external inflate_init: bool -> stream = "caml_zlib_inflateInit"
 external inflate:
-  stream -> string -> int -> int -> string -> int -> int -> flush_command
+  stream -> bytes -> int -> int -> bytes -> int -> int -> flush_command
          -> bool * int * int
   = "caml_zlib_inflate_bytecode" "caml_zlib_inflate"
 external inflate_end: stream -> unit = "caml_zlib_inflateEnd"
@@ -1807,14 +1809,15 @@ class compress level =
         let (_, used_in, used_out) =
           deflate zs
                   src ofs len
-                  obuf oend (String.length obuf - oend)
+                  obuf oend (Bytes.length obuf - oend)
                   Z_NO_FLUSH in
         oend <- oend + used_out;
         if used_in < len
         then self#put_substring src (ofs + used_in) (len - used_in)
       end
 
-    method put_string s = self#put_substring s 0 (String.length s)
+    method put_string s =
+      self#put_substring (Bytes.unsafe_of_string s) 0 (String.length s)
 
     method put_char c = self#put_string (String.make 1 c)
 
@@ -1824,18 +1827,18 @@ class compress level =
       self#ensure_capacity 256;
       let (_, _, used_out) =
          deflate zs
-                 "" 0 0
-                 obuf oend (String.length obuf - oend)
+                 (Bytes.unsafe_of_string "") 0 0
+                 obuf oend (Bytes.length obuf - oend)
                  Z_SYNC_FLUSH in
       oend <- oend + used_out;
-      if oend = String.length obuf then self#flush
+      if oend = Bytes.length obuf then self#flush
 
     method finish =
       self#ensure_capacity 256;
       let (finished, _, used_out) =
          deflate zs
-                 "" 0 0
-                 obuf oend (String.length obuf - oend)
+                 (Bytes.unsafe_of_string "") 0 0
+                 obuf oend (Bytes.length obuf - oend)
                  Z_FINISH in
       oend <- oend + used_out;
       if finished then deflate_end zs else self#finish
@@ -1861,7 +1864,7 @@ class uncompress =
         let (finished, used_in, used_out) =
           inflate zs
                   src ofs len
-                  obuf oend (String.length obuf - oend)
+                  obuf oend (Bytes.length obuf - oend)
                   Z_SYNC_FLUSH in
         oend <- oend + used_out;
         if used_in < len then begin
@@ -1872,7 +1875,8 @@ class uncompress =
         end
       end
 
-    method put_string s = self#put_substring s 0 (String.length s)
+    method put_string s =
+      self#put_substring (Bytes.unsafe_of_string s) 0 (String.length s)
 
     method put_char c = self#put_string (String.make 1 c)
 
@@ -1885,8 +1889,8 @@ class uncompress =
         self#ensure_capacity 256;
         let (finished, _, used_out) =
            inflate zs
-                   " " 0 (if first_finish then 1 else 0)
-                   obuf oend (String.length obuf - oend)
+                   (Bytes.unsafe_of_string " ") 0 (if first_finish then 1 else 0)
+                   obuf oend (Bytes.length obuf - oend)
                    Z_SYNC_FLUSH in
         oend <- oend + used_out;
         if not finished then do_finish false in
@@ -1902,17 +1906,24 @@ end
 
 (* Utilities *)
 
+let xor_bytes src src_ofs dst dst_ofs len =
+  if len < 0
+  || src_ofs < 0 || src_ofs > Bytes.length src - len
+  || dst_ofs < 0 || dst_ofs > Bytes.length dst - len
+  then invalid_arg "xor_bytes";
+  xor_bytes src src_ofs dst dst_ofs len
+  
 let xor_string src src_ofs dst dst_ofs len =
   if len < 0
   || src_ofs < 0 || src_ofs > String.length src - len
-  || dst_ofs < 0 || dst_ofs > String.length dst - len
+  || dst_ofs < 0 || dst_ofs > Bytes.length dst - len
   then invalid_arg "xor_string";
   xor_string src src_ofs dst dst_ofs len
   
 let mod_power a b c =
-  Bn.to_bytes ~numbits:(String.length c * 8)
+  Bn.to_bytes ~numbits:(Bytes.length c * 8)
     (Bn.mod_power (Bn.of_bytes a) (Bn.of_bytes b) (Bn.of_bytes c))
 let mod_mult a b c =
-  Bn.to_bytes ~numbits:(String.length c * 8)
+  Bn.to_bytes ~numbits:(Bytes.length c * 8)
     (Bn.mod_ (Bn.mult (Bn.of_bytes a) (Bn.of_bytes b))
              (Bn.of_bytes c))

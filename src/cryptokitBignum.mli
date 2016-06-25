@@ -31,7 +31,7 @@ val mod_power : t -> t -> t -> t
 val mod_power_CRT : t -> t -> t -> t -> t -> t -> t
 val mod_inv : t -> t -> t
 
-val of_bytes : string -> t
+val of_bytes : bytes -> t
 val to_bytes : ?numbits:int -> t -> bytes
 
 val random : rng:(bytes -> int -> int -> unit) -> ?odd:bool -> int -> t

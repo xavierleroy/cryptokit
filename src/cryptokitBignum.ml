@@ -63,14 +63,14 @@ let mod_power_CRT a p q dp dq qinv =
 
 let mod_inv = Z.invert
 
-let wipe_string s = String.fill s 0 (String.length s) '\000'
-
+let wipe_bytes s = Bytes.fill s 0 (Bytes.length s) '\000'
+  
 let of_bytes s =
-  let l = String.length s in
-  let t = String.create l in
-  for i = 0 to l - 1 do t.[i] <- s.[l - 1 - i] done;
-  let n = Z.of_bits t in
-  wipe_string t;
+  let l = Bytes.length s in
+  let t = Bytes.create l in
+  for i = 0 to l - 1 do Bytes.set t i (Bytes.get s (l - 1 - i)) done;
+  let n = Z.of_bits (Bytes.unsafe_to_string t) in
+  wipe_bytes t;
   n
 
 let to_bytes ?numbits n =
@@ -79,19 +79,19 @@ let to_bytes ?numbits n =
     match numbits with
     | None -> String.length s
     | Some nb -> assert (Z.numbits n <= nb); (nb + 7) / 8 in
-  let t = String.make l '\000' in
+  let t = Bytes.make l '\000' in
   for i = 0 to String.length s - 1 do
-    t.[l - 1 - i] <- s.[i]
+    Bytes.set t (l - 1 - i) s.[i]
   done;
-  wipe_string s;
+  wipe_bytes (Bytes.unsafe_of_string s);
   t
 
 let change_byte s i f =
-  s.[i] <- Char.chr (f (Char.code s.[i]))
+  Bytes.set s i (Char.chr (f (Char.code (Bytes.get s i))))
 
 let random ~rng ?(odd = false) numbits =
   let numbytes = (numbits + 7) / 8 in
-  let buf = String.create numbytes in
+  let buf = Bytes.create numbytes in
   rng buf 0 numbytes;
   (* adjust low byte if requested *)
   if odd then
@@ -101,8 +101,8 @@ let random ~rng ?(odd = false) numbits =
   change_byte buf (numbytes - 1)
     (fun b -> (b land (mask - 1)) lor mask);
   (* convert to a number *)
-  let n = Z.of_bits buf in
-  wipe_string buf;
+  let n = Z.of_bits (Bytes.unsafe_to_string buf) in
+  wipe_bytes buf;
   assert (Z.numbits n = numbits);
   if odd then assert (Z.is_odd n);
   n

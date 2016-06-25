@@ -29,25 +29,25 @@ let rec repeat n fn () =
   if n <= 1 then fn() else (ignore(fn()); repeat (n-1) fn ())
 
 let raw_block_cipher cipher niter () =
-  let msg = String.create cipher#blocksize in
+  let msg = Bytes.create cipher#blocksize in
   for i = 1 to niter do
     cipher#transform msg 0 msg 0
   done
 
 let raw_stream_cipher cipher niter blocksize () =
-  let msg = String.create blocksize in
+  let msg = Bytes.create blocksize in
   for i = 1 to niter do
     cipher#transform msg 0 msg 0 blocksize
   done
 
 let transform tr niter blocksize () =
-  let msg = String.create blocksize in
+  let msg = Bytes.create blocksize in
   for i = 1 to niter do
     tr#put_substring msg 0 blocksize; ignore(tr#get_substring)
   done
 
 let hash h niter blocksize () =
-  let msg = String.create blocksize in
+  let msg = Bytes.create blocksize in
   for i = 1 to niter do
     h#add_substring msg 0 blocksize
   done;
@@ -106,9 +106,11 @@ let _ =
   let key =
   time_fn "RSA key generation (2048 bits) x 10"
     (repeat 10 (fun () -> RSA.new_key ~rng:prng ~e:65537 2048)) in
+  let plaintext =
+    Bytes.of_string "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" in
   let ciphertext =
   time_fn "RSA public-key operation (2048 bits, exponent 65537) x 1000"
-    (repeat 1000 (fun () -> RSA.encrypt key "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ")) in
+    (repeat 1000 (fun () -> RSA.encrypt key plaintext)) in
   time_fn "RSA private-key operation (2048 bits) x 100"
     (repeat 100 (fun () -> ignore(RSA.decrypt key ciphertext)));
   time_fn "RSA private-key operation with CRT (2048 bits) x 100"
