@@ -1342,24 +1342,24 @@ module RSA = struct
 
 type key =
   { size: int;
-    n: bytes;
-    e: bytes;
-    d: bytes;
-    p: bytes;
-    q: bytes;
-    dp: bytes;
-    dq: bytes;
-    qinv: bytes }
+    n: string;
+    e: string;
+    d: string;
+    p: string;
+    q: string;
+    dp: string;
+    dq: string;
+    qinv: string }
 
 let wipe_key k =
-  wipe_bytes k.n;
-  wipe_bytes k.e;
-  wipe_bytes k.d;
-  wipe_bytes k.p;
-  wipe_bytes k.q;
-  wipe_bytes k.dp;
-  wipe_bytes k.dq;
-  wipe_bytes k.qinv
+  wipe_string k.n;
+  wipe_string k.e;
+  wipe_string k.d;
+  wipe_string k.p;
+  wipe_string k.q;
+  wipe_string k.dp;
+  wipe_string k.dq;
+  wipe_string k.qinv
 
 let encrypt key msg =
   let msg = Bn.of_bytes msg in
@@ -1471,8 +1471,8 @@ end
 module DH = struct
 
 type parameters =
-  { p: bytes;
-    g: bytes;
+  { p: string;
+    g: string;
     privlen: int }
 
 let new_parameters ?(rng = Random.secure_rng) ?(privlen = 160) numbits =
@@ -1492,12 +1492,12 @@ let private_secret ?(rng = Random.secure_rng) params =
   Bn.random ~rng:(rng#random_bytes) params.privlen
 
 let message params privsec =
-  Bn.to_bytes ~numbits:(Bytes.length params.p * 8)
+  Bn.to_bytes ~numbits:(String.length params.p * 8)
     (Bn.mod_power (Bn.of_bytes params.g) privsec (Bn.of_bytes params.p))
 
 let shared_secret params privsec othermsg =
   let res =
-    Bn.to_bytes ~numbits:(Bytes.length params.p * 8)
+    Bn.to_bytes ~numbits:(String.length params.p * 8)
       (Bn.mod_power (Bn.of_bytes othermsg) privsec (Bn.of_bytes params.p))
   in Bn.wipe privsec; res
 
@@ -1921,9 +1921,9 @@ let xor_string src src_ofs dst dst_ofs len =
   xor_string src src_ofs dst dst_ofs len
   
 let mod_power a b c =
-  Bn.to_bytes ~numbits:(Bytes.length c * 8)
+  Bn.to_bytes ~numbits:(String.length c * 8)
     (Bn.mod_power (Bn.of_bytes a) (Bn.of_bytes b) (Bn.of_bytes c))
 let mod_mult a b c =
-  Bn.to_bytes ~numbits:(Bytes.length c * 8)
+  Bn.to_bytes ~numbits:(String.length c * 8)
     (Bn.mod_ (Bn.mult (Bn.of_bytes a) (Bn.of_bytes b))
              (Bn.of_bytes c))

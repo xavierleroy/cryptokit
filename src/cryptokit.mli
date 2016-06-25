@@ -609,15 +609,15 @@ end
 module RSA: sig
 
   type key =
-    { size: int;    (** Size of the modulus [n], in bits *)
-      n: bytes;     (** Modulus [n = p.q] *)
-      e: bytes;     (** Public exponent [e] *)
-      d: bytes;     (** Private exponent [d] *)
-      p: bytes;     (** Prime factor [p] of [n] *)
-      q: bytes;     (** The other prime factor [q] of [n] *)
-      dp: bytes;    (** [dp] is [d mod (p-1)] *)
-      dq: bytes;    (** [dq] is [d mod (q-1)] *)
-      qinv: bytes   (** [qinv] is a multiplicative inverse of [q] modulo [p] *)
+    { size: int;     (** Size of the modulus [n], in bits *)
+      n: string;     (** Modulus [n = p.q] *)
+      e: string;     (** Public exponent [e] *)
+      d: string;     (** Private exponent [d] *)
+      p: string;     (** Prime factor [p] of [n] *)
+      q: string;     (** The other prime factor [q] of [n] *)
+      dp: string;    (** [dp] is [d mod (p-1)] *)
+      dq: string;    (** [dq] is [d mod (q-1)] *)
+      qinv: string   (** [qinv] is a multiplicative inverse of [q] modulo [p] *)
     }
     (** The type of RSA keys.  Components [size], [n] and [e] define
         the public part of the key.  Components [size], [n] and [d]
@@ -645,7 +645,7 @@ module RSA: sig
         components defined: public, private, and private for use with
         the CRT. *)
 
-  val encrypt: key -> bytes -> bytes
+  val encrypt: key -> string -> string
     (** [encrypt k msg] encrypts the string [msg] with the public part
         of key [k] (components [n] and [e]).
         [msg] must be smaller than [key.n] when both strings
@@ -654,25 +654,25 @@ module RSA: sig
         using padding if necessary.  If you need to encrypt longer plaintexts
         using RSA, encrypt them with a symmetric cipher, using a
         randomly-generated key, and encrypt only that key with RSA. *)
-  val decrypt: key -> bytes -> bytes
+  val decrypt: key -> string -> string
     (** [decrypt k msg] decrypts the ciphertext string [msg] with the
         private part of key [k] (components [n] and [d]).  The size of
         [msg] is limited as described for {!Cryptokit.RSA.encrypt}. *)
-  val decrypt_CRT: key -> bytes -> bytes
+  val decrypt_CRT: key -> string -> string
     (** [decrypt_CRT k msg] decrypts the ciphertext string [msg] with
         the CRT private part of key [k] (components [n], [p], [q],
         [dp], [dq] and [qinv]).  The use of the Chinese remainder
         theorem (CRT) allows significantly faster decryption than
         {!Cryptokit.RSA.decrypt}, at no loss in security.  The size of
         [msg] is limited as described for {!Cryptokit.RSA.encrypt}. *)
-  val sign: key -> bytes -> bytes
+  val sign: key -> string -> string
     (** [sign k msg] encrypts the plaintext string [msg] with the
         private part of key [k] (components [n] and [d]), thus
         performing a digital signature on [msg].
         The size of [msg] is limited as described for {!Cryptokit.RSA.encrypt}.
         If you need to sign longer messages, compute a cryptographic
         hash of the message and sign only the hash with RSA. *)
-  val sign_CRT: key -> bytes -> bytes
+  val sign_CRT: key -> string -> string
     (** [sign_CRT k msg] encrypts the plaintext string [msg] with the
         CRT private part of key [k] (components [n], [p], [q], [dp],
         [dq] and [qinv]), thus performing a digital signature on
@@ -680,7 +680,7 @@ module RSA: sig
         significantly faster signature than {!Cryptokit.RSA.sign}, at
         no loss in security.  The size of [msg] is limited as
         described for {!Cryptokit.RSA.encrypt}. *)
-  val unwrap_signature: key -> bytes -> bytes
+  val unwrap_signature: key -> string -> string
     (** [unwrap_signature k msg] decrypts the ciphertext string [msg]
         with the public part of key [k] (components [n] and [d]),
         thus extracting the plaintext that was signed by the sender.
@@ -717,8 +717,8 @@ end
 module DH: sig
 
   type parameters =
-    { p: bytes;                  (** Large prime number *)
-      g: bytes;                  (** Generator of [Z/pZ] *)
+    { p: string;                 (** Large prime number *)
+      g: string;                 (** Generator of [Z/pZ] *)
       privlen: int               (** Length of private secrets in bits *)
     }
     (** The type of Diffie-Hellman parameters.  These parameters
@@ -741,9 +741,9 @@ module DH: sig
     (** Generate a random private secret.  
       The optional [rng] argument specifies a random number generator
       to use; it defaults to {!Cryptokit.Random.secure_rng}. *)
-  val message: parameters -> private_secret -> bytes
+  val message: parameters -> private_secret -> string
     (** Compute the message to be sent to the other party. *)
-  val shared_secret: parameters -> private_secret -> bytes -> bytes
+  val shared_secret: parameters -> private_secret -> string -> string
     (** Recover the shared secret from the private secret of the
       present party and the message received from the other party.
       The shared secret returned is a string of the same length as
@@ -1056,12 +1056,12 @@ val xor_bytes: bytes -> int -> bytes -> int -> int -> unit
 val xor_string: string -> int -> bytes -> int -> int -> unit
     (** Same as [xor_bytes], but the source is a string instead of a 
         byte array. *)
-val mod_power: bytes -> bytes -> bytes -> bytes
+val mod_power: string -> string -> string -> string
     (** [mod_power a b c] computes [a^b mod c], where the
-        byte arrays [a], [b], [c] and the result are viewed as
+        strings [a], [b], [c] and the result are viewed as
         arbitrary-precision integers in big-endian format.
         Requires [a < c].  *)
-val mod_mult: bytes -> bytes -> bytes -> bytes
+val mod_mult: string -> string -> string -> string
     (** [mod_mult a b c] computes [a*b mod c], where the
-        byte arrays [a], [b], [c] and the result are viewed as
+        strings [a], [b], [c] and the result are viewed as
         arbitrary-precision integers in big-endian format. *)

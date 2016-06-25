@@ -106,8 +106,7 @@ let _ =
   let key =
   time_fn "RSA key generation (2048 bits) x 10"
     (repeat 10 (fun () -> RSA.new_key ~rng:prng ~e:65537 2048)) in
-  let plaintext =
-    Bytes.of_string "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" in
+  let plaintext = "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" in
   let ciphertext =
   time_fn "RSA public-key operation (2048 bits, exponent 65537) x 1000"
     (repeat 1000 (fun () -> RSA.encrypt key plaintext)) in
