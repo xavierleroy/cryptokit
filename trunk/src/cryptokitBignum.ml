@@ -66,9 +66,9 @@ let mod_inv = Z.invert
 let wipe_bytes s = Bytes.fill s 0 (Bytes.length s) '\000'
   
 let of_bytes s =
-  let l = Bytes.length s in
+  let l = String.length s in
   let t = Bytes.create l in
-  for i = 0 to l - 1 do Bytes.set t i (Bytes.get s (l - 1 - i)) done;
+  for i = 0 to l - 1 do Bytes.set t i s.[l - 1 - i] done;
   let n = Z.of_bits (Bytes.unsafe_to_string t) in
   wipe_bytes t;
   n
@@ -84,7 +84,7 @@ let to_bytes ?numbits n =
     Bytes.set t (l - 1 - i) s.[i]
   done;
   wipe_bytes (Bytes.unsafe_of_string s);
-  t
+  Bytes.unsafe_to_string t
 
 let change_byte s i f =
   Bytes.set s i (Char.chr (f (Char.code (Bytes.get s i))))

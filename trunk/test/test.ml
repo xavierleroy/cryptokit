@@ -609,21 +609,21 @@ let _ =
 
 let some_rsa_key = {
   RSA.size = 512;
-  RSA.n = hexbytes "c0764797b8bec8972a0ed8c90a8c334dd049add0222c09d20be0a79e338910bcae422060906ae0221de3f3fc747ccf98aecc85d6edc52d93d5b7396776160525";
-  RSA.e = hexbytes "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010001";
-  RSA.d = hexbytes "1ae36b7522f66487d9f4610d1550290ac202c929bedc7032cc3e02acf37e3ebc1f866ee7ef7a0868d23ae2b184c1abd6d4db8ea9bec046bd82803727f2888701";
-  RSA.p = hexbytes "df02b615fe15928f41b02b586b51c2c02260ca396818ca4cba60bb892465be35";
-  RSA.q = hexbytes "dceeb60d543518b4ac74834a0546c507f2e91e389a87e2f2becc6f8c67d1c931";
-  RSA.dp = hexbytes "59487e99e375c38d732112d97d6de8687fdafc5b6b5fb16e7297d3bd1e435599";
-  RSA.dq = hexbytes "61b550de6437774db0577718ed6c770724eee466b43114b5b69c43591d313281";
-  RSA.qinv = hexbytes "744c79c4b9bea97c25e563c9407a2d09b57358afe09af67d71f8198cb7c956b8"
+  RSA.n = hex "c0764797b8bec8972a0ed8c90a8c334dd049add0222c09d20be0a79e338910bcae422060906ae0221de3f3fc747ccf98aecc85d6edc52d93d5b7396776160525";
+  RSA.e = hex "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010001";
+  RSA.d = hex "1ae36b7522f66487d9f4610d1550290ac202c929bedc7032cc3e02acf37e3ebc1f866ee7ef7a0868d23ae2b184c1abd6d4db8ea9bec046bd82803727f2888701";
+  RSA.p = hex "df02b615fe15928f41b02b586b51c2c02260ca396818ca4cba60bb892465be35";
+  RSA.q = hex "dceeb60d543518b4ac74834a0546c507f2e91e389a87e2f2becc6f8c67d1c931";
+  RSA.dp = hex "59487e99e375c38d732112d97d6de8687fdafc5b6b5fb16e7297d3bd1e435599";
+  RSA.dq = hex "61b550de6437774db0577718ed6c770724eee466b43114b5b69c43591d313281";
+  RSA.qinv = hex "744c79c4b9bea97c25e563c9407a2d09b57358afe09af67d71f8198cb7c956b8"
 }
 
-let some_msg = Bytes.of_string "Supercalifragilistusexpialidolcius"
+let some_msg = "Supercalifragilistusexpialidolcius"
 
 let test_same_message testno msg1 msg2 =
-  test testno msg1 (Bytes.sub msg2 (Bytes.length msg2 - Bytes.length msg1)
-                                   (Bytes.length msg1))
+  test testno msg1 (String.sub msg2 (String.length msg2 - String.length msg1)
+                                    (String.length msg1))
 
 let _ =
   testing_function "RSA";
