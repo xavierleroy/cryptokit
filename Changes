@@ -1,4 +1,7 @@
 Release 1.11:
+- Adapt to "safe string" mode (OCaml 4.02 and later required).
+  The API should remain backward-compatible for clients compiled
+  in "unsafe string" mode.  
 - Update SHA-3 to the official NIST standard (different padding than
   in the Keccak submission).  (Closes: #1528)
 - Fixed bounds checking in "add_substring" methods of hash functions
