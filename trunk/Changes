@@ -13,6 +13,8 @@ Release 1.11:
 - Use the Zarith library to implement RSA.
   (Faster than the previous implementation and less sensitive to
    side channel attacks.)
+- Support the hardware random number generator present in recent
+  x86 processors.
 - Rebuilt generated files with Oasis 0.4.6 for OCaml 4.03 compatibility.
 
 Release 1.10:

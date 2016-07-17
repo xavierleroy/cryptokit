@@ -775,6 +775,58 @@ The quick brown fox jumps over the lazy dog.
   with Error Compression_not_supported ->
     printf " (not supported)"
 
+(* Random numbers *)
+(* This is not a serious statistical test of Cryptokit's RNGs
+   (use Diehard or TestU01 for this).  Rather, it's a simplistic
+   test intended to detect obvious bugs such as providing
+   fewer random bytes than requested. *)
+   
+let chisquare b =
+  let n = Bytes.length b in
+  let r = 256 in
+  let freq = Array.make r 0 in
+  for i = 0 to n - 1 do
+    let t = Char.code (Bytes.get b i) in
+    freq.(t) <- freq.(t) + 1
+  done;
+  let t = Array.fold_left (fun s x -> let x = float x in s +. x *. x) 0.0 freq
+  and r = float r
+  and n = float n in
+  let sr = 2.0 *. sqrt r in
+  abs_float ((r *. t /. n) -. n -. r) <= sr
+
+let test_rng ?(len = 100000) (r: Random.rng) =
+  let b = Bytes.create len in
+  r#random_bytes b 0 len;
+  r#wipe;
+  printf "chi^2 %s\n"
+    (if chisquare b
+     then "plausible"
+     else (error_occurred := true; "BROKEN? rerun test!"))
+
+let _ =
+  testing_function "Random number generation";
+  printf " 1. PRNG: ";
+  test_rng (Random.pseudo_rng "abcdefghijklmnopqrstuvwxyz");
+  printf " 2. /dev/urandom: ";
+  begin try
+    test_rng (Random.device_rng "/dev/urandom")
+  with Unix.Unix_error _ ->
+    printf "not available\n"
+  end;
+  printf " 3. Hardware RNG: ";
+  begin try
+    test_rng (Random.hardware_rng ())
+  with Error No_entropy_source ->
+    printf "not available\n"
+  end;
+  printf " 4. System RNG: ";
+  begin try
+    test_rng (Random.system_rng ())
+  with Error No_entropy_source ->
+    printf "not available\n"
+  end
+
 (* End of tests *)
 
 let _ =
