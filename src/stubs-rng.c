@@ -13,12 +13,14 @@
 
 /* $Id$ */
 
-/* Stub code for the system-provided RNG */
+/* Stub code for the system-provided RNG and for hardware RNG */
 
 #include <caml/mlvalues.h>
 #include <caml/alloc.h>
 #include <caml/fail.h>
 #include <caml/memory.h>
+
+/* Win32 system RNG */
 
 #ifdef _WIN32
 
@@ -80,5 +82,63 @@ CAMLprim value caml_system_rng_random_bytes(value vhc, value str,
 {
   return Val_false;
 }
+
+#endif
+
+/* Intel RDRAND instruction */
+
+#if defined(__GNUC__) && defined(__x86_64)
+
+#include <stdint.h>
+#include <string.h>
+
+CAMLprim value caml_hardware_rng_available(value unit)
+{
+  uint32_t ax, bx, cx, dx;
+  __asm__ __volatile__ ("cpuid"
+                        : "=a" (ax), "=b" (bx), "=c" (cx), "=d" (dx)
+                        : "a" (1));
+  return Val_bool(cx & (1U << 30));
+}
+
+static inline int rdrand64(uint64_t * res)
+{
+  uint64_t n;
+  unsigned char ok;
+  int retries;
+
+  for (retries = 0; retries < 20; retries++) {
+    __asm__ __volatile__ ("rdrand %0; setc %1" : "=r" (n), "=qm" (ok));
+    if (ok) { *res = n; return 1; }
+  }
+  return 0;
+}
+
+CAMLprim value caml_hardware_rng_random_bytes(value str, value ofs, value len)
+{
+  unsigned char * dst = &Byte_u(str, Long_val(ofs));
+  intnat nbytes = Long_val(len);
+  uint64_t r, rr;
+
+  while (nbytes >= 8) {
+    if (! rdrand64(&r)) return Val_false;
+    *((uint64_t *) dst) = r;
+    dst += 8;
+    nbytes -= 8;
+  }
+  if (nbytes > 0) {
+    if (! rdrand64(&rr)) return Val_false;
+    memcpy(dst, &rr, nbytes);
+  }
+  return Val_true;
+}
+
+#else
+
+CAMLprim value caml_hardware_rng_available(value unit)
+{ return Val_false; }
+
+CAMLprim value caml_hardware_rng_random_bytes(value str, value ofs, value len)
+{ return Val_false; }
 
 #endif

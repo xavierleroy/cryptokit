@@ -264,6 +264,12 @@ module Random : sig
         [egd_socket] is the path to the Unix socket that EGD uses for
         communication.  *)
 
+  val hardware_rng: unit -> rng
+    (** A hardware random number generator based on the [RDRAND] instruction
+        of the x86 architecture.  Available only on recent Intel and AMD
+        x86 processors in 64-bit mode.  Raises [Error No_entropy_source]
+        if not available. *)
+
   val pseudo_rng: string -> rng
     (** [pseudo_rng seed] returns a pseudo-random number generator
         seeded by the string [seed].  [seed] must contain at least

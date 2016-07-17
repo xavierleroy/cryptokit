@@ -1261,6 +1261,25 @@ class egd_rng socketname =
 
 let egd_rng socketname = new egd_rng socketname
 
+external hardware_rng_available: unit -> bool = "caml_hardware_rng_available"
+external hardware_rng_random_bytes: bytes -> int -> int -> bool = "caml_hardware_rng_random_bytes"
+
+class hardware_rng =
+  object
+    method random_bytes buf ofs len =
+      if ofs < 0 || len < 0 || ofs > Bytes.length buf - len      
+      then invalid_arg "hardware_rng#random_bytes";
+      if not (hardware_rng_random_bytes buf ofs len)
+      then raise (Error Entropy_source_closed)
+    method wipe =
+      ()
+  end
+
+let hardware_rng () =
+  if hardware_rng_available ()
+  then new hardware_rng
+  else raise (Error No_entropy_source)
+
 class no_rng =
   object
     method random_bytes (buf:bytes) (ofs:int) (len:int) : unit = 

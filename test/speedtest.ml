@@ -53,6 +53,12 @@ let hash h niter blocksize () =
   done;
   ignore(h#result)
 
+let rng r niter blocksize () =
+  let buf = Bytes.create blocksize in
+  for i = 1 to niter do
+    r#random_bytes buf 0 blocksize
+  done
+
 let _ =
   time_fn "Raw AES 128, 64_000_000 bytes"
     (raw_block_cipher (new Block.aes_encrypt "0123456789ABCDEF") 4000000);
@@ -114,4 +120,12 @@ let _ =
     (repeat 100 (fun () -> ignore(RSA.decrypt key ciphertext)));
   time_fn "RSA private-key operation with CRT (2048 bits) x 100"
     (repeat 100 (fun () -> ignore(RSA.decrypt_CRT key ciphertext)));
+  time_fn "PRNG, 64_000_000 bytes"
+    (rng prng 1000000 64);
+  begin try
+    let hr = Random.hardware_rng () in
+    time_fn "Hardware RNG, 64_000_000 bytes"
+      (rng hr 1000000 64)
+  with Error No_entropy_source -> ()
+  end;
   ()
