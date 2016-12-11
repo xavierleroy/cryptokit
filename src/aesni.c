@@ -19,6 +19,7 @@
 #ifdef __AES__
 #include <wmmintrin.h>
 #include <cpuid.h>
+#include <stdint.h>
 
 int aesni_available = -1;
 
@@ -216,11 +217,19 @@ static int aesni_key_expansion(const unsigned char * userkey,
   }
 }
 
+static void * align16(void * p)
+{
+  uintptr_t n = (uintptr_t) p;
+  n = (n + 15) & -16;
+  return (void *) n;
+}
+
 int aesniKeySetupEnc(unsigned char * ckey,
                      const unsigned char * key,
                      int keylength)
 {
-  __m128i key_schedule[15];
+  __m128i unaligned_key_schedule[15 + 1]; /* + 1 to leave space for alignment */
+  __m128i *key_schedule = align16(unaligned_key_schedule);
   int nrounds, i;
 
   nrounds = aesni_key_expansion(key, keylength, key_schedule);
@@ -234,7 +243,8 @@ int aesniKeySetupDec(unsigned char * ckey,
                      const unsigned char * key,
                      int keylength)
 {
-  __m128i key_schedule[15];
+  __m128i unaligned_key_schedule[15 + 1]; /* + 1 to leave space for alignment */
+  __m128i *key_schedule = align16(unaligned_key_schedule);
   int nrounds, i;
 
   nrounds = aesni_key_expansion(key, keylength, key_schedule);
