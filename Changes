@@ -1,3 +1,7 @@
+- Fix x86-32 compilation error and improve detection of AES-NI for x86
+  processors (Jeremie Dimino, Etienne Millon)
+  (Closes: #1646)
+
 Release 1.11:
 - Adapt to "safe string" mode (OCaml 4.02 and later required).
   The API should remain backward-compatible for clients compiled

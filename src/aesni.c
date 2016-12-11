@@ -18,16 +18,19 @@
 
 #ifdef __AES__
 #include <wmmintrin.h>
+#include <cpuid.h>
 
 int aesni_available = -1;
 
 int aesni_check_available(void)
 {
-  unsigned int ax, bx, cx, dx;
-  __asm__ __volatile__ ("cpuid"
-                        : "=a" (ax), "=b" (bx), "=c" (cx), "=d" (dx)
-                        : "a" (1));
-  return (aesni_available = (cx & 0x2000000) != 0);
+  unsigned int eax, ebx, ecx, edx;
+  if(__get_cpuid(1, &eax, &ebx, &ecx, &edx)) {
+    aesni_available = (ecx & 0x2000000) != 0;
+  } else {
+    aesni_available = 0;
+  }
+  return aesni_available;
 }
 
 static inline __m128i aesni_128_assist(__m128i t1, __m128i t2)
