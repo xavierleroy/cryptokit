@@ -494,7 +494,8 @@ module Hash : sig
   val sha1: unit -> hash
     (** SHA-1 is the Secure Hash Algorithm revision 1.  It is a NIST
         standard, is widely used, and produces 160-bit hashes (20 bytes).
-        Recent results suggest that it may not be collision-resistant. *)
+        While popular in many legacy applications, it is now known
+        to be insecure.  In particular, it is not collision-resistant. *)
   val sha2: int -> hash
     (** SHA-2, another NIST standard for cryptographic hashing, produces
         hashes of 224, 256, 384, or 512 bits (24, 32, 48 or 64 bytes).
@@ -518,8 +519,7 @@ module Hash : sig
   val md5: unit -> hash
     (** MD5 is an older hash function, producing 128-bit hashes (16 bytes).
         While popular in many legacy applications, it is now known
-        to be insecure.  In particular, it is not
-        collision-resistant. *)
+        to be insecure.  In particular, it is not collision-resistant. *)
 end
 
 (** The [MAC] module implements message authentication codes, also
