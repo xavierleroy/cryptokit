@@ -11,7 +11,7 @@ primitives provided include:
 - Symmetric-key ciphers: AES, DES, Triple-DES, ARCfour,
   in ECB, CBC, CFB, OFB and counter modes.
 - Public-key cryptography: RSA encryption, Diffie-Hellman key agreement. -
-Hash functions and MACs: SHA-1, SHA-2, SHA-3, RIPEMD160, MD5,
+Hash functions and MACs: SHA-1, SHA-2, SHA-3, original Keccak, RIPEMD160, MD5,
   and MACs based on AES and DES.
 - Random number generation. - Encodings and compression: base 64,
 hexadecimal, Zlib compression.

@@ -71,6 +71,7 @@ type sha3_context
 external sha3_init: int -> sha3_context = "caml_sha3_init"
 external sha3_absorb: sha3_context -> bytes -> int -> int -> unit = "caml_sha3_absorb"
 external sha3_extract: sha3_context -> string = "caml_sha3_extract"
+external keccak_extract: sha3_context -> string = "caml_keccak_extract"
 external sha3_wipe: sha3_context -> unit = "caml_sha3_wipe"
 external ripemd160_init: unit -> bytes = "caml_ripemd160_init"
 external ripemd160_update: bytes -> bytes -> int -> int -> unit = "caml_ripemd160_update"
@@ -972,7 +973,7 @@ let sha2 sz =
   | 512 -> new sha512
   |  _  -> raise (Error Wrong_key_size)
 
-class sha3 sz =
+class sha3 sz official =
   object(self)
     val context =
       if sz = 224 || sz = 256 || sz = 384 || sz = 512
@@ -981,7 +982,7 @@ class sha3 sz =
     method hash_size = sz / 8
     method add_substring src ofs len =
       if ofs < 0 || len < 0 || ofs > Bytes.length src - len
-      then invalid_arg "sha3#add_substring";
+      then invalid_arg ((if official then "sha3" else "keccak")^"#add_substring");
       sha3_absorb context src ofs len
     method add_string src =
       sha3_absorb context (Bytes.unsafe_of_string src) 0 (String.length src)
@@ -990,12 +991,14 @@ class sha3 sz =
     method add_byte b =
       self#add_char (Char.unsafe_chr b)
     method result =
-      sha3_extract context
+      (if official then sha3_extract else keccak_extract) context
     method wipe =
       sha3_wipe context
   end
 
-let sha3 sz = new sha3 sz
+let sha3 sz = new sha3 sz true
+
+let keccak sz = new sha3 sz false
 
 class ripemd160 =
   object(self)

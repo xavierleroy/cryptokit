@@ -64,7 +64,17 @@ CAMLprim value caml_sha3_extract(value ctx)
   CAMLlocal1(res);
 
   res = alloc_string(Context_val(ctx)->hsiz);
-  SHA3_extract(Context_val(ctx), &Byte_u(res, 0));
+  SHA3_extract(0x06, Context_val(ctx), &Byte_u(res, 0));
+  CAMLreturn(res);
+}
+
+CAMLprim value caml_keccak_extract(value ctx)
+{
+  CAMLparam1(ctx);
+  CAMLlocal1(res);
+
+  res = alloc_string(Context_val(ctx)->hsiz);
+  SHA3_extract(1, Context_val(ctx), &Byte_u(res, 0));
   CAMLreturn(res);
 }
 

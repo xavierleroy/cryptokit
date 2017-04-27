@@ -506,6 +506,10 @@ module Hash : sig
         produces hashes of 224, 256, 384 or 512 bits (24, 32, 48 or 64
         bytes).  The parameter is the desired size of the hash, in
         bits.  It must be one of 224, 256, 384 or 512. *)
+  val keccak: int -> hash
+    (** The Keccak submission for the SHA-3 is very similar to [sha3] but
+        uses a slightly different padding.  The parameter is the same as
+        that of [sha3]. *)
   val sha224: unit -> hash
     (** SHA-224 is SHA-2 specialized to 224 bit hashes (24 bytes). *)
   val sha256: unit -> hash

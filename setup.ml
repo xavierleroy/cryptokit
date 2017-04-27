@@ -6933,7 +6933,7 @@ let setup_t =
                  OASISText.Verbatim
                    " in ECB, CBC, CFB, OFB and counter modes.";
                  OASISText.Para
-                   "- Public-key cryptography: RSA encryption, Diffie-Hellman key agreement. - Hash functions and MACs: SHA-1, SHA-2, SHA-3, RIPEMD160, MD5,";
+                   "- Public-key cryptography: RSA encryption, Diffie-Hellman key agreement. - Hash functions and MACs: SHA-1, SHA-2, SHA-3, original Keccak, RIPEMD160, MD5,";
                  OASISText.Verbatim " and MACs based on AES and DES.";
                  OASISText.Para
                    "- Random number generation. - Encodings and compression: base 64, hexadecimal, Zlib compression.";
