@@ -60,21 +60,23 @@ CAMLprim value caml_sha3_absorb(value ctx,
 
 CAMLprim value caml_sha3_extract(value ctx)
 {
+  const unsigned sha3_padding = 0x06;
   CAMLparam1(ctx);
   CAMLlocal1(res);
 
   res = alloc_string(Context_val(ctx)->hsiz);
-  SHA3_extract(0x06, Context_val(ctx), &Byte_u(res, 0));
+  SHA3_extract(sha3_padding, Context_val(ctx), &Byte_u(res, 0));
   CAMLreturn(res);
 }
 
 CAMLprim value caml_keccak_extract(value ctx)
 {
+  const unsigned keccak_padding = 0x01;
   CAMLparam1(ctx);
   CAMLlocal1(res);
 
   res = alloc_string(Context_val(ctx)->hsiz);
-  SHA3_extract(1, Context_val(ctx), &Byte_u(res, 0));
+  SHA3_extract(keccak_padding, Context_val(ctx), &Byte_u(res, 0));
   CAMLreturn(res);
 }
 
