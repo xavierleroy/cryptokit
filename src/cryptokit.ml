@@ -70,8 +70,7 @@ external sha384_final: bytes -> string = "caml_sha384_final"
 type sha3_context
 external sha3_init: int -> sha3_context = "caml_sha3_init"
 external sha3_absorb: sha3_context -> bytes -> int -> int -> unit = "caml_sha3_absorb"
-external sha3_extract: sha3_context -> string = "caml_sha3_extract"
-external keccak_extract: sha3_context -> string = "caml_keccak_extract"
+external sha3_extract: bool -> sha3_context -> string = "caml_sha3_extract"
 external sha3_wipe: sha3_context -> unit = "caml_sha3_wipe"
 external ripemd160_init: unit -> bytes = "caml_ripemd160_init"
 external ripemd160_update: bytes -> bytes -> int -> int -> unit = "caml_ripemd160_update"
@@ -990,8 +989,7 @@ class sha3 sz official =
       self#add_string (String.make 1 c)
     method add_byte b =
       self#add_char (Char.unsafe_chr b)
-    method result =
-      (if official then sha3_extract else keccak_extract) context
+    method result = sha3_extract official context
     method wipe =
       sha3_wipe context
   end
