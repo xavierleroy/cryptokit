@@ -58,8 +58,15 @@ CAMLprim value caml_sha3_absorb(value ctx,
   return Val_unit;
 }
 
-static const unsigned sha3_padding = 0x06;
+
+/* On page 9 of Keccak Implementation Overview (Version 3.2)
+   http://keccak.noekeon.org/Keccak-implementation-3.2.pdf,
+   there is a figure `0x01` as the padding byte. */
 static const unsigned keccak_padding = 0x01;
+
+/* In a similar, updated description at http://keccak.noekeon.org/specs_summary.html,
+   on Table 3, `0x06` is shown as the relevant padding byte. */
+static const unsigned sha3_padding = 0x06;
 
 CAMLprim value caml_sha3_extract(value official, value ctx)
 {

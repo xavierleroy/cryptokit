@@ -396,6 +396,7 @@ let _ =
     (hex "235ffd53504ef836 a1342b488f483b39 6eabbfe642cf78ee 0d31feec788b23d0 d18d5c339550dd59 58a500d4b95363da 1b5fa18affc1bab2 292dc63b7d85097c")
 
 (* Keccak *)
+(* The test cases are taken from commit dec7e6dd8e5bbfe4534f7dd4c3fb4429575b23f8 *)
 let _ =
   testing_function "Keccak";
   let hash n s = hash_string (Hash.keccak n) s in
