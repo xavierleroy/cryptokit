@@ -443,10 +443,8 @@ let _ =
     (hex "2c23146a63a29acf 99e73b88f8c24eaa 7dc60aa771780ccc 006afbfa8fe2479b 2dd2b21362337441 ac12b515911957ff");
   test 20 (hash 512 s)
     (hex "0eab42de4c3ceb92 35fc91acffe746b2 9c29a8c366b7c60e 4e67c466f36a4304 c00fa9caf9d87976 ba469bcbe06713b4 35f091ef2769fb16 0cdab33d3670680e");
-(*
   test 98 (hash_extremely_long (Hash.keccak 256))
          (hex "5f313c39963dcf79 2b5470d4ade9f3a3 56a3e4021748690a 958372e2b06f82a4");
-*)
   test 99 (hash_extremely_long (Hash.keccak 512))
          (hex "3e122edaf3739823 1cfaca4c7c216c9d 66d5b899ec1d7ac6 17c40c7261906a45 fc01617a021e5da3 bd8d4182695b5cb7 85a28237cbb16759 0e34718e56d8aab8")
 
