@@ -3,6 +3,7 @@
   (Closes: #1646)
 - AES-NI: align key_schedule on a 16 byte boundary (Etienne Millon)
   (Closes: #1709)
+- Add original Keccak submission to SHA-3 (Yoichi Hirai)
 
 Release 1.11:
 - Adapt to "safe string" mode (OCaml 4.02 and later required).

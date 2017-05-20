@@ -16,5 +16,6 @@ extern void SHA3_absorb(struct SHA3Context * ctx,
                         unsigned char * data,
                         unsigned long len);
 
-extern void SHA3_extract(struct SHA3Context * ctx,
+extern void SHA3_extract(unsigned char padding,
+                         struct SHA3Context * ctx,
                          unsigned char * output);

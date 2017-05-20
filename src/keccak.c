@@ -153,14 +153,15 @@ void SHA3_absorb(struct SHA3Context * ctx,
   ctx->numbytes = len;
 }
 
-void SHA3_extract(struct SHA3Context * ctx,
+void SHA3_extract(unsigned char padding,
+                  struct SHA3Context * ctx,
                   unsigned char * output)
 {
   int i, j, n;
 
   /* Apply final padding */
   n = ctx->numbytes;
-  ctx->buffer[n] = 0x06;
+  ctx->buffer[n] = padding;
   n++;
   memset(ctx->buffer + n, 0, ctx->rsiz - n);
   ctx->buffer[ctx->rsiz - 1] |= 0x80;
