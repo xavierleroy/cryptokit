@@ -1,6 +1,6 @@
 OASISFormat: 0.3
 Name:        cryptokit
-Version: 1.11
+Version: 1.12
 Authors:     Xavier Leroy
 License:     LGPL-2 with OCaml linking exception
 BuildTools:  ocamlbuild, ocamldoc
@@ -123,11 +123,11 @@ Document "api-cryptokit"
   XOCamlbuildLibraries: cryptokit
 
 SourceRepository head
-  Type:     svn
-  Location: http://scm.ocamlcore.org/svnroot/cryptokit/trunk
-  Browser:  https://forge.ocamlcore.org/scm/browser.php?group_id=133
+  Type:     git
+  Location: https://github.com/xavierleroy/cryptokit
+  Browser:  https://github.com/xavierleroy/cryptokit
 
 SourceRepository this
-  Type:     svn
-  Location: http://scm.ocamlcore.org/svnroot/tags/release111
-  Browser:  https://forge.ocamlcore.org/scm/browser.php?group_id=133
+  Type:     git
+  Location: https://github.com/xavierleroy/cryptokit/releases/tag/release112
+  Browser:  https://github.com/xavierleroy/cryptokit/releases/tag/release112
