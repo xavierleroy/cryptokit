@@ -452,6 +452,32 @@ module Cipher : sig
         ignored: for all stream ciphers, decryption is the same
         function as encryption. *)
 
+  val chacha20: ?iv:string -> ?ctr:int64 -> string -> direction -> transform
+    (** Chacha20 is a stream cipher proposed by D. J. Bernstein in 2008.
+
+        The Chacha20 cipher is a stream cipher, not a block cipher.
+        Hence, its natural block size is 1, and no padding is
+        required.  Chaining modes do not apply.  A feature of stream
+        ciphers is that the xor of two ciphertexts obtained with the
+        same key is the xor of the corresponding plaintexts, which
+        allows various attacks.  Hence, the same key must never be
+        reused.
+
+        The string argument is the key; its length must be either 16
+        or (better) 32.  
+
+        The optional [iv] argument is the initialization vector (also
+        called nonce) that can be used to diversify the key.  If present,
+        it must be 8 characters long.  If absent, it is taken to be
+        eight zero bytes.
+
+        The optional [ctr] argument is the initial value of the internal
+        counter.  If absent, it defaults to 0.
+
+        The direction argument is present for consistency with the
+        other ciphers only, and is actually ignored: for all stream
+        ciphers, decryption is the same function as encryption. *)
+
   val blowfish: ?mode:chaining_mode -> ?pad:Padding.scheme -> ?iv:string ->
              string -> direction -> transform
     (** Blowfish is a fast block cipher proposed by B.Schneier in 1994.
@@ -939,6 +965,18 @@ module Stream : sig
   class arcfour: string -> stream_cipher
     (** The ARCfour (``alleged RC4'') stream cipher.
         The argument is the key, and must be of length 1 to 256.
+        This stream cipher works by xor-ing the input with the
+        output of a key-dependent pseudo random number generator.
+        Thus, decryption is the same function as encryption. *)
+
+  class chacha20: ?iv:string -> ?ctr:int64 -> string -> stream_cipher
+    (** The Chacha20 strea cipher.
+        The string argument is the key, and must be of length 16 or 32.
+        The optional [iv] argument is the initialization vector
+        (also known as the nonce).  If present, it must be 8 bytes long.
+        If absent, it is taken to be eight zero bytes.
+        The optional [ctr] argument is the initial value of the internal
+        counter.  If absent, it is taken to be 0.
         This stream cipher works by xor-ing the input with the
         output of a key-dependent pseudo random number generator.
         Thus, decryption is the same function as encryption. *)

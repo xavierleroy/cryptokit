@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: f9fc08b1c2e067f57d033cecfa00f2c0) *)
+(* DO NOT EDIT (digest: 7ab3acc49c3c9131310ec300b2562fe8) *)
 module OASISGettext = struct
 (* # 22 "src/oasis/OASISGettext.ml" *)
 
@@ -894,7 +894,8 @@ let package_default =
                "src/sha1.h";
                "src/sha256.h";
                "src/sha512.h";
-               "src/keccak.h"
+               "src/keccak.h";
+               "src/chacha20.h"
             ])
        ];
      flags =
@@ -1201,6 +1202,6 @@ let conf = {MyOCamlbuildFindlib.no_automatic_syntax = false}
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default conf package_default;;
 
-# 1205 "myocamlbuild.ml"
+# 1206 "myocamlbuild.ml"
 (* OASIS_STOP *)
 Ocamlbuild_plugin.dispatch dispatch_default;;

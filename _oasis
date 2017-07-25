@@ -1,6 +1,6 @@
 OASISFormat: 0.3
 Name:        cryptokit
-Version: 1.12
+Version: 1.13
 Authors:     Xavier Leroy
 License:     LGPL-2 with OCaml linking exception
 BuildTools:  ocamlbuild, ocamldoc
@@ -70,7 +70,10 @@ Library cryptokit
             stubs-zlib.c,
             keccak.h,
             keccak.c,
-            stubs-sha3.c
+            stubs-sha3.c,
+            chacha20.h,
+            chacha20.c,
+            stubs-chacha20.c
   BuildDepends: unix, zarith
   if flag(zlib)
     CCOpt: -DHAVE_ZLIB

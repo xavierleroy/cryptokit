@@ -53,6 +53,8 @@ external des_cook_key : string -> int -> dir -> bytes = "caml_des_cook_key"
 external des_transform : bytes -> bytes -> int -> bytes -> int -> unit = "caml_des_transform"
 external arcfour_cook_key : string -> bytes = "caml_arcfour_cook_key"
 external arcfour_transform : bytes -> bytes -> int -> bytes -> int -> int -> unit = "caml_arcfour_transform_bytecode" "caml_arcfour_transform"
+external chacha20_cook_key : string -> bytes -> int64 -> bytes = "caml_chacha20_cook_key"
+external chacha20_transform : bytes -> bytes -> int -> bytes -> int -> int -> unit = "caml_chacha20_transform_bytecode" "caml_chacha20_transform"
 
 external sha1_init: unit -> bytes = "caml_sha1_init"
 external sha1_update: bytes -> bytes -> int -> int -> unit = "caml_sha1_update"
@@ -812,6 +814,23 @@ class arcfour key =
       wipe_bytes ckey
   end
 
+class chacha20 ?iv ?(ctr = 0L) key =
+  object
+    val ckey =
+      let iv = Block.make_initial_iv 8 iv in
+      if String.length key = 16 || String.length key = 32
+      then chacha20_cook_key key iv ctr
+      else raise(Error Wrong_key_size)
+    method transform src src_ofs dst dst_ofs len =
+      if len < 0
+      || src_ofs < 0 || src_ofs > Bytes.length src - len
+      || dst_ofs < 0 || dst_ofs > Bytes.length dst - len
+      then invalid_arg "chacha20#transform";
+      chacha20_transform ckey src src_ofs dst dst_ofs len
+    method wipe =
+      wipe_bytes ckey
+  end
+
 (* Wrapping of a stream cipher as a cipher *)
 
 class cipher (cipher : stream_cipher) =
@@ -1104,6 +1123,9 @@ let triple_des ?mode ?pad ?iv key dir =
     | Decrypt -> new Block.triple_des_decrypt key)
 
 let arcfour key dir = new Stream.cipher (new Stream.arcfour key)
+
+let chacha20 ?iv ?ctr key dir =
+  new Stream.cipher (new Stream.chacha20 key ?iv ?ctr)
 
 end
 

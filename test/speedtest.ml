@@ -74,6 +74,10 @@ let _ =
     (raw_stream_cipher (new Stream.arcfour "0123456789ABCDEF") 4000000 16);
   time_fn "Raw ARCfour, 64_000_000 bytes, 64-byte chunks"
     (raw_stream_cipher (new Stream.arcfour "0123456789ABCDEF") 1000000 64);
+  time_fn "Raw Chacha20, 64_000_000 bytes, 16-byte chunks"
+    (raw_stream_cipher (new Stream.arcfour "0123456789ABCDEF") 4000000 16);
+  time_fn "Raw Chacha20, 64_000_000 bytes, 64-byte chunks"
+    (raw_stream_cipher (new Stream.arcfour "0123456789ABCDEF") 1000000 64);
   time_fn "Raw Blowfish 128, 64_000_000 bytes"
     (raw_block_cipher (new Block.blowfish_encrypt "0123456789ABCDEF")  8000000);
   time_fn "Wrapped AES 128 CBC, 64_000_000 bytes"
@@ -88,6 +92,8 @@ let _ =
     (transform (Cipher.triple_des "0123456789ABCDEF" Cipher.Encrypt) 1000000 16);
   time_fn "Wrapped ARCfour, 64_000_000 bytes"
     (transform (Cipher.arcfour "0123456789ABCDEF" Cipher.Encrypt) 4000000 16);
+  time_fn "Wrapped Chacha20, 64_000_000 bytes"
+    (transform (Cipher.chacha20 "0123456789ABCDEF" Cipher.Encrypt) 4000000 16);
   time_fn "Wrapped Blowfish 128 CBC, 64_000_000 bytes"
     (transform (Cipher.blowfish "0123456789ABCDEF" Cipher.Encrypt) 4000000 16);
   time_fn "SHA-1, 64_000_000 bytes, 16-byte chunks"
