@@ -16,6 +16,15 @@
 let wipe_bytes s = Bytes.fill s 0 (Bytes.length s) '\000'
 let wipe_string s = wipe_bytes (Bytes.unsafe_of_string s)
 
+let shl1_bytes src soff dst doff len =
+  let rec shl1 carry i =
+    if i >= 0 then begin
+      let n = Char.code (Bytes.get src (soff + i)) in
+      Bytes.set dst (doff + i) (Char.unsafe_chr ((n lsl 1) lor carry));
+      shl1 (n lsr 7) (i - 1)
+    end
+  in shl1 0 (len - 1)
+
 type error =
   | Wrong_key_size
   | Wrong_IV_size
@@ -55,6 +64,7 @@ external arcfour_cook_key : string -> bytes = "caml_arcfour_cook_key"
 external arcfour_transform : bytes -> bytes -> int -> bytes -> int -> int -> unit = "caml_arcfour_transform_bytecode" "caml_arcfour_transform"
 external chacha20_cook_key : string -> bytes -> int64 -> bytes = "caml_chacha20_cook_key"
 external chacha20_transform : bytes -> bytes -> int -> bytes -> int -> int -> unit = "caml_chacha20_transform_bytecode" "caml_chacha20_transform"
+external chacha20_extract : bytes -> bytes -> int -> int -> unit = "caml_chacha20_extract"
 
 external sha1_init: unit -> bytes = "caml_sha1_init"
 external sha1_update: bytes -> bytes -> int -> int -> unit = "caml_sha1_update"
@@ -699,7 +709,7 @@ class cipher_padded_decrypt (padding : Padding.scheme)
       oend <- oend + valid
   end
 
-(* Wrapping of a block cipher as a MAC *)
+(* Wrapping of a block cipher as a MAC, using CBC mode *)
 
 class mac ?iv:iv_init ?(pad: Padding.scheme option) (cipher : block_cipher) =
   let blocksize = cipher#blocksize in
@@ -786,6 +796,27 @@ class mac_final_triple ?iv ?pad (cipher1 : block_cipher)
       super#wipe; cipher2#wipe; cipher3#wipe
   end
 
+(* Wrapping of a block ciper as a MAC, in CMAC mode (a.k.a. OMAC1) *)
+
+class cmac ?iv:iv_init (cipher : block_cipher) k1 k2 =
+  object (self)
+    inherit mac ?iv:iv_init cipher as super
+
+    method result =
+      let blocksize = cipher#blocksize in
+      let k' =
+        if used = blocksize then k1 else (Padding._8000#pad buffer used; k2) in
+      xor_bytes iv 0 buffer 0 blocksize;
+      xor_bytes k' 0 buffer 0 blocksize;
+      cipher#transform buffer 0 iv 0;
+      used <- 0; (* really useful? *)
+      Bytes.to_string iv
+
+    method wipe =
+      super#wipe;
+      wipe_bytes k1;
+      wipe_bytes k2
+  end
 end
 
 (* Stream ciphers *)
@@ -1199,6 +1230,20 @@ let des_final_triple_des ?iv ?pad key =
   wipe_string k1; wipe_string k2; wipe_string k3;
   new Block.mac_final_triple ?iv ?pad c1 c2 c3
 
+let aes_cmac ?iv key =
+  let cipher = new Block.aes_encrypt key in
+  let b = Bytes.make 16 '\000' in
+  let l = Bytes.create 16 in
+  cipher#transform b 0 l 0;           (* l = AES-128(K, 000...000 *)
+  Bytes.set b 15 '\x87';              (* b = the Rb constant *)
+  let k1 = Bytes.create 16 in
+  shl1_bytes l 0 k1 0 16;
+  if Char.code (Bytes.get l 0) land 0x80 > 0 then xor_bytes b 0 k1 0 16;
+  let k2 = Bytes.create 16 in
+  shl1_bytes k1 0 k2 0 16;
+  if Char.code (Bytes.get k1 0) land 0x80 > 0 then xor_bytes b 0 k2 0 16;
+  wipe_bytes l;
+  new Block.cmac ?iv cipher k1 k2
 end
 
 (* Random number generation *)
@@ -1337,28 +1382,38 @@ let secure_rng =
 class pseudo_rng seed =
   let _ = if String.length seed < 16 then raise (Error Seed_too_short) in
   object (self)
-    val cipher =
-      new Block.cbc_encrypt (new Block.aes_encrypt (String.sub seed 0 16))
-    val state =
-      let s = Bytes.make 71 '\001' in
-      String.blit seed 0 s 0 (min 55 (String.length seed));
-      s
+    val ckey =
+      let l = String.length seed in
+      chacha20_cook_key 
+        (if l >= 32 then String.sub seed 0 32
+         else if l > 16 then seed ^ String.make (32 - l) '\000'
+         else seed)
+        (Bytes.make 8 '\000') 0L
+    method random_bytes buf ofs len =
+      if len < 0 || ofs < 0 || ofs > Bytes.length buf - len
+      then invalid_arg "pseudo_rng#random_bytes"
+      else chacha20_extract ckey buf ofs len
+    method wipe =
+      wipe_bytes ckey; wipe_string seed
+end
+
+let pseudo_rng seed = new pseudo_rng seed
+
+class pseudo_rng_aes_ctr seed =
+  let _ = if String.length seed < 16 then raise (Error Seed_too_short) in
+  object (self)
+    val cipher = new Block.aes_encrypt (String.sub seed 0 16)
+    val ctr = Bytes.make 16 '\000'
     val obuf = Bytes.create 16
     val mutable opos = 16
 
     method random_bytes buf ofs len =
       if len > 0 then begin
         if opos >= 16 then begin
-          (* Clock the lagged Fibonacci generator 16 times *)
-          for i = 55 to 70 do
-            Bytes.set state i
-              (Char.unsafe_chr(Char.code (Bytes.get state (i-55)) +
-                               Char.code (Bytes.get state (i-24))))
-          done;
-          (* Encrypt resulting 16 bytes *)
-          cipher#transform state 55 obuf 0;
-          (* Shift Fibonacci generator by 16 bytes *)
-          Bytes.blit state 16 state 0 55;
+          (* Encrypt the counter *)
+          cipher#transform ctr 0 obuf 0;
+          (* Increment the counter *)
+          Block.increment_counter ctr 0 15;
           (* We have 16 fresh bytes of pseudo-random data *)
           opos <- 0
         end;
@@ -1372,7 +1427,7 @@ class pseudo_rng seed =
       wipe_bytes obuf; wipe_string seed
   end
 
-  let pseudo_rng seed = new pseudo_rng seed
+let pseudo_rng_aes_ctr seed = new pseudo_rng_aes_ctr seed
 
 end
 

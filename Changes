@@ -1,4 +1,13 @@
+Release 1.13:
 - Add the Chacha20 stream cipher.
+- Add the AES-CMAC (a.k.a. AES-OMAC1) message authentication code.
+- Pseudo-random number generator: replace the old AES-CBC-Fibonacci generator
+  with a faster, simpler generator based on Chacha20.
+- Add an alternate pseudo-random number generator based on AES in CTR mode.
+- Documentation: warn about known cryptographic weaknesses in Triple DES,
+  Blowfish, and ARCfour.
+- Documentation: warn about problems with variable-length messages in
+  MACs based on block ciphers in CBC mode.
 
 Release 1.12:
 - Fix x86-32 compilation error and improve detection of AES-NI for x86

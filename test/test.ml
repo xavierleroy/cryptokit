@@ -694,6 +694,32 @@ let _ =
                  (String.make 50 '\221'))
     (hex "56be34521d144c88dbb8c733f0e8b3f6")
 
+(* AES-CMAC (from RFC4493) *)
+
+let _ =
+  testing_function "AES-CMAC";
+  let key = hex "2b7e1516 28aed2a6 abf71588 09cf4f3c" in
+  let msg = hex "6bc1bee2 2e409f96 e93d7e11 7393172a \
+                 ae2d8a57 1e03ac9c 9eb76fac 45af8e51 \
+                 30c81c46 a35ce411 e5fbc119 1a0a52ef \
+                 f69f2445 df4f9b17 ad2b417b e66c3710" in
+  test 1
+    (hash_string (MAC.aes_cmac key)
+                 "")
+    (hex "bb1d6929 e9593728 7fa37d12 9b756746");
+  test 2
+    (hash_string (MAC.aes_cmac key)
+                 (String.sub msg 0 16))
+    (hex "070a16b4 6b4d4144 f79bdd9d d04a287c");
+  test 3
+    (hash_string (MAC.aes_cmac key)
+                 (String.sub msg 0 40))
+    (hex "dfa66747 de9ae630 30ca3261 1497c827");
+  test 4
+    (hash_string (MAC.aes_cmac key)
+                 msg)
+    (hex "51f0bebf 7e3b9d92 fc497417 79363cfe")
+
 (* RSA *)
 
 let some_rsa_key = {
@@ -866,7 +892,7 @@ The quick brown fox jumps over the lazy dog.
 
 (* Random numbers *)
 (* This is not a serious statistical test of Cryptokit's RNGs
-   (use Diehard or TestU01 for this).  Rather, it's a simplistic
+   (use Dieharder or TestU01 for this).  Rather, it's a simplistic
    test intended to detect obvious bugs such as providing
    fewer random bytes than requested. *)
    
@@ -897,24 +923,27 @@ let _ =
   testing_function "Random number generation";
   printf " 1. PRNG: ";
   test_rng (Random.pseudo_rng "abcdefghijklmnopqrstuvwxyz");
-  printf " 2. /dev/urandom: ";
+  printf " 2. PRNG based on AES CTR: ";
+  test_rng (Random.pseudo_rng_aes_ctr "abcdefghijklmnopqrstuvwxyz");
+  printf " 3. /dev/urandom: ";
   begin try
     test_rng (Random.device_rng "/dev/urandom")
   with Unix.Unix_error _ ->
     printf "not available\n"
   end;
-  printf " 3. Hardware RNG: ";
+  printf " 4. Hardware RNG: ";
   begin try
     test_rng (Random.hardware_rng ())
   with Error No_entropy_source ->
     printf "not available\n"
   end;
-  printf " 4. System RNG: ";
+  printf " 5. System RNG: ";
   begin try
     test_rng (Random.system_rng ())
   with Error No_entropy_source ->
     printf "not available\n"
   end
+
 
 (* End of tests *)
 

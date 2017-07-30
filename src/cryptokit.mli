@@ -30,7 +30,7 @@
       [ocamlopt unix.cmxa nums.cmxa cryptokit.cmxa].
 *)
 
-(** {6 General-purpose abstract interfaces} *)
+(** {1 General-purpose abstract interfaces} *)
 
 (** A <I>transform</I> is an arbitrary mapping from sequences of characters
     to sequences of characters.  Examples of transforms include
@@ -207,7 +207,7 @@ val hash_channel: hash -> ?len:int -> in_channel -> string
       The hash [h] is wiped before returning, hence can
       no longer be used for further hash computations. *)
 
-(** {6 Utilities: random numbers and padding schemes} *)
+(** {1 Utilities: random numbers and padding schemes} *)
 
 (** The [Random] module provides random and pseudo-random number generators
     suitable for generating cryptographic keys, nonces, or challenges. *)
@@ -274,19 +274,30 @@ module Random : sig
     (** [pseudo_rng seed] returns a pseudo-random number generator
         seeded by the string [seed].  [seed] must contain at least
         16 characters, and can be arbitrarily longer than this,
-        except that only the first 55 characters are used.
-        Technically, the first 16 characters of [seed] are used as
-        a key for the AES cipher in CBC mode, which encrypts the output
-        of a lagged Fibonacci generator [X(i) = (X(i-24) + X(i-55)) mod 256]
-        seeded with the first 55 characters of [seed].
-        While this generator is believed to have good statistical properties,
-        it still does not generate ``true'' randomness: the entropy of
-        the strings it creates cannot exceed the entropy contained in
-        the seed.  As a typical use,
+        except that only the first 32 characters are used.
+        The seed is used as a key for the Chacha20 stream cipher.
+        The generated pseudo-random data is the result of encrypting
+        the all-zero input with Chacha20.
+        While this generator is believed to have very good statistical
+        properties, it still does not generate ``true'' randomness:
+        the entropy of the byte strings it produces cannot exceed the
+        entropy contained in the seed.  As a typical use,
         [Random.pseudo_rng (Random.string Random.secure_rng 20)] returns a
         generator that can generate arbitrarily long strings of pseudo-random
         data without delays, and with a total entropy of approximately
         160 bits. *)
+
+  val pseudo_rng_aes_ctr: string -> rng
+    (** This is another pseudo-random number generator, based on the AES
+        block cipher in counter mode.  It is slightly slower than [pseudo_rng]
+        while having similar randomness characteristics.
+        The only reason to use it instead of [pseudo_rng] is that AES
+        has been cryptanalyzed even more than Chacha20.
+        The [seed] argument must contain at least 16 characters.  Only the
+        first 16 characters are used, as an AES key.  The generated
+        pseudo-random data is the result of encrypting the 128-bit integers
+        [0, 1, 2, ...] with this key. *)
+
 end        
 
 (** The [Padding] module defines a generic interface
@@ -327,7 +338,7 @@ module Padding : sig
         by as many [0] bytes as needed to fill the block. *)
 end
 
-(** {6 Cryptographic primitives (simplified interface)} *)
+(** {1 Cryptographic primitives (simplified interface)} *)
 
 (** The [Cipher] module implements the AES, DES, Triple-DES, ARCfour
     and Blowfish symmetric ciphers.  Symmetric ciphers are presented
@@ -372,6 +383,8 @@ module Cipher : sig
         [n] must be between [1] and [blocksize] included.
         [CTR] is equivalent to [CTR_N blocksize]. *)
 
+(** {2 Recommended ciphers} *)
+
   val aes: ?mode:chaining_mode -> ?pad:Padding.scheme -> ?iv:string ->
              string -> direction -> transform
     (** AES is the Advanced Encryption Standard, also known as Rijndael.
@@ -399,59 +412,6 @@ module Cipher : sig
         The [aes] function returns a transform that performs encryption
         or decryption, depending on the direction argument. *)
 
-  val des: ?mode:chaining_mode -> ?pad:Padding.scheme -> ?iv:string ->
-             string -> direction -> transform
-    (** DES is the Data Encryption Standard.  Very popular in the past,
-        but now completely insecure owing to its small key size (56 bits)
-        which can easily be broken by brute-force enumeration.
-        It should therefore be considered as weak encryption.
-        Its block size is 64 bits (8 bytes).
-        The arguments to the [des] function have the same meaning as
-        for the {!Cryptokit.Cipher.aes} function.  The key argument is
-        a string of length 8 (64 bits); the least significant bit of
-        each key byte is ignored. *)
-
-  val triple_des: ?mode:chaining_mode -> ?pad:Padding.scheme -> ?iv:string ->
-             string -> direction -> transform
-    (** Triple DES with two or three DES keys.
-        This is a popular variant of DES
-        where each block is encrypted with a 56-bit key [k1],
-        decrypted with another 56-bit key [k2], then re-encrypted with
-        either [k1] or a third 56-bit key [k3].
-        This results in a 112-bit or 168-bit key length that resists
-        brute-force attacks.  However, the three encryptions required
-        on each block make this cipher quite slow (4 times slower than
-        AES).  The arguments to the [triple_des] function have the
-        same meaning as for the {!Cryptokit.Cipher.aes} function.  The
-        key argument is a string of length 16 or 24, representing the
-        concatenation of the key parts [k1], [k2], and optionally
-        [k3].  The least significant bit of each key byte is
-        ignored. *)
-
-  val arcfour: string -> direction -> transform
-    (** ARCfour (``alleged RC4'') is a fast stream cipher
-        that appears to produce equivalent results with the commercial
-        RC4 cipher from RSA Data Security Inc.  This company holds the
-        RC4 trademark, and sells the real RC4 cipher.  So, it is prudent
-        not to use ARCfour in a commercial product.
-
-        ARCfour is popular for its speed: approximately 2 times faster
-        than AES.  It accepts any key length up to 2048 bits.
-
-        The ARCfour cipher is a stream cipher, not a block cipher.
-        Hence, its natural block size is 1, and no padding is
-        required.  Chaining modes do not apply.  A feature of stream
-        ciphers is that the xor of two ciphertexts obtained with the
-        same key is the xor of the corresponding plaintexts, which
-        allows various attacks.  Hence, the same key must never be
-        reused.
-
-        The string argument is the key; its length must be between
-        1 and 256 inclusive.  The direction argument is present for
-        consistency with the other ciphers only, and is actually
-        ignored: for all stream ciphers, decryption is the same
-        function as encryption. *)
-
   val chacha20: ?iv:string -> ?ctr:int64 -> string -> direction -> transform
     (** Chacha20 is a stream cipher proposed by D. J. Bernstein in 2008.
 
@@ -478,13 +438,80 @@ module Cipher : sig
         other ciphers only, and is actually ignored: for all stream
         ciphers, decryption is the same function as encryption. *)
 
+(** {2 Weaker, older ciphers, not recommended for new applications} *)
+
+  val des: ?mode:chaining_mode -> ?pad:Padding.scheme -> ?iv:string ->
+             string -> direction -> transform
+    (** DES is the Data Encryption Standard.  Very popular in the past,
+        but now completely insecure owing to its small key size (56 bits)
+        which can easily be broken by brute-force enumeration.
+        It should therefore be considered as weak encryption.
+        Its block size is 64 bits (8 bytes).
+        The arguments to the [des] function have the same meaning as
+        for the {!Cryptokit.Cipher.aes} function.  The key argument is
+        a string of length 8 (64 bits); the least significant bit of
+        each key byte is ignored. *)
+
+  val triple_des: ?mode:chaining_mode -> ?pad:Padding.scheme -> ?iv:string ->
+             string -> direction -> transform
+    (** Triple DES with two or three DES keys.
+        This is a popular variant of DES
+        where each block is encrypted with a 56-bit key [k1],
+        decrypted with another 56-bit key [k2], then re-encrypted with
+        either [k1] or a third 56-bit key [k3].
+        This results in a 112-bit or 168-bit key length that resists
+        brute-force attacks.  However, the three encryptions required
+        on each block make this cipher quite slow (4 times slower than
+        AES).  Moreover, the small block size (64 bits) opens the way
+        to collision-based attacks.  Triple DES should therefore be
+        considered as relatively weak encryption.
+        The arguments to the [triple_des] function have the
+        same meaning as for the {!Cryptokit.Cipher.aes} function.  The
+        key argument is a string of length 16 or 24, representing the
+        concatenation of the key parts [k1], [k2], and optionally
+        [k3].  The least significant bit of each key byte is
+        ignored. *)
+
+  val arcfour: string -> direction -> transform
+    (** ARCfour (``alleged RC4'') is a fast stream cipher
+        that appears to produce equivalent results with the commercial
+        RC4 cipher from RSA Data Security Inc.  This company holds the
+        RC4 trademark, and sells the real RC4 cipher.  So, it is prudent
+        not to use ARCfour in a commercial product.
+
+        ARCfour is popular for its speed: approximately 2 times faster
+        than AES.  It accepts any key length up to 2048 bits.  However,
+        the security of ARCfour is being questioned owing to several
+        statistical biases in its output.  It should not be used for
+        new applications.
+
+        The ARCfour cipher is a stream cipher, not a block cipher.
+        Hence, its natural block size is 1, and no padding is
+        required.  Chaining modes do not apply.  A feature of stream
+        ciphers is that the xor of two ciphertexts obtained with the
+        same key is the xor of the corresponding plaintexts, which
+        allows various attacks.  Hence, the same key must never be
+        reused.
+
+        The string argument is the key; its length must be between
+        1 and 256 inclusive.  The direction argument is present for
+        consistency with the other ciphers only, and is actually
+        ignored: for all stream ciphers, decryption is the same
+        function as encryption. *)
+
   val blowfish: ?mode:chaining_mode -> ?pad:Padding.scheme -> ?iv:string ->
              string -> direction -> transform
     (** Blowfish is a fast block cipher proposed by B.Schneier in 1994.
         It processes data by blocks of 64 bits (8 bytes),
         and supports keys of 32 to 448 bits.
+
+        The small block size (64 bits) of Blowfish opens the way to
+        some collision-based attacks.  Depending on the application,
+        ciphers with larger block size should be preferred.
+
         The string argument is the key; its length must be between
         4 and 56.
+
         The direction argument specifies whether encryption or decryption
         is to be performed.
 
@@ -517,16 +544,9 @@ end
     hash of a text can be used as a compact replacement for this text
     for the purposes of ensuring integrity of the text. *)
 module Hash : sig
-  val sha1: unit -> hash
-    (** SHA-1 is the Secure Hash Algorithm revision 1.  It is a NIST
-        standard, is widely used, and produces 160-bit hashes (20 bytes).
-        While popular in many legacy applications, it is now known
-        to be insecure.  In particular, it is not collision-resistant. *)
-  val sha2: int -> hash
-    (** SHA-2, another NIST standard for cryptographic hashing, produces
-        hashes of 224, 256, 384, or 512 bits (24, 32, 48 or 64 bytes).
-        The parameter is the desired size of the hash, in
-        bits.  It must be one of 224, 256, 384 or 512. *)
+
+(** {2 Recommended hashes} *)
+
   val sha3: int -> hash
     (** SHA-3, the latest NIST standard for cryptographic hashing,
         produces hashes of 224, 256, 384 or 512 bits (24, 32, 48 or 64
@@ -536,6 +556,11 @@ module Hash : sig
     (** The Keccak submission for the SHA-3 is very similar to [sha3] but
         uses a slightly different padding.  The parameter is the same as
         that of [sha3]. *)
+  val sha2: int -> hash
+    (** SHA-2, another NIST standard for cryptographic hashing, produces
+        hashes of 224, 256, 384, or 512 bits (24, 32, 48 or 64 bytes).
+        The parameter is the desired size of the hash, in
+        bits.  It must be one of 224, 256, 384 or 512. *)
   val sha224: unit -> hash
     (** SHA-224 is SHA-2 specialized to 224 bit hashes (24 bytes). *)
   val sha256: unit -> hash
@@ -545,7 +570,15 @@ module Hash : sig
   val sha512: unit -> hash
     (** SHA-512 is SHA-2 specialized to 512 bit hashes (64 bytes). *)
   val ripemd160: unit -> hash
-    (** RIPEMD-160 produces 160-bit hashes (20 bytes). *)
+    (** RIPEMD-160 produces 160-bit hashes (20 bytes).  *)
+
+(** {2 Weak hashes, not recommended for new applications} *)
+
+  val sha1: unit -> hash
+    (** SHA-1 is the Secure Hash Algorithm revision 1.  It is a NIST
+        standard, is widely used, and produces 160-bit hashes (20 bytes).
+        While popular in many legacy applications, it is now known
+        to be insecure.  In particular, it is not collision-resistant. *)
   val md5: unit -> hash
     (** MD5 is an older hash function, producing 128-bit hashes (16 bytes).
         While popular in many legacy applications, it is now known
@@ -564,7 +597,7 @@ end
     the text was authentified by someone who possesses the secret key.
 
     The module [MAC] provides five MAC functions based on the hashes
-    SHA-1, SHA256, SHA512, RIPEMD160 and MD5, and four MAC functions based on
+    SHA-1, SHA256, SHA512, RIPEMD160 and MD5, and five MAC functions based on
     the block ciphers AES, DES, and Triple-DES. *)
 module MAC: sig
   val hmac_sha1: string -> hash
@@ -595,13 +628,25 @@ module MAC: sig
         applied to MD5.  The returned hash values are 128 bits (16 bytes)
         long.  The [key] argument is the MAC key; it can have any length,
         but a minimal length of 16 bytes is recommended. *)
+  val aes_cmac: ?iv:string -> string -> hash
+    (** [aes_cmac key] returns a MAC based on AES encryption in CMAC mode,
+        also known as OMAC1 mode.  The input data is encrypted using
+        AES in CBC mode, with a special treatment of the final block
+        that makes this MAC suitable for input data of variable length.
+        The final value of the initialization vector is the MAC value.
+        Thus, the returned hash values are 128 bit (16 bytes) long.
+        The [key] argument is the MAC key; it must have length 16, 24,
+        or 32.  The optional [iv] argument is the first value of the
+        initialization vector, and defaults to 0. *)
   val aes: ?iv:string -> ?pad:Padding.scheme -> string -> hash
     (** [aes key] returns a MAC based on AES encryption in CBC mode.
-        The ciphertext is discarded, and the final value of the
-        initialization vector is the MAC value.  Thus, the returned
-        hash values are 128 bit (16 bytes) long.  The [key] argument
-        is the MAC key; it must have length 16, 24, or 32.  The
-        optional [iv] argument is the first value of the
+        Unlike [aes_cmac], there is no special treatment for the final
+        block, except padding it as per the optional [pad] argument.
+        This makes this MAC weak when used with input data of variable
+        length.  (It is fine for data of fixed length, though.)
+        The returned hash values are 128 bit (16 bytes) long.  The
+        [key] argument is the MAC key; it must have length 16, 24, or
+        32.  The optional [iv] argument is the first value of the
         initialization vector, and defaults to 0.  The optional [pad]
         argument specifies a padding scheme to pad input to an
         integral number of 16-byte blocks. *)
@@ -610,7 +655,7 @@ module MAC: sig
         The construction is identical to that used for the [aes] MAC.
         The key size is 64 bits (8 bytes), of which only 56 are used.
         The returned hash value has length 8 bytes.
-        Due to the small hash size and key size, this MAC is rather weak. *)
+        Due to the small hash size and key size, this MAC is weak. *)
   val triple_des: ?iv:string -> ?pad:Padding.scheme -> string -> hash
     (** [des key] returns a MAC based on triple DES encryption in CBC mode.
         The construction is identical to that used for the [aes] MAC.
@@ -799,7 +844,7 @@ module DH: sig
       counter until [numbytes] bytes have been obtained. *)
 end
 
-(** {6 Advanced, compositional interface to block ciphers 
+(** {1 Advanced, compositional interface to block ciphers 
        and stream ciphers} *)
 
 (** The [Block] module provides classes that implements
@@ -825,7 +870,7 @@ module Block : sig
     end
       (** Abstract interface for a block cipher. *)
 
-  (** {6 Deriving transforms and hashes from block ciphers} *)
+  (** {1 Deriving transforms and hashes from block ciphers} *)
 
   class cipher: block_cipher -> transform
     (** Wraps a block cipher as a general transform.  The transform
@@ -865,7 +910,7 @@ module Block : sig
         because of the additional final encryption through [c2] and
         [c3]. *)
 
-  (** {6 Some block ciphers: AES, DES, triple DES, Blowfish} *)
+  (** {1 Some block ciphers: AES, DES, triple DES, Blowfish} *)
 
   class aes_encrypt: string -> block_cipher
     (** The AES block cipher, in encryption mode.  The string argument
@@ -891,7 +936,7 @@ module Block : sig
   class blowfish_decrypt: string -> block_cipher
     (** The Blowfish block cipher, in decryption mode. *)
 
-  (** {6 Chaining modes} *)
+  (** {1 Chaining modes} *)
 
   class cbc_encrypt: ?iv: string -> block_cipher -> block_cipher
     (** Add Cipher Block Chaining (CBC) to the given block cipher
@@ -982,7 +1027,7 @@ module Stream : sig
         Thus, decryption is the same function as encryption. *)
 end
 
-(** {6 Encoding and compression of data} *)
+(** {1 Encoding and compression of data} *)
 
 (** The [Base64] module supports the encoding and decoding of
     binary data in base 64 format, using only alphanumeric
@@ -1043,7 +1088,7 @@ module Zlib: sig
     (** Return a transform that decompresses its input. *)
 end
 
-(** {6 Error reporting} *)
+(** {1 Error reporting} *)
 
 (** Error codes for this library. *)
 type error =
@@ -1088,7 +1133,7 @@ exception Error of error
   (** Exception raised by functions in this library
       to report error conditions. *)
 
-(** {6 Miscellaneous utilities} *)
+(** {1 Miscellaneous utilities} *)
 
 val wipe_bytes : bytes -> unit
     (** [wipe_bytes s] overwrites [s] with zeroes.  Can be used

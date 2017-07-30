@@ -46,3 +46,13 @@ CAMLprim value caml_chacha20_transform_bytecode(value * argv, int argc)
   return caml_chacha20_transform(argv[0], argv[1], argv[2],
                                  argv[3], argv[4], argv[5]);
 }
+
+CAMLprim value caml_chacha20_extract(value ckey,
+                                     value dst, value dst_ofs, value len)
+{
+  chacha20_extract(Key_val(ckey),
+                   &Byte_u(dst, Long_val(dst_ofs)),
+                   Long_val(len));
+  return Val_unit;
+}
+

@@ -112,8 +112,10 @@ let _ =
     (hash (Hash.sha256()) 4000000 16);
   time_fn "MD5, 64_000_000 bytes, 16-byte chunks"
     (hash (Hash.md5()) 4000000 16);
-  time_fn "AES MAC, 64_000_000 bytes, 16-byte chunks"
-    (hash (MAC.aes "0123456789ABCDEF") 4000000 16);
+  time_fn "AES CMAC, 64_000_000 bytes, 16-byte chunks"
+    (hash (MAC.aes_cmac "0123456789ABCDEF") 4000000 16);
+  time_fn "HMAC-SHA1, 64_000_000 bytes, 16-byte chunks"
+    (hash (MAC.hmac_sha1 "0123456789ABCDEF") 4000000 16);
   let prng = Random.pseudo_rng "supercalifragilistusexpialidolcius" in
   let key =
   time_fn "RSA key generation (2048 bits) x 10"
@@ -128,6 +130,8 @@ let _ =
     (repeat 100 (fun () -> ignore(RSA.decrypt_CRT key ciphertext)));
   time_fn "PRNG, 64_000_000 bytes"
     (rng prng 1000000 64);
+  time_fn "PRNG AES CTR, 64_000_000 bytes"
+    (rng (Random.pseudo_rng_aes_ctr "supercalifragilistusexpialidolcius") 1000000 64);
   begin try
     let hr = Random.hardware_rng () in
     time_fn "Hardware RNG, 64_000_000 bytes"

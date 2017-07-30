@@ -12,7 +12,7 @@ Description:
   to implement cryptographic protocols in security-sensitive applications. The
   primitives provided include:
   .
-  - Symmetric-key ciphers: AES, DES, Triple-DES, ARCfour,
+  - Symmetric-key ciphers: AES, Chacha20, Blowfish, DES, Triple-DES, ARCfour,
     in ECB, CBC, CFB, OFB and counter modes.
   - Public-key cryptography: RSA encryption, Diffie-Hellman key agreement.
   - Hash functions and MACs: SHA-1, SHA-2, SHA-3, RIPEMD160, MD5,
@@ -32,7 +32,7 @@ Flag zlib
   Default$: !os_type(Win32)
 
 Flag hardwaresupport
-  Description: Enable hardware support for AES (needs GCC or Clang)
+  Description: Enable hardware support for AES and GCM (needs GCC or Clang)
   Default$: (architecture(amd64) || architecture(i386)) && !os_type(Win32)
 
 Library cryptokit
@@ -86,11 +86,19 @@ Library cryptokit
   else if system(mingw) || system(mingw64)
     CCLib+: -ladvapi32
   if flag(hardwaresupport)
-    CCOpt+: -maes
+    CCOpt+: -maes -mpclmul -msse2
 
 Executable test
   Path:         test
   MainIs:       test.ml
+  CompiledObject: native
+  BuildDepends: cryptokit
+  Build$:       flag(tests)
+  Install:      false
+
+Executable prngtest
+  Path:         test
+  MainIs:       prngtest.ml
   CompiledObject: native
   BuildDepends: cryptokit
   Build$:       flag(tests)
@@ -132,5 +140,5 @@ SourceRepository head
 
 SourceRepository this
   Type:     git
-  Location: https://github.com/xavierleroy/cryptokit/releases/tag/release112
-  Browser:  https://github.com/xavierleroy/cryptokit/releases/tag/release112
+  Location: https://github.com/xavierleroy/cryptokit/releases/tag/release113
+  Browser:  https://github.com/xavierleroy/cryptokit/releases/tag/release113

@@ -16,5 +16,8 @@ void chacha20_init(chacha20_ctx * ctx,
                    const uint8_t iv[8],
                    uint64_t ctr);
 
+void chacha20_extract(chacha20_ctx * ctx,
+                      uint8_t * out, size_t len);
+
 void chacha20_transform(chacha20_ctx * ctx,
                         const uint8_t * in, uint8_t * out, size_t len);

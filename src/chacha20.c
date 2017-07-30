@@ -122,6 +122,17 @@ void chacha20_transform(chacha20_ctx * ctx,
   ctx->next = n;
 }
 
+void chacha20_extract(chacha20_ctx * ctx,
+                      uint8_t * out, size_t len)
+{
+  int n = ctx->next;
+  for (/*nothing*/; len > 0; len--) {
+    if (n >= 64) { chacha20_block(ctx); n = 0; }
+    *out++ = ctx->output[n++];
+  }
+  ctx->next = n;
+}
+
 void chacha20_init(chacha20_ctx * ctx,
                    const uint8_t * key, size_t key_length,
                    const uint8_t iv[8],
