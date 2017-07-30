@@ -86,7 +86,7 @@ Library cryptokit
   else if system(mingw) || system(mingw64)
     CCLib+: -ladvapi32
   if flag(hardwaresupport)
-    CCOpt+: -maes -mpclmul -msse2
+    CCOpt+: -maes
 
 Executable test
   Path:         test
