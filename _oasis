@@ -4,7 +4,7 @@ Version: 1.13
 Authors:     Xavier Leroy
 License:     LGPL-2 with OCaml linking exception
 BuildTools:  ocamlbuild, ocamldoc
-Plugins:     META (0.3), DevFiles (0.3), StdFiles (0.3)
+Plugins:     META (0.3), DevFiles (0.3)
 
 Synopsis: Cryptographic primitives
 Description:

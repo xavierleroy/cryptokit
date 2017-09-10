@@ -1,8 +1,0 @@
-(* OASIS_START *)
-(* DO NOT EDIT (digest: e625e8e0d101a44e16ea9cac5c37eaa0) *)
-
-Authors of cryptokit:
-
-* Xavier Leroy
-
-(* OASIS_STOP *)
