@@ -1,3 +1,5 @@
+- Issue #1: wrong documentation formatting for Cryptokit.hash_channel
+
 Release 1.13:
 - Add the Chacha20 stream cipher.
 - Add the AES-CMAC (a.k.a. AES-OMAC1) message authentication code.

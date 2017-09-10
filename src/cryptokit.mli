@@ -197,6 +197,7 @@ val hash_string: hash -> string -> string
       and returns the hash value of [s].  
       The hash [h] is wiped before returning, hence can
       no longer be used for further hash computations. *)
+
 val hash_channel: hash -> ?len:int -> in_channel -> string
   (** [hash_channel h ic] reads characters from the input channel [ic],
       computes their hash value and returns it.
