@@ -1,0 +1,19 @@
+opam-version: "1.2"
+name: "cryptokit"
+version: "1.12"
+maintainer: "Xavier Leroy <xavier.leroy@inria.fr>"
+authors: "Xavier Leroy"
+homepage: "https://github.com/xavierleroy/cryptokit"
+bug-reports: "https://github.com/xavierleroy/cryptokit/issues"
+dev-repo: "https://github.com/xavierleroy/cryptokit.git"
+build: [make]
+install: [make "install"]
+remove: ["ocamlfind" "remove" "cryptokit"]
+depends: [
+  "ocamlfind"
+  "ocamlbuild" {build}
+  "conf-zlib"
+  "conf-gmp-powm-sec"
+  "zarith" {>= "1.4"}
+]
+available: [ocaml-version >= "4.02.0"]
