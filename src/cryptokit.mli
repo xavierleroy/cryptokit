@@ -42,19 +42,24 @@
     [get_string], [get_substring], [get_char] and [get_byte] methods. *)
 class type transform =
   object
+
     method put_substring: bytes -> int -> int -> unit
       (** [put_substring b pos len] processes [len] characters of
           byte sequence [b], starting at character number [pos],
           through the transform. *)
+
     method put_string: string -> unit
       (** [put_string str] processes all characters of string [str]
           through the transform. *)
+
     method put_char: char -> unit
       (** [put_char c] processes character [c] through the transform. *)
+
     method put_byte: int -> unit
       (** [put_byte b] processes the character having code [b]
           through the transform. [b] must be between [0] and [255]
           inclusive. *)
+
     method finish: unit
       (** Call method [finish] to indicate that no further data will
           be processed through the transform.  This causes the transform
@@ -67,6 +72,7 @@ class type transform =
           [finish], the transform can no longer accept additional
           data.  Hence, do not call any of the [put_*] methods nor
           [flush] after calling [finish]. *)
+
     method flush: unit
       (** [flush] causes the transform to flush its internal buffers
           and make all output processed up to this point available through
@@ -80,14 +86,17 @@ class type transform =
           Unlike method [finish], method [flush] does not add final
           padding and leaves the transform in a state where it can
           still accept more input. *)
+
     method available_output: int
       (** Return the number of characters of output currently available.
           The output can be recovered with the [get_*] methods. *)
+
     method get_string: string
       (** Return a character string containing all output characters
           available at this point.  The internal output buffer is emptied;
           in other terms, all currently available output is consumed
           (and returned to the caller) by a call to [get_string]. *)
+
     method get_substring: bytes * int * int
       (** Return a triple [(buf,pos,len)], where [buf] is the internal
           output buffer for the transform, [pos] the position of the
@@ -98,14 +107,17 @@ class type transform =
           location.  The internal output buffer is emptied;
           in other terms, all currently available output is consumed
           (and returned to the caller) by a call to [get_substring]. *)
+
     method get_char: char
       (** Return the first character of output, and remove it from the
           internal output buffer.  Raise [End_of_file] if no output
           is currently available. *)
+
     method get_byte: int
       (** Return the code of the first character of output,
           and remove it from the internal output buffer.
           Raise [End_of_file] if no output is currently available. *)
+
     method input_block_size: int
       (** Some transforms (e.g. unpadded block ciphers) process
           input data by blocks of several characters.  This method
@@ -116,6 +128,7 @@ class type transform =
           multiple of [input_block_size].
           If [input_block_size = 1], the transform can accept
           input data of arbitrary length. *)
+
     method output_block_size: int
       (** Some transforms (e.g. block ciphers) always produce output
           data by blocks of several characters.  This method
@@ -125,6 +138,7 @@ class type transform =
           of [output_block_size].
           If [output_block_size = 1], the transform produces output data
           of arbitrary length. *)
+
     method wipe: unit
       (** Erase all internal buffers and data structures of this transform,
           overwriting them with zeroes.  A transform may contain sensitive
@@ -164,19 +178,24 @@ val compose: transform -> transform -> transform
     sequences to small, fixed-size strings.  *)
 class type hash =
   object
+
     method add_substring: bytes -> int -> int -> unit
       (** [add_substring b pos len] adds [len] characters from byte array
           [b], starting at character number [pos], to the running
           hash computation. *)
+
     method add_string: string -> unit
       (** [add_string str] adds all characters of string [str]
           to the running hash computation. *)
+
     method add_char: char -> unit
       (** [add_char c] adds character [c] to the running hash computation. *)
+
     method add_byte: int -> unit
       (** [add_byte b] adds the character having code [b]
           to the running hash computation.  [b] must be between [0] and [255]
           inclusive. *)
+
     method result: string
       (** Terminate the hash computation and return the hash value for
           the input data provided via the [add_*] methods.  The hash
@@ -184,9 +203,11 @@ class type hash =
           After calling [result], the hash can no longer accept
           additional data.  Hence, do not call any of the [add_*] methods
           after [result]. *)
+
     method hash_size: int
       (** Return the size of hash values produced by this hash function,
           in bytes. *)
+
     method wipe: unit
       (** Erase all internal buffers and data structures of this hash,
           overwriting them with zeroes.  See {!Cryptokit.transform.wipe}. *)
@@ -216,9 +237,11 @@ module Random : sig
 
   class type rng =
     object
+
       method random_bytes: bytes -> int -> int -> unit
         (** [random_bytes buf pos len] stores [len] random bytes
             in byte array [buf], starting at position [pos]. *)
+
       method wipe: unit
         (** Erases the internal state of the generator.
             Do not call [random_bytes] after calling [wipe]. *)
@@ -226,7 +249,7 @@ module Random : sig
     (** Generic interface for a random number generator. *)
 
   val string: rng -> int -> string
-    (** [random_string rng len] returns a string of [len] random bytes
+    (** [string rng len] returns a string of [len] random bytes
         read from the generator [rng]. *)
 
   val secure_rng: rng
@@ -260,7 +283,7 @@ module Random : sig
         [/dev/random] or [/dev/urandom]. *)
 
   val egd_rng: string -> rng
-    (** [device_rng egd_socket] returns a random number generator
+    (** [egd_rng egd_socket] returns a random number generator
         that uses the Entropy Gathering Daemon ([http://egd.sourceforge.net/]).
         [egd_socket] is the path to the Unix socket that EGD uses for
         communication.  *)
@@ -308,6 +331,7 @@ module Padding : sig
 
   class type scheme =
     object
+
       method pad: bytes -> int -> unit
         (** [pad buf used] is called with a byte array [buf]
             containing valid input data at positions [0, ..., used-1].
@@ -318,6 +342,7 @@ module Padding : sig
             in the following sense: from [buf] after padding, it must be
             possible to determine [used] unambiguously.  (This is what
             method {!Cryptokit.Padding.scheme.strip} does.) *)
+
       method strip: bytes -> int
         (** This is the converse of the [pad] operation: from a padded
             byte array [buf] as built by method [pad], [strip buf] determines
@@ -334,6 +359,7 @@ module Padding : sig
         having code [n].  The integer [n] lies between 1 and the block
         size (included).  This constraint ensures non-ambiguity.
         This scheme is defined in RFC 2040 and in PKCS 5 and 7. *)
+
   val _8000: scheme
     (** This padding scheme pads data with one [0x80] byte, followed
         by as many [0] bytes as needed to fill the block. *)
@@ -553,23 +579,30 @@ module Hash : sig
         produces hashes of 224, 256, 384 or 512 bits (24, 32, 48 or 64
         bytes).  The parameter is the desired size of the hash, in
         bits.  It must be one of 224, 256, 384 or 512. *)
+
   val keccak: int -> hash
     (** The Keccak submission for the SHA-3 is very similar to [sha3] but
         uses a slightly different padding.  The parameter is the same as
         that of [sha3]. *)
+
   val sha2: int -> hash
     (** SHA-2, another NIST standard for cryptographic hashing, produces
         hashes of 224, 256, 384, or 512 bits (24, 32, 48 or 64 bytes).
         The parameter is the desired size of the hash, in
         bits.  It must be one of 224, 256, 384 or 512. *)
+
   val sha224: unit -> hash
     (** SHA-224 is SHA-2 specialized to 224 bit hashes (24 bytes). *)
+
   val sha256: unit -> hash
     (** SHA-256 is SHA-2 specialized to 256 bit hashes (32 bytes). *)
+
   val sha384: unit -> hash
     (** SHA-384 is SHA-2 specialized to 384 bit hashes (48 bytes). *)
+
   val sha512: unit -> hash
     (** SHA-512 is SHA-2 specialized to 512 bit hashes (64 bytes). *)
+
   val ripemd160: unit -> hash
     (** RIPEMD-160 produces 160-bit hashes (20 bytes).  *)
 
@@ -580,6 +613,7 @@ module Hash : sig
         standard, is widely used, and produces 160-bit hashes (20 bytes).
         While popular in many legacy applications, it is now known
         to be insecure.  In particular, it is not collision-resistant. *)
+
   val md5: unit -> hash
     (** MD5 is an older hash function, producing 128-bit hashes (16 bytes).
         While popular in many legacy applications, it is now known
@@ -601,34 +635,40 @@ end
     SHA-1, SHA256, SHA512, RIPEMD160 and MD5, and five MAC functions based on
     the block ciphers AES, DES, and Triple-DES. *)
 module MAC: sig
+
   val hmac_sha1: string -> hash
     (** [hmac_sha1 key] returns a MAC based on the HMAC construction (RFC2104)
         applied to SHA-1.  The returned hash values are 160 bits (20 bytes)
         long.  The [key] argument is the MAC key; it can have any length,
         but a minimal length of 20 bytes is recommended. *)
+
   val hmac_sha256: string -> hash
     (** [hmac_sha256 key] returns a MAC based on the HMAC construction
         (RFC2104) applied to SHA-256.  The returned hash values are
         256 bits (32 bytes) long.  The [key] argument is the MAC key;
         it can have any length, but a minimal length of 32 bytes is
         recommended. *)
+
   val hmac_sha512: string -> hash
     (** [hmac_sha512 key] returns a MAC based on the HMAC construction
         (RFC2104) applied to SHA-512.  The returned hash values are
         512 bits (64 bytes) long.  The [key] argument is the MAC key;
         it can have any length, but a minimal length of 64 bytes is
         recommended. *)
+
   val hmac_ripemd160: string -> hash
     (** [hmac_ripemd160 key] returns a MAC based on the HMAC
         construction (RFC2104) applied to RIPEMD-160.  The returned
         hash values are 160 bits (20 bytes) long.  The [key] argument
         is the MAC key; it can have any length, but a minimal length
         of 20 bytes is recommended. *)
+
   val hmac_md5: string -> hash
     (** [hmac_md5 key] returns a MAC based on the HMAC construction (RFC2104)
         applied to MD5.  The returned hash values are 128 bits (16 bytes)
         long.  The [key] argument is the MAC key; it can have any length,
         but a minimal length of 16 bytes is recommended. *)
+
   val aes_cmac: ?iv:string -> string -> hash
     (** [aes_cmac key] returns a MAC based on AES encryption in CMAC mode,
         also known as OMAC1 mode.  The input data is encrypted using
@@ -639,6 +679,7 @@ module MAC: sig
         The [key] argument is the MAC key; it must have length 16, 24,
         or 32.  The optional [iv] argument is the first value of the
         initialization vector, and defaults to 0. *)
+
   val aes: ?iv:string -> ?pad:Padding.scheme -> string -> hash
     (** [aes key] returns a MAC based on AES encryption in CBC mode.
         Unlike [aes_cmac], there is no special treatment for the final
@@ -651,19 +692,22 @@ module MAC: sig
         initialization vector, and defaults to 0.  The optional [pad]
         argument specifies a padding scheme to pad input to an
         integral number of 16-byte blocks. *)
+
   val des: ?iv:string -> ?pad:Padding.scheme -> string -> hash
     (** [des key] returns a MAC based on DES encryption in CBC mode.
         The construction is identical to that used for the [aes] MAC.
         The key size is 64 bits (8 bytes), of which only 56 are used.
         The returned hash value has length 8 bytes.
         Due to the small hash size and key size, this MAC is weak. *)
+
   val triple_des: ?iv:string -> ?pad:Padding.scheme -> string -> hash
-    (** [des key] returns a MAC based on triple DES encryption in CBC mode.
+    (** [triple_des key] returns a MAC based on triple DES encryption in CBC mode.
         The construction is identical to that used for the [aes] MAC.
         The key size is 16 or 24 bytes.  The returned hash value has
         length 8 bytes.  The key size is sufficient to protect against
         brute-force attacks, but the small hash size means that this
         MAC is not collision-resistant. *)
+
   val des_final_triple_des: ?iv:string -> ?pad:Padding.scheme -> string -> hash
     (** [des_final_triple_des key] returns a MAC that uses DES CBC
         with the first 8 bytes of [key] as key.  The final initialization
@@ -736,10 +780,12 @@ module RSA: sig
         using padding if necessary.  If you need to encrypt longer plaintexts
         using RSA, encrypt them with a symmetric cipher, using a
         randomly-generated key, and encrypt only that key with RSA. *)
+
   val decrypt: key -> string -> string
     (** [decrypt k msg] decrypts the ciphertext string [msg] with the
         private part of key [k] (components [n] and [d]).  The size of
         [msg] is limited as described for {!Cryptokit.RSA.encrypt}. *)
+
   val decrypt_CRT: key -> string -> string
     (** [decrypt_CRT k msg] decrypts the ciphertext string [msg] with
         the CRT private part of key [k] (components [n], [p], [q],
@@ -747,6 +793,7 @@ module RSA: sig
         theorem (CRT) allows significantly faster decryption than
         {!Cryptokit.RSA.decrypt}, at no loss in security.  The size of
         [msg] is limited as described for {!Cryptokit.RSA.encrypt}. *)
+
   val sign: key -> string -> string
     (** [sign k msg] encrypts the plaintext string [msg] with the
         private part of key [k] (components [n] and [d]), thus
@@ -754,6 +801,7 @@ module RSA: sig
         The size of [msg] is limited as described for {!Cryptokit.RSA.encrypt}.
         If you need to sign longer messages, compute a cryptographic
         hash of the message and sign only the hash with RSA. *)
+
   val sign_CRT: key -> string -> string
     (** [sign_CRT k msg] encrypts the plaintext string [msg] with the
         CRT private part of key [k] (components [n], [p], [q], [dp],
@@ -762,6 +810,7 @@ module RSA: sig
         significantly faster signature than {!Cryptokit.RSA.sign}, at
         no loss in security.  The size of [msg] is limited as
         described for {!Cryptokit.RSA.encrypt}. *)
+
   val unwrap_signature: key -> string -> string
     (** [unwrap_signature k msg] decrypts the ciphertext string [msg]
         with the public part of key [k] (components [n] and [d]),
@@ -807,6 +856,7 @@ module DH: sig
       need to be agreed upon by the two parties before the key agreement
       protocol is run.  The parameters are public and can be reused
       for several runs of the protocol. *)
+
   val new_parameters: ?rng: Random.rng -> ?privlen: int -> int -> parameters
     (** Generate a new set of Diffie-Hellman parameters.
       The non-optional argument is the size in bits of the [p] parameter.
@@ -817,20 +867,25 @@ module DH: sig
       {!Cryptokit.Random.secure_rng}.  The optional [privlen] argument
       is the size in bits of the private secrets that are generated
       during the key agreement protocol; the default is 160. *)
+
   type private_secret
     (** The abstract type of private secrets generated during key agreement. *)
+
   val private_secret: ?rng: Random.rng -> parameters -> private_secret
     (** Generate a random private secret.  
       The optional [rng] argument specifies a random number generator
       to use; it defaults to {!Cryptokit.Random.secure_rng}. *)
+
   val message: parameters -> private_secret -> string
     (** Compute the message to be sent to the other party. *)
+
   val shared_secret: parameters -> private_secret -> string -> string
     (** Recover the shared secret from the private secret of the
       present party and the message received from the other party.
       The shared secret returned is a string of the same length as
       the [p] parameter. The private secret is destroyed and can no
       longer be used afterwards. *)
+
   val derive_key: ?diversification: string -> string -> int -> string
     (** [derive_key shared_secret numbytes] derives a secret string
       (typically, a key for symmetric encryption) from the given shared
@@ -857,14 +912,17 @@ module Block : sig
 
   class type block_cipher =
     object
+
       method blocksize: int
         (** The size in bytes of the blocks manipulated by the cipher. *)
+
       method transform: bytes -> int -> bytes -> int -> unit
         (** [transform src spos dst dpos] encrypts or decrypts one block
             of data.  The input data is read from byte array [src] at
             positions [spos, ..., spos + blocksize - 1], and the output
             data is stored in byte array [dst] at positions
             [dpos, ..., dpos + blocksize - 1]. *)
+
       method wipe: unit
         (** Erase the internal state of the block cipher, such as
             all key-dependent material. *)
@@ -879,16 +937,19 @@ module Block : sig
         block size of the block cipher.  No padding is performed.
         Example: [new cipher (new cbc_encrypt (new aes_encrypt key))]
         returns a transform that performs AES encryption in CBC mode. *)
+
   class cipher_padded_encrypt: Padding.scheme -> block_cipher -> transform
     (** Like {!Cryptokit.Block.cipher}, but performs padding on the input data
         as specified by the first argument.  The input block size of
         the returned transform is 1; the output block size is the
         block size of the block cipher. *)
+
   class cipher_padded_decrypt: Padding.scheme -> block_cipher -> transform
     (** Like {!Cryptokit.Block.cipher}, but removes padding on the output data
         as specified by the first argument.  The output block size of
         the returned transform is 1; the input block size is the
         block size of the block cipher. *)
+
   class mac: ?iv: string -> ?pad: Padding.scheme -> block_cipher -> hash
     (** Build a MAC (keyed hash function) from the given block cipher.
         The block cipher is run in CBC mode, and the MAC value is
@@ -899,6 +960,7 @@ module Block : sig
         vector, with a default of all zeroes.  The optional argument
         [pad] specifies a padding scheme to be applied to the input
         data; if not provided, no padding is performed. *)
+
   class mac_final_triple: ?iv: string -> ?pad: Padding.scheme ->
                           block_cipher -> block_cipher -> block_cipher -> hash
     (** Build a MAC (keyed hash function) from the given block ciphers
@@ -916,24 +978,28 @@ module Block : sig
   class aes_encrypt: string -> block_cipher
     (** The AES block cipher, in encryption mode.  The string argument
         is the key; its length must be 16, 24 or 32 bytes. *)
+
   class aes_decrypt: string -> block_cipher
     (** The AES block cipher, in decryption mode. *)
 
   class des_encrypt: string -> block_cipher
     (** The DES block cipher, in encryption mode.  The string argument
         is the key; its length must be 8 bytes. *)
+
   class des_decrypt: string -> block_cipher
     (** The DES block cipher, in decryption mode. *)
 
   class triple_des_encrypt: string -> block_cipher
     (** The Triple-DES block cipher, in encryption mode.
         The key argument must have length 16 (two keys) or 24 (three keys). *)
+
   class triple_des_decrypt: string -> block_cipher
     (** The Triple-DES block cipher, in decryption mode. *)
 
   class blowfish_encrypt: string -> block_cipher
     (** The Blowfish block cipher, in encryption mode.  The string argument
         is the key; its length must be between 4 and 56. *)
+
   class blowfish_decrypt: string -> block_cipher
     (** The Blowfish block cipher, in decryption mode. *)
 
@@ -948,6 +1014,7 @@ module Block : sig
         with the first input block, and defaults to all zeroes.
         The returned block cipher has the same block size as the
         underlying block cipher. *)
+
   class cbc_decrypt: ?iv: string -> block_cipher -> block_cipher
     (** Add Cipher Block Chaining (CBC) to the given block cipher
         in decryption mode.  This works like {!Cryptokit.Block.cbc_encrypt}, 
@@ -960,9 +1027,11 @@ module Block : sig
         bytes processed at a time; it must lie between [1] and
         the block size of the underlying cipher, included.
         The returned block cipher has block size [n]. *)
+
   class cfb_decrypt: ?iv: string -> int -> block_cipher -> block_cipher
     (** Add Cipher Feedback Block (CFB) to the given block cipher
         in decryption mode.  See {!Cryptokit.Block.cfb_encrypt}. *)
+
   class ofb: ?iv: string -> int -> block_cipher -> block_cipher
     (** Add Output Feedback Block (OFB) to the given block cipher.
         The integer argument [n] is the number of
@@ -970,6 +1039,7 @@ module Block : sig
         the block size of the underlying cipher, included.        
         The returned block cipher has block size [n].
         It is usable both for encryption and decryption. *)
+
   class ctr: ?iv: string -> ?inc:int -> block_cipher -> block_cipher
     (** Add Counter mode to the given block cipher.  Viewing the IV
         as a [blocksize]-byte integer in big-endian representation,
@@ -998,6 +1068,7 @@ module Stream : sig
             [len] characters, read from byte array [src] starting at
             position [spos].  The resulting [len] characters are
             stored in byte array [dst] starting at position [dpos]. *)
+
       method wipe: unit
         (** Erase the internal state of the stream cipher, such as
             all key-dependent material. *)
@@ -1016,7 +1087,7 @@ module Stream : sig
         Thus, decryption is the same function as encryption. *)
 
   class chacha20: ?iv:string -> ?ctr:int64 -> string -> stream_cipher
-    (** The Chacha20 strea cipher.
+    (** The Chacha20 stream cipher.
         The string argument is the key, and must be of length 16 or 32.
         The optional [iv] argument is the initialization vector
         (also known as the nonce).  If present, it must be 8 bytes long.
@@ -1035,20 +1106,24 @@ end
     characters that can safely be transmitted over e-mail or
     in URLs. *)
 module Base64: sig
+
   val encode_multiline : unit -> transform
     (** Return a transform that performs base 64 encoding.
         The output is divided in lines of length 76 characters,
         and final [=] characters are used to pad the output,
         as specified in the MIME standard. 
         The output is approximately [4/3] longer than the input. *)
+
   val encode_compact : unit -> transform
     (** Same as {!Cryptokit.Base64.encode_multiline}, but the output is not
         split into lines, and no final padding is added.
         This is adequate for encoding short strings for
         transmission as part of URLs, for instance. *)
+
   val encode_compact_pad : unit -> transform
     (** Same as {!Cryptokit.Base64.encode_compact}, but the output is
         padded with [=] characters at the end (if necessary). *)
+
   val decode : unit -> transform
     (** Return a transform that performs base 64 decoding.
         The input must consist of valid base 64 characters;
@@ -1060,10 +1135,12 @@ end
     binary data as hexadecimal strings.  This is a popular format
     for transmitting keys in textual form. *)
 module Hexa: sig
+
   val encode : unit -> transform
     (** Return a transform that encodes its input in hexadecimal.
         The output is twice as long as the input, and contains
         no spaces or newlines. *)
+
   val decode : unit -> transform
     (** Return a transform that decodes its input from hexadecimal.
         The output is twice as short as the input.  Blanks
@@ -1079,12 +1156,14 @@ end
     to encryption to hide regularities in the plaintext, and reduce
     the size of the ciphertext. *)
 module Zlib: sig
+
   val compress : ?level:int -> unit -> transform
     (** Return a transform that compresses its input.
         The optional [level] argument is an integer between 1 and 9
         specifying how hard the transform should try to compress data:
         1 is lowest but fastest compression, while 9 is highest but
         slowest compression. The default level is 6. *)
+
   val uncompress : unit -> transform
     (** Return a transform that decompresses its input. *)
 end
@@ -1139,22 +1218,27 @@ exception Error of error
 val wipe_bytes : bytes -> unit
     (** [wipe_bytes s] overwrites [s] with zeroes.  Can be used
         to reduce the memory lifetime of sensitive data. *)
+
 val wipe_string : string -> unit
     (** [wipe_string s] overwrites [s] with zeroes.  Can be used
         to reduce the memory lifetime of sensitive data. *)
+
 val xor_bytes: bytes -> int -> bytes -> int -> int -> unit
-    (** [xor_string src spos dst dpos len] performs the xor (exclusive or)
+    (** [xor_bytes src spos dst dpos len] performs the xor (exclusive or)
         of characters [spos, ..., spos + len - 1] of [src]
         with characters [dpos, ..., dpos + len - 1] of [dst],
         storing the result in [dst] starting at position [dpos]. *)
+
 val xor_string: string -> int -> bytes -> int -> int -> unit
     (** Same as [xor_bytes], but the source is a string instead of a 
         byte array. *)
+
 val mod_power: string -> string -> string -> string
     (** [mod_power a b c] computes [a^b mod c], where the
         strings [a], [b], [c] and the result are viewed as
         arbitrary-precision integers in big-endian format.
         Requires [a < c].  *)
+
 val mod_mult: string -> string -> string -> string
     (** [mod_mult a b c] computes [a*b mod c], where the
         strings [a], [b], [c] and the result are viewed as
