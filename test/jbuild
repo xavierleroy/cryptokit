@@ -1,0 +1,15 @@
+(jbuild_version 1)
+
+(executables
+ ((names (prngtest test speedtest))
+  (libraries (cryptokit))))
+
+(alias
+ ((name runtest)
+  (deps (test.exe))
+  (action (run ${<}))))
+
+(alias
+ ((name bench)
+  (deps (speedtest.exe))
+  (action (run ${<}))))

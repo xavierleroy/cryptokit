@@ -1,0 +1,22 @@
+opam-version: "1.2"
+maintainer: "opam-devel@lists.ocaml.org"
+authors: [
+  "Xavier Leroy"
+]
+homepage: "https://github.com/xavierleroy/cryptokit"
+bug-reports: "https://github.com/xavierleroy/cryptokit/issues"
+dev-repo: "https://github.com/xavierleroy/cryptokit.git"
+license: "LGPL-2.1+ with OCaml linking exception"
+build: [
+  ["jbuilder" "build" "-p" name "-j" jobs]
+]
+build-test: [["jbuilder" "runtest" "-p" name "-j" jobs]]
+depends: [
+  "jbuilder" {build}
+  "configurator" {build}
+  "stdio" {build}
+  "base" {build}
+  "conf-zlib"
+  "num"
+]
+available: [ocaml-version >= "4.02.3"]

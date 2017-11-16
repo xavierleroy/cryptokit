@@ -1,0 +1,41 @@
+(jbuild_version 1)
+
+(library
+ ((name cryptokit)
+  (public_name cryptokit)
+  (wrapped false)
+  (modules (CryptokitBignum Cryptokit))
+  (c_flags ((:include c_flags.sexp) -Wall -Wextra -O2))
+  (c_library_flags (:include c_library_flags.sexp))
+  (libraries (zarith unix))
+  (c_names
+   (aesni
+    arcfour
+    stubs-arcfour
+    blowfish
+    stubs-blowfish
+    d3des
+    stubs-des
+    rijndael-alg-fst
+    ripemd160
+    stubs-ripemd160
+    sha1
+    stubs-sha1
+    sha256
+    stubs-sha256
+    sha512
+    stubs-sha512
+    stubs-aes
+    stubs-md5
+    stubs-misc
+    stubs-rng
+    stubs-zlib
+    keccak
+    stubs-sha3
+    chacha20
+    stubs-chacha20))))
+
+(rule
+ ((targets (c_flags.sexp c_library_flags.sexp))
+  (deps (config/discover.exe))
+  (action (run ${<} -ocamlc ${OCAMLC}))))
