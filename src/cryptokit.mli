@@ -649,6 +649,13 @@ module MAC: sig
         it can have any length, but a minimal length of 32 bytes is
         recommended. *)
 
+  val hmac_sha384: string -> hash
+    (** [hmac_sha384 key] returns a MAC based on the HMAC construction
+        (RFC2104) applied to SHA-384.  The returned hash values are
+        384 bits (48 bytes) long.  The [key] argument is the MAC key;
+        it can have any length, but a minimal length of 64 bytes is
+        recommended. *)
+
   val hmac_sha512: string -> hash
     (** [hmac_sha512 key] returns a MAC based on the HMAC construction
         (RFC2104) applied to SHA-512.  The returned hash values are

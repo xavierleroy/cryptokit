@@ -633,6 +633,47 @@ let _ =
  "6355ac22e890d0a3c8481a5ca4825bc884d3e7a1ff98a2fc2ac7d8e064c3b2e6")
 ]
 
+(* HMAC-SHA384 *)
+
+let _ =
+  testing_function "HMAC-SHA384";
+  List.iter
+    (fun (testno, hexkey, hexmsg, hexhash) ->
+      test testno
+        (hash_string (MAC.hmac_sha384 (hex hexkey)) (hex hexmsg))
+        (hex hexhash))
+ [(1,
+   "0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b\
+    0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b\
+    0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b\
+    0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b",
+   "4869205468657265",
+   "51b2151ae771770f36cc6c5d63de41fc\
+    febab0900a22b41cb81e12209215337e\
+    5d5384201f6dc3ca9f92764c503380e6");
+  (2,
+   "4a6566654a6566654a6566654a656665\
+    4a6566654a6566654a6566654a656665\
+    4a6566654a6566654a6566654a656665\
+    4a6566654a6566654a6566654a656665",
+   "7768617420646f2079612077616e7420\
+    666f72206e6f7468696e673f",
+   "b57bd579eda34ac3f203e28660ed9992\
+    f7400d147af77a297b8a8a052e0d7eaa\
+    f54288f8a219dc55b49bb3147271f0b7");
+  (3,
+   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "dddddddddddddddddddddddddddddddd\
+    dddddddddddddddddddddddddddddddd\
+    dddddddddddddddddddddddddddddddd\
+    dddd",
+   "0b97cc8c49ef7ad3abd3e459c1084409\
+    a1778f0bd832e2126d25c93f7524b272\
+    a94f86587d874fefb80309910e70d958")]
+
 (* HMAC-SHA512 *)
 
 let _ =
