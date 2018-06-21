@@ -3,6 +3,7 @@ name: "cryptokit"
 maintainer: "Xavier Leroy <xavier.leroy@inria.fr>"
 authors: "Xavier Leroy"
 homepage: "https://github.com/xavierleroy/cryptokit"
+dev-repo: "https://github.com/xavierleroy/cryptokit.git"
 bug-reports: "https://github.com/xavierleroy/cryptokit/issues"
 build: [make]
 install: [make "install"]
