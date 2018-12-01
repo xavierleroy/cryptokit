@@ -1157,15 +1157,21 @@ end
     the size of the ciphertext. *)
 module Zlib: sig
 
-  val compress : ?level:int -> unit -> transform
+  val compress : ?level:int -> ?write_zlib_header:bool -> unit -> transform
     (** Return a transform that compresses its input.
         The optional [level] argument is an integer between 1 and 9
         specifying how hard the transform should try to compress data:
         1 is lowest but fastest compression, while 9 is highest but
-        slowest compression. The default level is 6. *)
+        slowest compression. The default level is 6.
+        The optional [write_zlib_header] argument dictates whether the 
+        output should be wrapped within a zlib header and checksum.
+        The default is false. *)
 
-  val uncompress : unit -> transform
-    (** Return a transform that decompresses its input. *)
+  val uncompress : ?expect_zlib_header:bool -> unit -> transform
+    (** Return a transform that decompresses its input.
+        The optional [expect_zlib_header] argument dictates whether the
+        input is wrapped within a zlib header and checksum. The default
+        is false. *)
 end
 
 (** {1 Error reporting} *)
