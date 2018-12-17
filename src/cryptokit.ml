@@ -1891,9 +1891,9 @@ external inflate:
   = "caml_zlib_inflate_bytecode" "caml_zlib_inflate"
 external inflate_end: stream -> unit = "caml_zlib_inflateEnd"
 
-class compress level =
+class compress level write_zlib_header =
   object(self)
-    val zs = deflate_init level false
+    val zs = deflate_init level write_zlib_header
     
     inherit buffered_output 512 as output_buffer
 
@@ -1944,11 +1944,11 @@ class compress level =
       output_buffer#wipe
 end
 
-let compress ?(level = 6) () = new compress level
+let compress ?(level = 6) ?(write_zlib_header = false) () = new compress level write_zlib_header 
 
-class uncompress =
+class uncompress expect_zlib_header =
   object(self)
-    val zs = inflate_init false
+    val zs = inflate_init expect_zlib_header
     
     inherit buffered_output 512 as output_buffer
 
@@ -1997,7 +1997,7 @@ class uncompress =
       output_buffer#wipe
 end
 
-let uncompress () = new uncompress
+let uncompress ?(expect_zlib_header = false) () = new uncompress expect_zlib_header
 
 end
 
