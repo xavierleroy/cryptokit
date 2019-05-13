@@ -945,6 +945,25 @@ let _ =
   end
 
 
+let _ =
+  testing_function "Constant time equal";
+  test 1 (const_time_eq_str "abc" "ab") false;
+
+  test 2 (const_time_eq_bytes (Bytes.of_string "abc") (Bytes.of_string "ab")) false;
+
+  test 3 (const_time_eq_str "coolcoolcool" "coolcoolnice") false;
+  
+  test 4 (const_time_eq_bytes
+            (Bytes.of_string "coolcoolcool")
+            (Bytes.of_string "coolcoolnice")) false;
+
+  test 5 (const_time_eq_str "coolcoolcool" "coolcoolcool") true;
+
+  test 6 (const_time_eq_bytes
+            (Bytes.of_string "coolcoolcool")
+            (Bytes.of_string "coolcoolcool")) true
+;;
+  
 (* End of tests *)
 
 let _ =
@@ -956,4 +975,3 @@ let _ =
     printf "All tests successful.\n";
     exit 0
   end
-

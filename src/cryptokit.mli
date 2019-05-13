@@ -1249,3 +1249,12 @@ val mod_mult: string -> string -> string -> string
     (** [mod_mult a b c] computes [a*b mod c], where the
         strings [a], [b], [c] and the result are viewed as
         arbitrary-precision integers in big-endian format. *)
+
+val const_time_eq_str : string -> string -> bool
+    (** [const_time_eq_str a b] compares the two strings [a] and  [b]
+        in constant time *)
+
+val const_time_eq_bytes : bytes -> bytes -> bool
+    (** [const_time_eq_bytes a b] compares the two byte strings [a] and [b]
+        in constant time *)
+

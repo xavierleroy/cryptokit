@@ -2024,3 +2024,21 @@ let mod_mult a b c =
   Bn.to_bytes ~numbits:(String.length c * 8)
     (Bn.mod_ (Bn.mult (Bn.of_bytes a) (Bn.of_bytes b))
              (Bn.of_bytes c))
+
+let const_time_eq eq len a b =
+  if len a = len b
+  then
+    let l = len a in
+    let lst = List.init l (fun x -> x) in
+    let fold acc i =
+      acc && (eq a b i) in
+    List.fold_left fold true lst
+  else false
+
+let const_time_eq_str = const_time_eq (fun a b i ->
+    String.get a i = String.get b i) String.length
+
+
+let const_time_eq_bytes = const_time_eq (fun a b i ->
+    Bytes.get a i = Bytes.get b i) Bytes.length
+
