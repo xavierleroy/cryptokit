@@ -24,12 +24,13 @@
 #include <caml/callback.h>
 #include <caml/fail.h>
 #include <caml/memory.h>
+#include <caml/custom.h>
 
 static value * caml_zlib_error_exn = NULL;
 
 #ifdef HAVE_ZLIB
 
-#define ZStream_val(v) ((z_stream *) (v))
+#define ZStream_val(v) (*((z_streamp *)Data_custom_val(v)))
 
 static void caml_zlib_error(char * fn, value vzs)
 {
@@ -56,10 +57,21 @@ static void caml_zlib_error(char * fn, value vzs)
   mlraise(bucket);
 }
 
+void caml_zlib_free_stream(value vzs)
+{
+  caml_stat_free(ZStream_val(vzs));
+  ZStream_val(vzs) = NULL;
+}
+
+static struct custom_operations caml_zlib_stream_ops = {
+  "caml_zlib_stream_ops", &caml_zlib_free_stream, NULL, NULL, NULL, NULL
+};
+
 static value caml_zlib_new_stream(void)
 {
-  value res = alloc((sizeof(z_stream) + sizeof(value) - 1) / sizeof(value),
-                    Abstract_tag);
+  value res = caml_alloc_custom(&caml_zlib_stream_ops, sizeof(z_streamp), 0, 1);
+
+  ZStream_val(res) = caml_stat_alloc(sizeof(z_stream));
   ZStream_val(res)->zalloc = NULL;
   ZStream_val(res)->zfree = NULL;
   ZStream_val(res)->opaque = NULL;
