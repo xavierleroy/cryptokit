@@ -861,7 +861,7 @@ module DH: sig
     (** Generate a new set of Diffie-Hellman parameters.
       The non-optional argument is the size in bits of the [p] parameter.
       It must be large enough that the discrete logarithm problem modulo
-      [p] is computationally unsolvable.  1024 is a reasonable value.
+      [p] is computationally unsolvable.  2048 is a reasonable value.
       The optional [rng] argument specifies a random number generator
       to use for generating the parameters; it defaults to
       {!Cryptokit.Random.secure_rng}.  The optional [privlen] argument
