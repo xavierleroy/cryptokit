@@ -1603,7 +1603,7 @@ let derive_key ?(diversification = "") sharedsec numbytes =
   let rec derive pos counter =
     if pos < numbytes then begin
       let h =
-        hash_string (Hash.sha1()) 
+        hash_string (Hash.sha256()) 
                     (diversification ^ sharedsec ^ string_of_int counter) in
       String.blit h 0 result pos (min (String.length h) (numbytes - pos));
       wipe_string h;
