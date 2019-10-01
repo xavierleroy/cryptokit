@@ -26,7 +26,7 @@
 #include <caml/memory.h>
 #include <caml/custom.h>
 
-static value * caml_zlib_error_exn = NULL;
+static const value * caml_zlib_error_exn = NULL;
 
 #ifdef HAVE_ZLIB
 
