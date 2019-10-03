@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="next" href="Cryptokit.Padding.html">
+<link rel="Up" href="Cryptokit.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><title>Cryptokit.Random</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="Cryptokit.html" title="Cryptokit">Up</a>
+&nbsp;<a class="post" href="Cryptokit.Padding.html" title="Cryptokit.Padding">Next</a>
+</div>
+<h1>Module <a href="type_Cryptokit.Random.html">Cryptokit.Random</a></h1>
+
+<pre><span id="MODULERandom"><span class="keyword">module</span> Random</span>: <code class="code">sig</code> <a href="Cryptokit.Random.html">..</a> <code class="code">end</code></pre><div class="info module top">
+<div class="info-desc">
+<p>The <code class="code">Random</code> module provides random and pseudo-random number generators
+    suitable for generating cryptographic keys, nonces, or challenges.</p>
+</div>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPErng"><span class="keyword">class type</span> <a href="Cryptokit.Random.rng-c.html">rng</a></span> = <code class="code">object</code> <a href="Cryptokit.Random.rng-c.html">..</a> <code class="code">end</code></pre><div class="info">
+<p>Generic interface for a random number generator.</p>
+
+</div>
+
+<pre><span id="VALstring"><span class="keyword">val</span> string</span> : <code class="type"><a href="Cryptokit.Random.rng-c.html">rng</a> -> int -> string</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">string rng len</code> returns a string of <code class="code">len</code> random bytes
+        read from the generator <code class="code">rng</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALsecure_rng"><span class="keyword">val</span> secure_rng</span> : <code class="type"><a href="Cryptokit.Random.rng-c.html">rng</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>A high-quality random number generator, using hard-to-predict
+        system data to generate entropy.  This generator either uses
+        the OS-provided RNG, if any, or reads from
+        <code class="code">/dev/random</code> on systems that supports it, or interrogates
+        the EGD daemon otherwise (see <code class="code">http://egd.sourceforge.net/</code>).
+        For EGD, the following paths are tried to locate the Unix socket
+        used to communicate with EGD:</p>
+<ul>
+<li>the value of the environment variable <code class="code">EGD_SOCKET</code>;</li>
+<li><code class="code">$HOME/.gnupg/entropy</code>;</li>
+<li><code class="code">/var/run/egd-pool</code>; <code class="code">/dev/egd-pool</code>; <code class="code">/etc/egd-pool</code>.</li>
+</ul>
+<p>The method <code class="code">secure_rng#random_bytes</code> fails
+        if no suitable RNG is available.
+        <code class="code">secure_rng#random_bytes</code> may block until enough entropy
+        has been gathered.  Do not use for generating large quantities
+        of random data, otherwise you could exhaust the entropy sources
+        of the system.</p>
+</div>
+</div>
+
+<pre><span id="VALsystem_rng"><span class="keyword">val</span> system_rng</span> : <code class="type">unit -> <a href="Cryptokit.Random.rng-c.html">rng</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">system_rng ()</code> returns a random number generator derived
+        from the OS-provided RNG.  It raises <code class="code">Error No_entropy_source</code>
+        if the OS does not provide a secure RNG.  Currently, this function
+        is supported under Win32, and always fails under Unix.</p>
+</div>
+</div>
+
+<pre><span id="VALdevice_rng"><span class="keyword">val</span> device_rng</span> : <code class="type">string -> <a href="Cryptokit.Random.rng-c.html">rng</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">device_rng devicename</code> returns a random number generator
+        that reads from the special file <code class="code">devicename</code>, e.g.
+        <code class="code">/dev/random</code> or <code class="code">/dev/urandom</code>.</p>
+</div>
+</div>
+
+<pre><span id="VALegd_rng"><span class="keyword">val</span> egd_rng</span> : <code class="type">string -> <a href="Cryptokit.Random.rng-c.html">rng</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">egd_rng egd_socket</code> returns a random number generator
+        that uses the Entropy Gathering Daemon (<code class="code">http://egd.sourceforge.net/</code>).
+        <code class="code">egd_socket</code> is the path to the Unix socket that EGD uses for
+        communication.</p>
+</div>
+</div>
+
+<pre><span id="VALhardware_rng"><span class="keyword">val</span> hardware_rng</span> : <code class="type">unit -> <a href="Cryptokit.Random.rng-c.html">rng</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>A hardware random number generator based on the <code class="code">RDRAND</code> instruction
+        of the x86 architecture.  Available only on recent Intel and AMD
+        x86 processors in 64-bit mode.  Raises <code class="code">Error No_entropy_source</code>
+        if not available.</p>
+</div>
+</div>
+
+<pre><span id="VALpseudo_rng"><span class="keyword">val</span> pseudo_rng</span> : <code class="type">string -> <a href="Cryptokit.Random.rng-c.html">rng</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">pseudo_rng seed</code> returns a pseudo-random number generator
+        seeded by the string <code class="code">seed</code>.  <code class="code">seed</code> must contain at least
+        16 characters, and can be arbitrarily longer than this,
+        except that only the first 32 characters are used.
+        The seed is used as a key for the Chacha20 stream cipher.
+        The generated pseudo-random data is the result of encrypting
+        the all-zero input with Chacha20.
+        While this generator is believed to have very good statistical
+        properties, it still does not generate ``true'' randomness:
+        the entropy of the byte strings it produces cannot exceed the
+        entropy contained in the seed.  As a typical use,
+        <code class="code">Random.pseudo_rng (Random.string Random.secure_rng 20)</code> returns a
+        generator that can generate arbitrarily long strings of pseudo-random
+        data without delays, and with a total entropy of approximately
+        160 bits.</p>
+</div>
+</div>
+
+<pre><span id="VALpseudo_rng_aes_ctr"><span class="keyword">val</span> pseudo_rng_aes_ctr</span> : <code class="type">string -> <a href="Cryptokit.Random.rng-c.html">rng</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>This is another pseudo-random number generator, based on the AES
+        block cipher in counter mode.  It is slightly slower than <code class="code">pseudo_rng</code>
+        while having similar randomness characteristics.
+        The only reason to use it instead of <code class="code">pseudo_rng</code> is that AES
+        has been cryptanalyzed even more than Chacha20.
+        The <code class="code">seed</code> argument must contain at least 16 characters.  Only the
+        first 16 characters are used, as an AES key.  The generated
+        pseudo-random data is the result of encrypting the 128-bit integers
+        <code class="code">0, 1, 2, ...</code> with this key.</p>
+</div>
+</div>
+</body></html>

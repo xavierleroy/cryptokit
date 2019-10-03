@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Cryptokit.DH.html">
+<link rel="next" href="Cryptokit.Stream.html">
+<link rel="Up" href="Cryptokit.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><link title="Deriving transforms and hashes from block ciphers" rel="Section" href="#1_Derivingtransformsandhashesfromblockciphers">
+<link title="Some block ciphers: AES, DES, triple DES, Blowfish" rel="Section" href="#1_SomeblockciphersAESDEStripleDESBlowfish">
+<link title="Chaining modes" rel="Section" href="#1_Chainingmodes">
+<title>Cryptokit.Block</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Cryptokit.DH.html" title="Cryptokit.DH">Previous</a>
+&nbsp;<a class="up" href="Cryptokit.html" title="Cryptokit">Up</a>
+&nbsp;<a class="post" href="Cryptokit.Stream.html" title="Cryptokit.Stream">Next</a>
+</div>
+<h1>Module <a href="type_Cryptokit.Block.html">Cryptokit.Block</a></h1>
+
+<pre><span id="MODULEBlock"><span class="keyword">module</span> Block</span>: <code class="code">sig</code> <a href="Cryptokit.Block.html">..</a> <code class="code">end</code></pre><div class="info module top">
+<div class="info-desc">
+<p>The <code class="code">Block</code> module provides classes that implements
+    popular block ciphers, chaining modes, and wrapping of a block cipher
+    as a general transform or as a hash function.
+    The classes can be composed in a Lego-like fashion, facilitating
+    the integration of new block ciphers, modes, etc.</p>
+</div>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEblock_cipher"><span class="keyword">class type</span> <a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a></span> = <code class="code">object</code> <a href="Cryptokit.Block.block_cipher-c.html">..</a> <code class="code">end</code></pre><div class="info">
+<p>Abstract interface for a block cipher.</p>
+
+</div>
+<h2 id="1_Derivingtransformsandhashesfromblockciphers">Deriving transforms and hashes from block ciphers</h2>
+<pre><span id="TYPEcipher"><span class="keyword">class</span> <a href="Cryptokit.Block.cipher-c.html">cipher</a></span> : <code class="type"><a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a> -> </code><code class="type"><a href="Cryptokit.transform-c.html">Cryptokit.transform</a></code></pre><div class="info">
+<p>Wraps a block cipher as a general transform.</p>
+
+</div>
+
+<pre><span id="TYPEcipher_padded_encrypt"><span class="keyword">class</span> <a href="Cryptokit.Block.cipher_padded_encrypt-c.html">cipher_padded_encrypt</a></span> : <code class="type"><a href="Cryptokit.Padding.scheme-c.html">Cryptokit.Padding.scheme</a> -> <a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a> -> </code><code class="type"><a href="Cryptokit.transform-c.html">Cryptokit.transform</a></code></pre><div class="info">
+<p>Like <a href="Cryptokit.Block.cipher-c.html"><code class="code">Cryptokit.Block.cipher</code></a>, but performs padding on the input data
+        as specified by the first argument.</p>
+
+</div>
+
+<pre><span id="TYPEcipher_padded_decrypt"><span class="keyword">class</span> <a href="Cryptokit.Block.cipher_padded_decrypt-c.html">cipher_padded_decrypt</a></span> : <code class="type"><a href="Cryptokit.Padding.scheme-c.html">Cryptokit.Padding.scheme</a> -> <a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a> -> </code><code class="type"><a href="Cryptokit.transform-c.html">Cryptokit.transform</a></code></pre><div class="info">
+<p>Like <a href="Cryptokit.Block.cipher-c.html"><code class="code">Cryptokit.Block.cipher</code></a>, but removes padding on the output data
+        as specified by the first argument.</p>
+
+</div>
+
+<pre><span id="TYPEmac"><span class="keyword">class</span> <a href="Cryptokit.Block.mac-c.html">mac</a></span> : <code class="type">?iv:string -> ?pad:<a href="Cryptokit.Padding.scheme-c.html">Cryptokit.Padding.scheme</a> -> <a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a> -> </code><code class="type"><a href="Cryptokit.hash-c.html">Cryptokit.hash</a></code></pre><div class="info">
+<p>Build a MAC (keyed hash function) from the given block cipher.</p>
+
+</div>
+
+<pre><span id="TYPEmac_final_triple"><span class="keyword">class</span> <a href="Cryptokit.Block.mac_final_triple-c.html">mac_final_triple</a></span> : <code class="type">?iv:string -> ?pad:<a href="Cryptokit.Padding.scheme-c.html">Cryptokit.Padding.scheme</a> -> <a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a> -> <a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a> -> <a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a> -> </code><code class="type"><a href="Cryptokit.hash-c.html">Cryptokit.hash</a></code></pre><div class="info">
+<p>Build a MAC (keyed hash function) from the given block ciphers
+        <code class="code">c1</code>, <code class="code">c2</code> and <code class="code">c3</code>.</p>
+
+</div>
+<h2 id="1_SomeblockciphersAESDEStripleDESBlowfish">Some block ciphers: AES, DES, triple DES, Blowfish</h2>
+<pre><span id="TYPEaes_encrypt"><span class="keyword">class</span> <a href="Cryptokit.Block.aes_encrypt-c.html">aes_encrypt</a></span> : <code class="type">string -> </code><code class="type"><a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a></code></pre><div class="info">
+<p>The AES block cipher, in encryption mode.</p>
+
+</div>
+
+<pre><span id="TYPEaes_decrypt"><span class="keyword">class</span> <a href="Cryptokit.Block.aes_decrypt-c.html">aes_decrypt</a></span> : <code class="type">string -> </code><code class="type"><a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a></code></pre><div class="info">
+<p>The AES block cipher, in decryption mode.</p>
+
+</div>
+
+<pre><span id="TYPEdes_encrypt"><span class="keyword">class</span> <a href="Cryptokit.Block.des_encrypt-c.html">des_encrypt</a></span> : <code class="type">string -> </code><code class="type"><a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a></code></pre><div class="info">
+<p>The DES block cipher, in encryption mode.</p>
+
+</div>
+
+<pre><span id="TYPEdes_decrypt"><span class="keyword">class</span> <a href="Cryptokit.Block.des_decrypt-c.html">des_decrypt</a></span> : <code class="type">string -> </code><code class="type"><a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a></code></pre><div class="info">
+<p>The DES block cipher, in decryption mode.</p>
+
+</div>
+
+<pre><span id="TYPEtriple_des_encrypt"><span class="keyword">class</span> <a href="Cryptokit.Block.triple_des_encrypt-c.html">triple_des_encrypt</a></span> : <code class="type">string -> </code><code class="type"><a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a></code></pre><div class="info">
+<p>The Triple-DES block cipher, in encryption mode.</p>
+
+</div>
+
+<pre><span id="TYPEtriple_des_decrypt"><span class="keyword">class</span> <a href="Cryptokit.Block.triple_des_decrypt-c.html">triple_des_decrypt</a></span> : <code class="type">string -> </code><code class="type"><a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a></code></pre><div class="info">
+<p>The Triple-DES block cipher, in decryption mode.</p>
+
+</div>
+
+<pre><span id="TYPEblowfish_encrypt"><span class="keyword">class</span> <a href="Cryptokit.Block.blowfish_encrypt-c.html">blowfish_encrypt</a></span> : <code class="type">string -> </code><code class="type"><a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a></code></pre><div class="info">
+<p>The Blowfish block cipher, in encryption mode.</p>
+
+</div>
+
+<pre><span id="TYPEblowfish_decrypt"><span class="keyword">class</span> <a href="Cryptokit.Block.blowfish_decrypt-c.html">blowfish_decrypt</a></span> : <code class="type">string -> </code><code class="type"><a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a></code></pre><div class="info">
+<p>The Blowfish block cipher, in decryption mode.</p>
+
+</div>
+<h2 id="1_Chainingmodes">Chaining modes</h2>
+<pre><span id="TYPEcbc_encrypt"><span class="keyword">class</span> <a href="Cryptokit.Block.cbc_encrypt-c.html">cbc_encrypt</a></span> : <code class="type">?iv:string -> <a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a> -> </code><code class="type"><a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a></code></pre><div class="info">
+<p>Add Cipher Block Chaining (CBC) to the given block cipher
+        in encryption mode.</p>
+
+</div>
+
+<pre><span id="TYPEcbc_decrypt"><span class="keyword">class</span> <a href="Cryptokit.Block.cbc_decrypt-c.html">cbc_decrypt</a></span> : <code class="type">?iv:string -> <a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a> -> </code><code class="type"><a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a></code></pre><div class="info">
+<p>Add Cipher Block Chaining (CBC) to the given block cipher
+        in decryption mode.</p>
+
+</div>
+
+<pre><span id="TYPEcfb_encrypt"><span class="keyword">class</span> <a href="Cryptokit.Block.cfb_encrypt-c.html">cfb_encrypt</a></span> : <code class="type">?iv:string -> int -> <a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a> -> </code><code class="type"><a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a></code></pre><div class="info">
+<p>Add Cipher Feedback Block (CFB) to the given block cipher
+        in encryption mode.</p>
+
+</div>
+
+<pre><span id="TYPEcfb_decrypt"><span class="keyword">class</span> <a href="Cryptokit.Block.cfb_decrypt-c.html">cfb_decrypt</a></span> : <code class="type">?iv:string -> int -> <a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a> -> </code><code class="type"><a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a></code></pre><div class="info">
+<p>Add Cipher Feedback Block (CFB) to the given block cipher
+        in decryption mode.</p>
+
+</div>
+
+<pre><span id="TYPEofb"><span class="keyword">class</span> <a href="Cryptokit.Block.ofb-c.html">ofb</a></span> : <code class="type">?iv:string -> int -> <a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a> -> </code><code class="type"><a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a></code></pre><div class="info">
+<p>Add Output Feedback Block (OFB) to the given block cipher.</p>
+
+</div>
+
+<pre><span id="TYPEctr"><span class="keyword">class</span> <a href="Cryptokit.Block.ctr-c.html">ctr</a></span> : <code class="type">?iv:string -> ?inc:int -> <a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a> -> </code><code class="type"><a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a></code></pre><div class="info">
+<p>Add Counter mode to the given block cipher.</p>
+
+</div>
+</body></html>

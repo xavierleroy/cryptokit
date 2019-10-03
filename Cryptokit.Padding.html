@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Cryptokit.Random.html">
+<link rel="next" href="Cryptokit.Cipher.html">
+<link rel="Up" href="Cryptokit.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><title>Cryptokit.Padding</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Cryptokit.Random.html" title="Cryptokit.Random">Previous</a>
+&nbsp;<a class="up" href="Cryptokit.html" title="Cryptokit">Up</a>
+&nbsp;<a class="post" href="Cryptokit.Cipher.html" title="Cryptokit.Cipher">Next</a>
+</div>
+<h1>Module <a href="type_Cryptokit.Padding.html">Cryptokit.Padding</a></h1>
+
+<pre><span id="MODULEPadding"><span class="keyword">module</span> Padding</span>: <code class="code">sig</code> <a href="Cryptokit.Padding.html">..</a> <code class="code">end</code></pre><div class="info module top">
+<div class="info-desc">
+<p>The <code class="code">Padding</code> module defines a generic interface
+    for padding input data to an integral number of blocks,
+    as well as two popular padding schemes.</p>
+</div>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEscheme"><span class="keyword">class type</span> <a href="Cryptokit.Padding.scheme-c.html">scheme</a></span> = <code class="code">object</code> <a href="Cryptokit.Padding.scheme-c.html">..</a> <code class="code">end</code></pre><div class="info">
+<p>Generic interface of a padding scheme.</p>
+
+</div>
+
+<pre><span id="VALlength"><span class="keyword">val</span> length</span> : <code class="type"><a href="Cryptokit.Padding.scheme-c.html">scheme</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>This padding scheme pads data with <code class="code">n</code> copies of the character
+        having code <code class="code">n</code>.  The integer <code class="code">n</code> lies between 1 and the block
+        size (included).  This constraint ensures non-ambiguity.
+        This scheme is defined in RFC 2040 and in PKCS 5 and 7.</p>
+</div>
+</div>
+
+<pre><span id="VAL_8000"><span class="keyword">val</span> _8000</span> : <code class="type"><a href="Cryptokit.Padding.scheme-c.html">scheme</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>This padding scheme pads data with one <code class="code">0x80</code> byte, followed
+        by as many <code class="code">0</code> bytes as needed to fill the block.</p>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Cryptokit.Stream.arcfour-c.html">
+<link rel="Up" href="Cryptokit.Stream.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><title>Cryptokit.Stream.chacha20</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Cryptokit.Stream.arcfour-c.html" title="Cryptokit.Stream.arcfour">Previous</a>
+&nbsp;<a class="up" href="Cryptokit.Stream.html" title="Cryptokit.Stream">Up</a>
+&nbsp;</div>
+<h1>Class <a href="type_Cryptokit.Stream.chacha20.html">Cryptokit.Stream.chacha20</a></h1>
+
+<pre><span id="TYPEchacha20"><span class="keyword">class</span> chacha20</span> : <code class="type">?iv:string -> ?ctr:int64 -> string -> </code><code class="type"><a href="Cryptokit.Stream.stream_cipher-c.html">stream_cipher</a></code></pre><div class="info class top">
+<div class="info-desc">
+<p>The Chacha20 stream cipher.
+        The string argument is the key, and must be of length 16 or 32.
+        The optional <code class="code">iv</code> argument is the initialization vector
+        (also known as the nonce).  If present, it must be 8 bytes long.
+        If absent, it is taken to be eight zero bytes.
+        The optional <code class="code">ctr</code> argument is the initial value of the internal
+        counter.  If absent, it is taken to be 0.
+        This stream cipher works by xor-ing the input with the
+        output of a key-dependent pseudo random number generator.
+        Thus, decryption is the same function as encryption.</p>
+</div>
+</div>
+<hr width="100%">
+</body></html>

@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="Up" href="Cryptokit.Stream.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><title>Cryptokit.Stream.stream_cipher</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="Cryptokit.Stream.html" title="Cryptokit.Stream">Up</a>
+&nbsp;</div>
+<h1>Class type <a href="type_Cryptokit.Stream.stream_cipher.html">Cryptokit.Stream.stream_cipher</a></h1>
+
+<pre><span id="TYPEstream_cipher"><span class="keyword">class type</span> stream_cipher</span> = <code class="code">object</code> <a href="Cryptokit.Stream.stream_cipher-c.html">..</a> <code class="code">end</code></pre><div class="info classtype top">
+<div class="info-desc">
+<p>Abstract interface for a stream cipher.</p>
+</div>
+</div>
+<hr width="100%">
+
+<pre><span id="METHODtransform"><span class="keyword">method</span> transform</span> : <code class="type">bytes -> int -> bytes -> int -> int -> unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">transform src spos dst dpos len</code> encrypts or decrypts
+            <code class="code">len</code> characters, read from byte array <code class="code">src</code> starting at
+            position <code class="code">spos</code>.  The resulting <code class="code">len</code> characters are
+            stored in byte array <code class="code">dst</code> starting at position <code class="code">dpos</code>.</p>
+</div>
+</div>
+
+<pre><span id="METHODwipe"><span class="keyword">method</span> wipe</span> : <code class="type">unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Erase the internal state of the stream cipher, such as
+            all key-dependent material.</p>
+</div>
+</div>
+</body></html>

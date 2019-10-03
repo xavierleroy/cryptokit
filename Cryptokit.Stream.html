@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Cryptokit.Block.html">
+<link rel="next" href="Cryptokit.Base64.html">
+<link rel="Up" href="Cryptokit.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><title>Cryptokit.Stream</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Cryptokit.Block.html" title="Cryptokit.Block">Previous</a>
+&nbsp;<a class="up" href="Cryptokit.html" title="Cryptokit">Up</a>
+&nbsp;<a class="post" href="Cryptokit.Base64.html" title="Cryptokit.Base64">Next</a>
+</div>
+<h1>Module <a href="type_Cryptokit.Stream.html">Cryptokit.Stream</a></h1>
+
+<pre><span id="MODULEStream"><span class="keyword">module</span> Stream</span>: <code class="code">sig</code> <a href="Cryptokit.Stream.html">..</a> <code class="code">end</code></pre><div class="info module top">
+<div class="info-desc">
+<p>The <code class="code">Stream</code> module provides classes that implement
+    the ARCfour stream cipher, and the wrapping of a stream cipher
+    as a general transform. The classes can be composed in a Lego-like
+    fashion, facilitating the integration of new stream ciphers.</p>
+</div>
+</div>
+<hr width="100%">
+
+<pre><span id="TYPEstream_cipher"><span class="keyword">class type</span> <a href="Cryptokit.Stream.stream_cipher-c.html">stream_cipher</a></span> = <code class="code">object</code> <a href="Cryptokit.Stream.stream_cipher-c.html">..</a> <code class="code">end</code></pre><div class="info">
+<p>Abstract interface for a stream cipher.</p>
+
+</div>
+
+<pre><span id="TYPEcipher"><span class="keyword">class</span> <a href="Cryptokit.Stream.cipher-c.html">cipher</a></span> : <code class="type"><a href="Cryptokit.Stream.stream_cipher-c.html">stream_cipher</a> -> </code><code class="type"><a href="Cryptokit.transform-c.html">Cryptokit.transform</a></code></pre><div class="info">
+<p>Wraps an arbitrary stream cipher as a transform.</p>
+
+</div>
+
+<pre><span id="TYPEarcfour"><span class="keyword">class</span> <a href="Cryptokit.Stream.arcfour-c.html">arcfour</a></span> : <code class="type">string -> </code><code class="type"><a href="Cryptokit.Stream.stream_cipher-c.html">stream_cipher</a></code></pre><div class="info">
+<p>The ARCfour (``alleged RC4'') stream cipher.</p>
+
+</div>
+
+<pre><span id="TYPEchacha20"><span class="keyword">class</span> <a href="Cryptokit.Stream.chacha20-c.html">chacha20</a></span> : <code class="type">?iv:string -> ?ctr:int64 -> string -> </code><code class="type"><a href="Cryptokit.Stream.stream_cipher-c.html">stream_cipher</a></code></pre><div class="info">
+<p>The Chacha20 stream cipher.</p>
+
+</div>
+</body></html>

@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Cryptokit.Block.mac-c.html">
+<link rel="next" href="Cryptokit.Block.aes_encrypt-c.html">
+<link rel="Up" href="Cryptokit.Block.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><title>Cryptokit.Block.mac_final_triple</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Cryptokit.Block.mac-c.html" title="Cryptokit.Block.mac">Previous</a>
+&nbsp;<a class="up" href="Cryptokit.Block.html" title="Cryptokit.Block">Up</a>
+&nbsp;<a class="post" href="Cryptokit.Block.aes_encrypt-c.html" title="Cryptokit.Block.aes_encrypt">Next</a>
+</div>
+<h1>Class <a href="type_Cryptokit.Block.mac_final_triple.html">Cryptokit.Block.mac_final_triple</a></h1>
+
+<pre><span id="TYPEmac_final_triple"><span class="keyword">class</span> mac_final_triple</span> : <code class="type">?iv:string -> ?pad:<a href="Cryptokit.Padding.scheme-c.html">Cryptokit.Padding.scheme</a> -> <a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a> -> <a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a> -> <a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a> -> </code><code class="type"><a href="Cryptokit.hash-c.html">Cryptokit.hash</a></code></pre><div class="info class top">
+<div class="info-desc">
+<p>Build a MAC (keyed hash function) from the given block ciphers
+        <code class="code">c1</code>, <code class="code">c2</code> and <code class="code">c3</code>.  The input is run through <code class="code">c1</code> in CBC
+        mode, as described for <a href="Cryptokit.Block.mac-c.html"><code class="code">Cryptokit.Block.mac</code></a>.  The final
+        initialization vector is then super-enciphered by <code class="code">c2</code>, then
+        by <code class="code">c3</code>, to provide the final MAC.  This construction results
+        in a MAC that is as nearly as fast as <a href="Cryptokit.Block.mac-c.html"><code class="code">Cryptokit.Block.mac</code></a>
+        <code class="code">c1</code>, but more resistant against brute-force key search
+        because of the additional final encryption through <code class="code">c2</code> and
+        <code class="code">c3</code>.</p>
+</div>
+</div>
+<hr width="100%">
+</body></html>

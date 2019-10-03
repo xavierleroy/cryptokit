@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Cryptokit.Hash.html">
+<link rel="next" href="Cryptokit.RSA.html">
+<link rel="Up" href="Cryptokit.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><title>Cryptokit.MAC</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Cryptokit.Hash.html" title="Cryptokit.Hash">Previous</a>
+&nbsp;<a class="up" href="Cryptokit.html" title="Cryptokit">Up</a>
+&nbsp;<a class="post" href="Cryptokit.RSA.html" title="Cryptokit.RSA">Next</a>
+</div>
+<h1>Module <a href="type_Cryptokit.MAC.html">Cryptokit.MAC</a></h1>
+
+<pre><span id="MODULEMAC"><span class="keyword">module</span> MAC</span>: <code class="code">sig</code> <a href="Cryptokit.MAC.html">..</a> <code class="code">end</code></pre><div class="info module top">
+<div class="info-desc">
+<p>The <code class="code">MAC</code> module implements message authentication codes, also
+    known as keyed hash functions.  These are hash functions parameterized
+    by a secret key.  In addition to being one-way and collision-resistant,
+    a MAC has the property that without knowing the secret key, it is
+    computationally infeasible to find the hash for a known text,
+    even if many pairs of (text, MAC) are known to the attacker.
+    Thus, MAC can be used to authenticate the sender of a text:
+    the receiver of a (text, MAC) pair can recompute the MAC from the text,
+    and if it matches the transmitted MAC, be reasonably certain that
+    the text was authentified by someone who possesses the secret key.</p>
+
+<p>The module <code class="code">MAC</code> provides five MAC functions based on the hashes
+    SHA-1, SHA256, SHA512, RIPEMD160 and MD5, and five MAC functions based on
+    the block ciphers AES, DES, and Triple-DES.</p>
+</div>
+</div>
+<hr width="100%">
+
+<pre><span id="VALhmac_sha1"><span class="keyword">val</span> hmac_sha1</span> : <code class="type">string -> <a href="Cryptokit.hash-c.html">Cryptokit.hash</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">hmac_sha1 key</code> returns a MAC based on the HMAC construction (RFC2104)
+        applied to SHA-1.  The returned hash values are 160 bits (20 bytes)
+        long.  The <code class="code">key</code> argument is the MAC key; it can have any length,
+        but a minimal length of 20 bytes is recommended.</p>
+</div>
+</div>
+
+<pre><span id="VALhmac_sha256"><span class="keyword">val</span> hmac_sha256</span> : <code class="type">string -> <a href="Cryptokit.hash-c.html">Cryptokit.hash</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">hmac_sha256 key</code> returns a MAC based on the HMAC construction
+        (RFC2104) applied to SHA-256.  The returned hash values are
+        256 bits (32 bytes) long.  The <code class="code">key</code> argument is the MAC key;
+        it can have any length, but a minimal length of 32 bytes is
+        recommended.</p>
+</div>
+</div>
+
+<pre><span id="VALhmac_sha512"><span class="keyword">val</span> hmac_sha512</span> : <code class="type">string -> <a href="Cryptokit.hash-c.html">Cryptokit.hash</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">hmac_sha512 key</code> returns a MAC based on the HMAC construction
+        (RFC2104) applied to SHA-512.  The returned hash values are
+        512 bits (64 bytes) long.  The <code class="code">key</code> argument is the MAC key;
+        it can have any length, but a minimal length of 64 bytes is
+        recommended.</p>
+</div>
+</div>
+
+<pre><span id="VALhmac_ripemd160"><span class="keyword">val</span> hmac_ripemd160</span> : <code class="type">string -> <a href="Cryptokit.hash-c.html">Cryptokit.hash</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">hmac_ripemd160 key</code> returns a MAC based on the HMAC
+        construction (RFC2104) applied to RIPEMD-160.  The returned
+        hash values are 160 bits (20 bytes) long.  The <code class="code">key</code> argument
+        is the MAC key; it can have any length, but a minimal length
+        of 20 bytes is recommended.</p>
+</div>
+</div>
+
+<pre><span id="VALhmac_md5"><span class="keyword">val</span> hmac_md5</span> : <code class="type">string -> <a href="Cryptokit.hash-c.html">Cryptokit.hash</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">hmac_md5 key</code> returns a MAC based on the HMAC construction (RFC2104)
+        applied to MD5.  The returned hash values are 128 bits (16 bytes)
+        long.  The <code class="code">key</code> argument is the MAC key; it can have any length,
+        but a minimal length of 16 bytes is recommended.</p>
+</div>
+</div>
+
+<pre><span id="VALaes_cmac"><span class="keyword">val</span> aes_cmac</span> : <code class="type">?iv:string -> string -> <a href="Cryptokit.hash-c.html">Cryptokit.hash</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">aes_cmac key</code> returns a MAC based on AES encryption in CMAC mode,
+        also known as OMAC1 mode.  The input data is encrypted using
+        AES in CBC mode, with a special treatment of the final block
+        that makes this MAC suitable for input data of variable length.
+        The final value of the initialization vector is the MAC value.
+        Thus, the returned hash values are 128 bit (16 bytes) long.
+        The <code class="code">key</code> argument is the MAC key; it must have length 16, 24,
+        or 32.  The optional <code class="code">iv</code> argument is the first value of the
+        initialization vector, and defaults to 0.</p>
+</div>
+</div>
+
+<pre><span id="VALaes"><span class="keyword">val</span> aes</span> : <code class="type">?iv:string -> ?pad:<a href="Cryptokit.Padding.scheme-c.html">Cryptokit.Padding.scheme</a> -> string -> <a href="Cryptokit.hash-c.html">Cryptokit.hash</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">aes key</code> returns a MAC based on AES encryption in CBC mode.
+        Unlike <code class="code">aes_cmac</code>, there is no special treatment for the final
+        block, except padding it as per the optional <code class="code">pad</code> argument.
+        This makes this MAC weak when used with input data of variable
+        length.  (It is fine for data of fixed length, though.)
+        The returned hash values are 128 bit (16 bytes) long.  The
+        <code class="code">key</code> argument is the MAC key; it must have length 16, 24, or
+        32.  The optional <code class="code">iv</code> argument is the first value of the
+        initialization vector, and defaults to 0.  The optional <code class="code">pad</code>
+        argument specifies a padding scheme to pad input to an
+        integral number of 16-byte blocks.</p>
+</div>
+</div>
+
+<pre><span id="VALdes"><span class="keyword">val</span> des</span> : <code class="type">?iv:string -> ?pad:<a href="Cryptokit.Padding.scheme-c.html">Cryptokit.Padding.scheme</a> -> string -> <a href="Cryptokit.hash-c.html">Cryptokit.hash</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">des key</code> returns a MAC based on DES encryption in CBC mode.
+        The construction is identical to that used for the <code class="code">aes</code> MAC.
+        The key size is 64 bits (8 bytes), of which only 56 are used.
+        The returned hash value has length 8 bytes.
+        Due to the small hash size and key size, this MAC is weak.</p>
+</div>
+</div>
+
+<pre><span id="VALtriple_des"><span class="keyword">val</span> triple_des</span> : <code class="type">?iv:string -> ?pad:<a href="Cryptokit.Padding.scheme-c.html">Cryptokit.Padding.scheme</a> -> string -> <a href="Cryptokit.hash-c.html">Cryptokit.hash</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">triple_des key</code> returns a MAC based on triple DES encryption in CBC mode.
+        The construction is identical to that used for the <code class="code">aes</code> MAC.
+        The key size is 16 or 24 bytes.  The returned hash value has
+        length 8 bytes.  The key size is sufficient to protect against
+        brute-force attacks, but the small hash size means that this
+        MAC is not collision-resistant.</p>
+</div>
+</div>
+
+<pre><span id="VALdes_final_triple_des"><span class="keyword">val</span> des_final_triple_des</span> : <code class="type">?iv:string -> ?pad:<a href="Cryptokit.Padding.scheme-c.html">Cryptokit.Padding.scheme</a> -> string -> <a href="Cryptokit.hash-c.html">Cryptokit.hash</a></code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">des_final_triple_des key</code> returns a MAC that uses DES CBC
+        with the first 8 bytes of <code class="code">key</code> as key.  The final initialization
+        vector is then DES-decrypted with bytes 8 to 15 of <code class="code">key</code>,
+        and DES-encrypted again with either the last 8 bytes of <code class="code">key</code>
+        (if a triple-length key is provided) or the first 8 bytes of <code class="code">key</code>
+        (if a double-length key is provided).
+        Thus, the key is 16 or 24 bytes long, of which
+        112 or 168 bits are used.  The overall construction has the same
+        key size as a triple DES MAC, but runs faster because triple
+        encryption is not performed on all data blocks, but only on
+        the final MAC.</p>
+</div>
+</div>
+</body></html>

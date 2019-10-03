@@ -1,0 +1,297 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Cryptokit.Padding.html">
+<link rel="next" href="Cryptokit.Hash.html">
+<link rel="Up" href="Cryptokit.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><link title="Recommended ciphers" rel="Section" href="#2_Recommendedciphers">
+<link title="Weaker, older ciphers, not recommended for new applications" rel="Section" href="#2_Weakerolderciphersnotrecommendedfornewapplications">
+<title>Cryptokit.Cipher</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Cryptokit.Padding.html" title="Cryptokit.Padding">Previous</a>
+&nbsp;<a class="up" href="Cryptokit.html" title="Cryptokit">Up</a>
+&nbsp;<a class="post" href="Cryptokit.Hash.html" title="Cryptokit.Hash">Next</a>
+</div>
+<h1>Module <a href="type_Cryptokit.Cipher.html">Cryptokit.Cipher</a></h1>
+
+<pre><span id="MODULECipher"><span class="keyword">module</span> Cipher</span>: <code class="code">sig</code> <a href="Cryptokit.Cipher.html">..</a> <code class="code">end</code></pre><div class="info module top">
+<div class="info-desc">
+<p>The <code class="code">Cipher</code> module implements the AES, DES, Triple-DES, ARCfour
+    and Blowfish symmetric ciphers.  Symmetric ciphers are presented
+    as transforms parameterized by a secret key and a ``direction''
+    indicating whether encryption or decryption is to be performed.
+    The same secret key is used for encryption and for decryption.</p>
+</div>
+</div>
+<hr width="100%">
+
+<pre><code><span id="TYPEdirection"><span class="keyword">type</span> <code class="type"></code>direction</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdirection.Encrypt"><span class="constructor">Encrypt</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTdirection.Decrypt"><span class="constructor">Decrypt</span></span></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+<div class="info-desc">
+<p>Indicate whether the cipher should perform encryption
+        (transforming plaintext to ciphertext) or decryption
+        (transforming ciphertext to plaintext).</p>
+</div>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr></table>
+
+
+
+<pre><code><span id="TYPEchaining_mode"><span class="keyword">type</span> <code class="type"></code>chaining_mode</span> = </code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTchaining_mode.ECB"><span class="constructor">ECB</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTchaining_mode.CBC"><span class="constructor">CBC</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTchaining_mode.CFB"><span class="constructor">CFB</span></span> <span class="keyword">of</span> <code class="type">int</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTchaining_mode.OFB"><span class="constructor">OFB</span></span> <span class="keyword">of</span> <code class="type">int</code></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTchaining_mode.CTR"><span class="constructor">CTR</span></span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTchaining_mode.CTR_N"><span class="constructor">CTR_N</span></span> <span class="keyword">of</span> <code class="type">int</code></code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+<div class="info-desc">
+<p>Block ciphers such as AES or DES map a fixed-sized block of
+        input data to a block of output data of the same size.
+        A chaining mode indicates how to extend them to multiple blocks
+        of data.  The five chaining modes supported in this library are:</p>
+<ul>
+<li><code class="code">ECB</code>: Electronic Code Book mode.</li>
+<li><code class="code">CBC</code>: Cipher Block Chaining mode.</li>
+<li><code class="code">CFB n</code>:  Cipher Feedback Block with <code class="code">n</code> bytes.</li>
+<li><code class="code">OFB n</code>: Output Feedback Block with <code class="code">n</code> bytes</li>
+<li><code class="code">CTR</code>: Counter mode, incrementing all the bytes of the IV</li>
+<li><code class="code">CTR_N n</code>: Counter mode, incrementing only the final <code class="code">n</code>
+          bytes of the IV.  For example, <code class="code">CTR_N 4</code> increments
+          the final 32 bits of the IV, as in NIST Special Publication
+          800-38D.</li>
+</ul>
+<p>A detailed description of these modes is beyond the scope of
+        this documentation; refer to a good cryptography book.
+        <code class="code">CBC</code> is a recommended default.  For <code class="code">CFB n</code> and <code class="code">OFB n</code>,
+        note that the blocksize is reduced to <code class="code">n</code>, but encryption
+        speed drops by a factor of <code class="code">blocksize / n</code>, where <code class="code">blocksize</code>
+        is the block size of the underlying cipher; moreover, <code class="code">n</code>
+        must be between <code class="code">1</code> and <code class="code">blocksize</code> included.  For <code class="code">CTR_N n</code>,
+        <code class="code">n</code> must be between <code class="code">1</code> and <code class="code">blocksize</code> included.
+        <code class="code">CTR</code> is equivalent to <code class="code">CTR_N blocksize</code>.</p>
+</div>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr></table>
+
+
+<h3 id="2_Recommendedciphers">Recommended ciphers</h3>
+<pre><span id="VALaes"><span class="keyword">val</span> aes</span> : <code class="type">?mode:<a href="Cryptokit.Cipher.html#TYPEchaining_mode">chaining_mode</a> -><br>       ?pad:<a href="Cryptokit.Padding.scheme-c.html">Cryptokit.Padding.scheme</a> -><br>       ?iv:string -> string -> <a href="Cryptokit.Cipher.html#TYPEdirection">direction</a> -> <a href="Cryptokit.transform-c.html">Cryptokit.transform</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>AES is the Advanced Encryption Standard, also known as Rijndael.
+        This is a modern block cipher, recently standardized.
+        It processes data by blocks of 128 bits (16 bytes),
+        and supports keys of 128, 192 or 256 bits.
+        The string argument is the key; it must have length 16, 24 or 32.
+        The direction argument specifies whether encryption or decryption
+        is to be performed.</p>
+
+<p>The optional <code class="code">mode</code> argument specifies a
+        chaining mode, as described above; <code class="code">CBC</code> is used by default.</p>
+
+<p>The optional <code class="code">pad</code> argument specifies a padding scheme to
+        pad cleartext to an integral number of blocks.  If no <code class="code">pad</code>
+        argument is given, no padding is performed and the length
+        of the cleartext must be an integral number of blocks.</p>
+
+<p>The optional <code class="code">iv</code> argument is the initialization vector used
+        by the chaining mode.  It is ignored in ECB mode.  If
+        provided, it must be a string of the same size as the block
+        size (16 bytes).  If omitted, the null initialization vector
+        (16 zero bytes) is used.</p>
+
+<p>The <code class="code">aes</code> function returns a transform that performs encryption
+        or decryption, depending on the direction argument.</p>
+</div>
+</div>
+
+<pre><span id="VALchacha20"><span class="keyword">val</span> chacha20</span> : <code class="type">?iv:string -><br>       ?ctr:int64 -> string -> <a href="Cryptokit.Cipher.html#TYPEdirection">direction</a> -> <a href="Cryptokit.transform-c.html">Cryptokit.transform</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Chacha20 is a stream cipher proposed by D. J. Bernstein in 2008.</p>
+
+<p>The Chacha20 cipher is a stream cipher, not a block cipher.
+        Hence, its natural block size is 1, and no padding is
+        required.  Chaining modes do not apply.  A feature of stream
+        ciphers is that the xor of two ciphertexts obtained with the
+        same key is the xor of the corresponding plaintexts, which
+        allows various attacks.  Hence, the same key must never be
+        reused.</p>
+
+<p>The string argument is the key; its length must be either 16
+        or (better) 32.</p>
+
+<p>The optional <code class="code">iv</code> argument is the initialization vector (also
+        called nonce) that can be used to diversify the key.  If present,
+        it must be 8 characters long.  If absent, it is taken to be
+        eight zero bytes.</p>
+
+<p>The optional <code class="code">ctr</code> argument is the initial value of the internal
+        counter.  If absent, it defaults to 0.</p>
+
+<p>The direction argument is present for consistency with the
+        other ciphers only, and is actually ignored: for all stream
+        ciphers, decryption is the same function as encryption.</p>
+</div>
+</div>
+<h3 id="2_Weakerolderciphersnotrecommendedfornewapplications">Weaker, older ciphers, not recommended for new applications</h3>
+<pre><span id="VALdes"><span class="keyword">val</span> des</span> : <code class="type">?mode:<a href="Cryptokit.Cipher.html#TYPEchaining_mode">chaining_mode</a> -><br>       ?pad:<a href="Cryptokit.Padding.scheme-c.html">Cryptokit.Padding.scheme</a> -><br>       ?iv:string -> string -> <a href="Cryptokit.Cipher.html#TYPEdirection">direction</a> -> <a href="Cryptokit.transform-c.html">Cryptokit.transform</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>DES is the Data Encryption Standard.  Very popular in the past,
+        but now completely insecure owing to its small key size (56 bits)
+        which can easily be broken by brute-force enumeration.
+        It should therefore be considered as weak encryption.
+        Its block size is 64 bits (8 bytes).
+        The arguments to the <code class="code">des</code> function have the same meaning as
+        for the <a href="Cryptokit.Cipher.html#VALaes"><code class="code">Cryptokit.Cipher.aes</code></a> function.  The key argument is
+        a string of length 8 (64 bits); the least significant bit of
+        each key byte is ignored.</p>
+</div>
+</div>
+
+<pre><span id="VALtriple_des"><span class="keyword">val</span> triple_des</span> : <code class="type">?mode:<a href="Cryptokit.Cipher.html#TYPEchaining_mode">chaining_mode</a> -><br>       ?pad:<a href="Cryptokit.Padding.scheme-c.html">Cryptokit.Padding.scheme</a> -><br>       ?iv:string -> string -> <a href="Cryptokit.Cipher.html#TYPEdirection">direction</a> -> <a href="Cryptokit.transform-c.html">Cryptokit.transform</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Triple DES with two or three DES keys.
+        This is a popular variant of DES
+        where each block is encrypted with a 56-bit key <code class="code">k1</code>,
+        decrypted with another 56-bit key <code class="code">k2</code>, then re-encrypted with
+        either <code class="code">k1</code> or a third 56-bit key <code class="code">k3</code>.
+        This results in a 112-bit or 168-bit key length that resists
+        brute-force attacks.  However, the three encryptions required
+        on each block make this cipher quite slow (4 times slower than
+        AES).  Moreover, the small block size (64 bits) opens the way
+        to collision-based attacks.  Triple DES should therefore be
+        considered as relatively weak encryption.
+        The arguments to the <code class="code">triple_des</code> function have the
+        same meaning as for the <a href="Cryptokit.Cipher.html#VALaes"><code class="code">Cryptokit.Cipher.aes</code></a> function.  The
+        key argument is a string of length 16 or 24, representing the
+        concatenation of the key parts <code class="code">k1</code>, <code class="code">k2</code>, and optionally
+        <code class="code">k3</code>.  The least significant bit of each key byte is
+        ignored.</p>
+</div>
+</div>
+
+<pre><span id="VALarcfour"><span class="keyword">val</span> arcfour</span> : <code class="type">string -> <a href="Cryptokit.Cipher.html#TYPEdirection">direction</a> -> <a href="Cryptokit.transform-c.html">Cryptokit.transform</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>ARCfour (``alleged RC4'') is a fast stream cipher
+        that appears to produce equivalent results with the commercial
+        RC4 cipher from RSA Data Security Inc.  This company holds the
+        RC4 trademark, and sells the real RC4 cipher.  So, it is prudent
+        not to use ARCfour in a commercial product.</p>
+
+<p>ARCfour is popular for its speed: approximately 2 times faster
+        than AES.  It accepts any key length up to 2048 bits.  However,
+        the security of ARCfour is being questioned owing to several
+        statistical biases in its output.  It should not be used for
+        new applications.</p>
+
+<p>The ARCfour cipher is a stream cipher, not a block cipher.
+        Hence, its natural block size is 1, and no padding is
+        required.  Chaining modes do not apply.  A feature of stream
+        ciphers is that the xor of two ciphertexts obtained with the
+        same key is the xor of the corresponding plaintexts, which
+        allows various attacks.  Hence, the same key must never be
+        reused.</p>
+
+<p>The string argument is the key; its length must be between
+        1 and 256 inclusive.  The direction argument is present for
+        consistency with the other ciphers only, and is actually
+        ignored: for all stream ciphers, decryption is the same
+        function as encryption.</p>
+</div>
+</div>
+
+<pre><span id="VALblowfish"><span class="keyword">val</span> blowfish</span> : <code class="type">?mode:<a href="Cryptokit.Cipher.html#TYPEchaining_mode">chaining_mode</a> -><br>       ?pad:<a href="Cryptokit.Padding.scheme-c.html">Cryptokit.Padding.scheme</a> -><br>       ?iv:string -> string -> <a href="Cryptokit.Cipher.html#TYPEdirection">direction</a> -> <a href="Cryptokit.transform-c.html">Cryptokit.transform</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Blowfish is a fast block cipher proposed by B.Schneier in 1994.
+        It processes data by blocks of 64 bits (8 bytes),
+        and supports keys of 32 to 448 bits.</p>
+
+<p>The small block size (64 bits) of Blowfish opens the way to
+        some collision-based attacks.  Depending on the application,
+        ciphers with larger block size should be preferred.</p>
+
+<p>The string argument is the key; its length must be between
+        4 and 56.</p>
+
+<p>The direction argument specifies whether encryption or decryption
+        is to be performed.</p>
+
+<p>The optional <code class="code">mode</code> argument specifies a
+        chaining mode, as described above; <code class="code">CBC</code> is used by default.</p>
+
+<p>The optional <code class="code">pad</code> argument specifies a padding scheme to
+        pad cleartext to an integral number of blocks.  If no <code class="code">pad</code>
+        argument is given, no padding is performed and the length
+        of the cleartext must be an integral number of blocks.</p>
+
+<p>The optional <code class="code">iv</code> argument is the initialization vector used
+        by the chaining mode.  It is ignored in ECB mode.
+        If provided, it must be a string of the same size as the block size
+        (8 bytes).  If omitted, the null initialization vector
+        (8 zero bytes) is used.</p>
+
+<p>The <code class="code">blowfish</code> function returns a transform that performs encryption
+        or decryption, depending on the direction argument.</p>
+</div>
+</div>
+</body></html>

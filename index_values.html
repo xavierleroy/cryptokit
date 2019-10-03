@@ -1,0 +1,502 @@
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><title>Index of values</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="index.html" title="Index">Up</a>
+&nbsp;</div>
+<h1>Index of values</h1>
+<table>
+<tr><td align="left"><div></div></td></tr>
+<tr><td><a href="Cryptokit.Padding.html#VAL_8000">_8000</a> [<a href="Cryptokit.Padding.html">Cryptokit.Padding</a>]</td>
+<td><div class="info">
+<p>This padding scheme pads data with one <code class="code">0x80</code> byte, followed
+        by as many <code class="code">0</code> bytes as needed to fill the block.</p>
+
+</div>
+</td></tr>
+<tr><td align="left"><div>A</div></td></tr>
+<tr><td><a href="Cryptokit.MAC.html#VALaes">aes</a> [<a href="Cryptokit.MAC.html">Cryptokit.MAC</a>]</td>
+<td><div class="info">
+<p><code class="code">aes key</code> returns a MAC based on AES encryption in CBC mode.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Cipher.html#VALaes">aes</a> [<a href="Cryptokit.Cipher.html">Cryptokit.Cipher</a>]</td>
+<td><div class="info">
+<p>AES is the Advanced Encryption Standard, also known as Rijndael.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.MAC.html#VALaes_cmac">aes_cmac</a> [<a href="Cryptokit.MAC.html">Cryptokit.MAC</a>]</td>
+<td><div class="info">
+<p><code class="code">aes_cmac key</code> returns a MAC based on AES encryption in CMAC mode,
+        also known as OMAC1 mode.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Cipher.html#VALarcfour">arcfour</a> [<a href="Cryptokit.Cipher.html">Cryptokit.Cipher</a>]</td>
+<td><div class="info">
+<p>ARCfour (``alleged RC4'') is a fast stream cipher
+        that appears to produce equivalent results with the commercial
+        RC4 cipher from RSA Data Security Inc.</p>
+
+</div>
+</td></tr>
+<tr><td align="left"><div>B</div></td></tr>
+<tr><td><a href="Cryptokit.Cipher.html#VALblowfish">blowfish</a> [<a href="Cryptokit.Cipher.html">Cryptokit.Cipher</a>]</td>
+<td><div class="info">
+<p>Blowfish is a fast block cipher proposed by B.Schneier in 1994.</p>
+
+</div>
+</td></tr>
+<tr><td align="left"><div>C</div></td></tr>
+<tr><td><a href="Cryptokit.Cipher.html#VALchacha20">chacha20</a> [<a href="Cryptokit.Cipher.html">Cryptokit.Cipher</a>]</td>
+<td><div class="info">
+<p>Chacha20 is a stream cipher proposed by D.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.html#VALcompose">compose</a> [<a href="Cryptokit.html">Cryptokit</a>]</td>
+<td><div class="info">
+<p>Compose two transforms, feeding the output of the first transform
+      to the input of the second transform.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Zlib.html#VALcompress">compress</a> [<a href="Cryptokit.Zlib.html">Cryptokit.Zlib</a>]</td>
+<td><div class="info">
+<p>Return a transform that compresses its input.</p>
+
+</div>
+</td></tr>
+<tr><td align="left"><div>D</div></td></tr>
+<tr><td><a href="Cryptokit.Hexa.html#VALdecode">decode</a> [<a href="Cryptokit.Hexa.html">Cryptokit.Hexa</a>]</td>
+<td><div class="info">
+<p>Return a transform that decodes its input from hexadecimal.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Base64.html#VALdecode">decode</a> [<a href="Cryptokit.Base64.html">Cryptokit.Base64</a>]</td>
+<td><div class="info">
+<p>Return a transform that performs base 64 decoding.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.RSA.html#VALdecrypt">decrypt</a> [<a href="Cryptokit.RSA.html">Cryptokit.RSA</a>]</td>
+<td><div class="info">
+<p><code class="code">decrypt k msg</code> decrypts the ciphertext string <code class="code">msg</code> with the
+        private part of key <code class="code">k</code> (components <code class="code">n</code> and <code class="code">d</code>).</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.RSA.html#VALdecrypt_CRT">decrypt_CRT</a> [<a href="Cryptokit.RSA.html">Cryptokit.RSA</a>]</td>
+<td><div class="info">
+<p><code class="code">decrypt_CRT k msg</code> decrypts the ciphertext string <code class="code">msg</code> with
+        the CRT private part of key <code class="code">k</code> (components <code class="code">n</code>, <code class="code">p</code>, <code class="code">q</code>,
+        <code class="code">dp</code>, <code class="code">dq</code> and <code class="code">qinv</code>).</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.DH.html#VALderive_key">derive_key</a> [<a href="Cryptokit.DH.html">Cryptokit.DH</a>]</td>
+<td><div class="info">
+<p><code class="code">derive_key shared_secret numbytes</code> derives a secret string
+      (typically, a key for symmetric encryption) from the given shared
+      secret.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.MAC.html#VALdes">des</a> [<a href="Cryptokit.MAC.html">Cryptokit.MAC</a>]</td>
+<td><div class="info">
+<p><code class="code">des key</code> returns a MAC based on DES encryption in CBC mode.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Cipher.html#VALdes">des</a> [<a href="Cryptokit.Cipher.html">Cryptokit.Cipher</a>]</td>
+<td><div class="info">
+<p>DES is the Data Encryption Standard.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.MAC.html#VALdes_final_triple_des">des_final_triple_des</a> [<a href="Cryptokit.MAC.html">Cryptokit.MAC</a>]</td>
+<td><div class="info">
+<p><code class="code">des_final_triple_des key</code> returns a MAC that uses DES CBC
+        with the first 8 bytes of <code class="code">key</code> as key.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Random.html#VALdevice_rng">device_rng</a> [<a href="Cryptokit.Random.html">Cryptokit.Random</a>]</td>
+<td><div class="info">
+<p><code class="code">device_rng devicename</code> returns a random number generator
+        that reads from the special file <code class="code">devicename</code>, e.g.</p>
+
+</div>
+</td></tr>
+<tr><td align="left"><div>E</div></td></tr>
+<tr><td><a href="Cryptokit.Random.html#VALegd_rng">egd_rng</a> [<a href="Cryptokit.Random.html">Cryptokit.Random</a>]</td>
+<td><div class="info">
+<p><code class="code">egd_rng egd_socket</code> returns a random number generator
+        that uses the Entropy Gathering Daemon (<code class="code">http://egd.sourceforge.net/</code>).</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Hexa.html#VALencode">encode</a> [<a href="Cryptokit.Hexa.html">Cryptokit.Hexa</a>]</td>
+<td><div class="info">
+<p>Return a transform that encodes its input in hexadecimal.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Base64.html#VALencode_compact">encode_compact</a> [<a href="Cryptokit.Base64.html">Cryptokit.Base64</a>]</td>
+<td><div class="info">
+<p>Same as <a href="Cryptokit.Base64.html#VALencode_multiline"><code class="code">Cryptokit.Base64.encode_multiline</code></a>, but the output is not
+        split into lines, and no final padding is added.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Base64.html#VALencode_compact_pad">encode_compact_pad</a> [<a href="Cryptokit.Base64.html">Cryptokit.Base64</a>]</td>
+<td><div class="info">
+<p>Same as <a href="Cryptokit.Base64.html#VALencode_compact"><code class="code">Cryptokit.Base64.encode_compact</code></a>, but the output is
+        padded with <code class="code">=</code> characters at the end (if necessary).</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Base64.html#VALencode_multiline">encode_multiline</a> [<a href="Cryptokit.Base64.html">Cryptokit.Base64</a>]</td>
+<td><div class="info">
+<p>Return a transform that performs base 64 encoding.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.RSA.html#VALencrypt">encrypt</a> [<a href="Cryptokit.RSA.html">Cryptokit.RSA</a>]</td>
+<td><div class="info">
+<p><code class="code">encrypt k msg</code> encrypts the string <code class="code">msg</code> with the public part
+        of key <code class="code">k</code> (components <code class="code">n</code> and <code class="code">e</code>).</p>
+
+</div>
+</td></tr>
+<tr><td align="left"><div>H</div></td></tr>
+<tr><td><a href="Cryptokit.Random.html#VALhardware_rng">hardware_rng</a> [<a href="Cryptokit.Random.html">Cryptokit.Random</a>]</td>
+<td><div class="info">
+<p>A hardware random number generator based on the <code class="code">RDRAND</code> instruction
+        of the x86 architecture.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.html#VALhash_channel">hash_channel</a> [<a href="Cryptokit.html">Cryptokit</a>]</td>
+<td><div class="info">
+<p><code class="code">hash_channel h ic</code> reads characters from the input channel <code class="code">ic</code>,
+      computes their hash value and returns it.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.html#VALhash_string">hash_string</a> [<a href="Cryptokit.html">Cryptokit</a>]</td>
+<td><div class="info">
+<p><code class="code">hash_string h s</code> runs the string <code class="code">s</code> through the hash function <code class="code">h</code>
+      and returns the hash value of <code class="code">s</code>.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.MAC.html#VALhmac_md5">hmac_md5</a> [<a href="Cryptokit.MAC.html">Cryptokit.MAC</a>]</td>
+<td><div class="info">
+<p><code class="code">hmac_md5 key</code> returns a MAC based on the HMAC construction (RFC2104)
+        applied to MD5.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.MAC.html#VALhmac_ripemd160">hmac_ripemd160</a> [<a href="Cryptokit.MAC.html">Cryptokit.MAC</a>]</td>
+<td><div class="info">
+<p><code class="code">hmac_ripemd160 key</code> returns a MAC based on the HMAC
+        construction (RFC2104) applied to RIPEMD-160.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.MAC.html#VALhmac_sha1">hmac_sha1</a> [<a href="Cryptokit.MAC.html">Cryptokit.MAC</a>]</td>
+<td><div class="info">
+<p><code class="code">hmac_sha1 key</code> returns a MAC based on the HMAC construction (RFC2104)
+        applied to SHA-1.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.MAC.html#VALhmac_sha256">hmac_sha256</a> [<a href="Cryptokit.MAC.html">Cryptokit.MAC</a>]</td>
+<td><div class="info">
+<p><code class="code">hmac_sha256 key</code> returns a MAC based on the HMAC construction
+        (RFC2104) applied to SHA-256.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.MAC.html#VALhmac_sha512">hmac_sha512</a> [<a href="Cryptokit.MAC.html">Cryptokit.MAC</a>]</td>
+<td><div class="info">
+<p><code class="code">hmac_sha512 key</code> returns a MAC based on the HMAC construction
+        (RFC2104) applied to SHA-512.</p>
+
+</div>
+</td></tr>
+<tr><td align="left"><div>K</div></td></tr>
+<tr><td><a href="Cryptokit.Hash.html#VALkeccak">keccak</a> [<a href="Cryptokit.Hash.html">Cryptokit.Hash</a>]</td>
+<td><div class="info">
+<p>The Keccak submission for the SHA-3 is very similar to <code class="code">sha3</code> but
+        uses a slightly different padding.</p>
+
+</div>
+</td></tr>
+<tr><td align="left"><div>L</div></td></tr>
+<tr><td><a href="Cryptokit.Padding.html#VALlength">length</a> [<a href="Cryptokit.Padding.html">Cryptokit.Padding</a>]</td>
+<td><div class="info">
+<p>This padding scheme pads data with <code class="code">n</code> copies of the character
+        having code <code class="code">n</code>.</p>
+
+</div>
+</td></tr>
+<tr><td align="left"><div>M</div></td></tr>
+<tr><td><a href="Cryptokit.Hash.html#VALmd5">md5</a> [<a href="Cryptokit.Hash.html">Cryptokit.Hash</a>]</td>
+<td><div class="info">
+<p>MD5 is an older hash function, producing 128-bit hashes (16 bytes).</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.DH.html#VALmessage">message</a> [<a href="Cryptokit.DH.html">Cryptokit.DH</a>]</td>
+<td><div class="info">
+<p>Compute the message to be sent to the other party.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.html#VALmod_mult">mod_mult</a> [<a href="Cryptokit.html">Cryptokit</a>]</td>
+<td><div class="info">
+<p><code class="code">mod_mult a b c</code> computes <code class="code">a*b mod c</code>, where the
+        strings <code class="code">a</code>, <code class="code">b</code>, <code class="code">c</code> and the result are viewed as
+        arbitrary-precision integers in big-endian format.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.html#VALmod_power">mod_power</a> [<a href="Cryptokit.html">Cryptokit</a>]</td>
+<td><div class="info">
+<p><code class="code">mod_power a b c</code> computes <code class="code">a^b mod c</code>, where the
+        strings <code class="code">a</code>, <code class="code">b</code>, <code class="code">c</code> and the result are viewed as
+        arbitrary-precision integers in big-endian format.</p>
+
+</div>
+</td></tr>
+<tr><td align="left"><div>N</div></td></tr>
+<tr><td><a href="Cryptokit.RSA.html#VALnew_key">new_key</a> [<a href="Cryptokit.RSA.html">Cryptokit.RSA</a>]</td>
+<td><div class="info">
+<p>Generate a new, random RSA key.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.DH.html#VALnew_parameters">new_parameters</a> [<a href="Cryptokit.DH.html">Cryptokit.DH</a>]</td>
+<td><div class="info">
+<p>Generate a new set of Diffie-Hellman parameters.</p>
+
+</div>
+</td></tr>
+<tr><td align="left"><div>P</div></td></tr>
+<tr><td><a href="Cryptokit.DH.html#VALprivate_secret">private_secret</a> [<a href="Cryptokit.DH.html">Cryptokit.DH</a>]</td>
+<td><div class="info">
+<p>Generate a random private secret.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Random.html#VALpseudo_rng">pseudo_rng</a> [<a href="Cryptokit.Random.html">Cryptokit.Random</a>]</td>
+<td><div class="info">
+<p><code class="code">pseudo_rng seed</code> returns a pseudo-random number generator
+        seeded by the string <code class="code">seed</code>.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Random.html#VALpseudo_rng_aes_ctr">pseudo_rng_aes_ctr</a> [<a href="Cryptokit.Random.html">Cryptokit.Random</a>]</td>
+<td><div class="info">
+<p>This is another pseudo-random number generator, based on the AES
+        block cipher in counter mode.</p>
+
+</div>
+</td></tr>
+<tr><td align="left"><div>R</div></td></tr>
+<tr><td><a href="Cryptokit.Hash.html#VALripemd160">ripemd160</a> [<a href="Cryptokit.Hash.html">Cryptokit.Hash</a>]</td>
+<td><div class="info">
+<p>RIPEMD-160 produces 160-bit hashes (20 bytes).</p>
+
+</div>
+</td></tr>
+<tr><td align="left"><div>S</div></td></tr>
+<tr><td><a href="Cryptokit.Random.html#VALsecure_rng">secure_rng</a> [<a href="Cryptokit.Random.html">Cryptokit.Random</a>]</td>
+<td><div class="info">
+<p>A high-quality random number generator, using hard-to-predict
+        system data to generate entropy.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Hash.html#VALsha1">sha1</a> [<a href="Cryptokit.Hash.html">Cryptokit.Hash</a>]</td>
+<td><div class="info">
+<p>SHA-1 is the Secure Hash Algorithm revision 1.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Hash.html#VALsha2">sha2</a> [<a href="Cryptokit.Hash.html">Cryptokit.Hash</a>]</td>
+<td><div class="info">
+<p>SHA-2, another NIST standard for cryptographic hashing, produces
+        hashes of 224, 256, 384, or 512 bits (24, 32, 48 or 64 bytes).</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Hash.html#VALsha224">sha224</a> [<a href="Cryptokit.Hash.html">Cryptokit.Hash</a>]</td>
+<td><div class="info">
+<p>SHA-224 is SHA-2 specialized to 224 bit hashes (24 bytes).</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Hash.html#VALsha256">sha256</a> [<a href="Cryptokit.Hash.html">Cryptokit.Hash</a>]</td>
+<td><div class="info">
+<p>SHA-256 is SHA-2 specialized to 256 bit hashes (32 bytes).</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Hash.html#VALsha3">sha3</a> [<a href="Cryptokit.Hash.html">Cryptokit.Hash</a>]</td>
+<td><div class="info">
+<p>SHA-3, the latest NIST standard for cryptographic hashing,
+        produces hashes of 224, 256, 384 or 512 bits (24, 32, 48 or 64
+        bytes).</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Hash.html#VALsha384">sha384</a> [<a href="Cryptokit.Hash.html">Cryptokit.Hash</a>]</td>
+<td><div class="info">
+<p>SHA-384 is SHA-2 specialized to 384 bit hashes (48 bytes).</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Hash.html#VALsha512">sha512</a> [<a href="Cryptokit.Hash.html">Cryptokit.Hash</a>]</td>
+<td><div class="info">
+<p>SHA-512 is SHA-2 specialized to 512 bit hashes (64 bytes).</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.DH.html#VALshared_secret">shared_secret</a> [<a href="Cryptokit.DH.html">Cryptokit.DH</a>]</td>
+<td><div class="info">
+<p>Recover the shared secret from the private secret of the
+      present party and the message received from the other party.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.RSA.html#VALsign">sign</a> [<a href="Cryptokit.RSA.html">Cryptokit.RSA</a>]</td>
+<td><div class="info">
+<p><code class="code">sign k msg</code> encrypts the plaintext string <code class="code">msg</code> with the
+        private part of key <code class="code">k</code> (components <code class="code">n</code> and <code class="code">d</code>), thus
+        performing a digital signature on <code class="code">msg</code>.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.RSA.html#VALsign_CRT">sign_CRT</a> [<a href="Cryptokit.RSA.html">Cryptokit.RSA</a>]</td>
+<td><div class="info">
+<p><code class="code">sign_CRT k msg</code> encrypts the plaintext string <code class="code">msg</code> with the
+        CRT private part of key <code class="code">k</code> (components <code class="code">n</code>, <code class="code">p</code>, <code class="code">q</code>, <code class="code">dp</code>,
+        <code class="code">dq</code> and <code class="code">qinv</code>), thus performing a digital signature on
+        <code class="code">msg</code>.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Random.html#VALstring">string</a> [<a href="Cryptokit.Random.html">Cryptokit.Random</a>]</td>
+<td><div class="info">
+<p><code class="code">string rng len</code> returns a string of <code class="code">len</code> random bytes
+        read from the generator <code class="code">rng</code>.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Random.html#VALsystem_rng">system_rng</a> [<a href="Cryptokit.Random.html">Cryptokit.Random</a>]</td>
+<td><div class="info">
+<p><code class="code">system_rng ()</code> returns a random number generator derived
+        from the OS-provided RNG.</p>
+
+</div>
+</td></tr>
+<tr><td align="left"><div>T</div></td></tr>
+<tr><td><a href="Cryptokit.html#VALtransform_channel">transform_channel</a> [<a href="Cryptokit.html">Cryptokit</a>]</td>
+<td><div class="info">
+<p><code class="code">transform_channel t ic oc</code> reads characters from input channel <code class="code">ic</code>,
+      runs them through the transform <code class="code">t</code>, and writes the transformed
+      data to the output channel <code class="code">oc</code>.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.html#VALtransform_string">transform_string</a> [<a href="Cryptokit.html">Cryptokit</a>]</td>
+<td><div class="info">
+<p><code class="code">transform_string t s</code> runs the string <code class="code">s</code> through the
+      transform <code class="code">t</code> and returns the transformed string.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.MAC.html#VALtriple_des">triple_des</a> [<a href="Cryptokit.MAC.html">Cryptokit.MAC</a>]</td>
+<td><div class="info">
+<p><code class="code">triple_des key</code> returns a MAC based on triple DES encryption in CBC mode.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.Cipher.html#VALtriple_des">triple_des</a> [<a href="Cryptokit.Cipher.html">Cryptokit.Cipher</a>]</td>
+<td><div class="info">
+<p>Triple DES with two or three DES keys.</p>
+
+</div>
+</td></tr>
+<tr><td align="left"><div>U</div></td></tr>
+<tr><td><a href="Cryptokit.Zlib.html#VALuncompress">uncompress</a> [<a href="Cryptokit.Zlib.html">Cryptokit.Zlib</a>]</td>
+<td><div class="info">
+<p>Return a transform that decompresses its input.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.RSA.html#VALunwrap_signature">unwrap_signature</a> [<a href="Cryptokit.RSA.html">Cryptokit.RSA</a>]</td>
+<td><div class="info">
+<p><code class="code">unwrap_signature k msg</code> decrypts the ciphertext string <code class="code">msg</code>
+        with the public part of key <code class="code">k</code> (components <code class="code">n</code> and <code class="code">d</code>),
+        thus extracting the plaintext that was signed by the sender.</p>
+
+</div>
+</td></tr>
+<tr><td align="left"><div>W</div></td></tr>
+<tr><td><a href="Cryptokit.html#VALwipe_bytes">wipe_bytes</a> [<a href="Cryptokit.html">Cryptokit</a>]</td>
+<td><div class="info">
+<p><code class="code">wipe_bytes s</code> overwrites <code class="code">s</code> with zeroes.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.RSA.html#VALwipe_key">wipe_key</a> [<a href="Cryptokit.RSA.html">Cryptokit.RSA</a>]</td>
+<td><div class="info">
+<p>Erase all components of a RSA key.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.html#VALwipe_string">wipe_string</a> [<a href="Cryptokit.html">Cryptokit</a>]</td>
+<td><div class="info">
+<p><code class="code">wipe_string s</code> overwrites <code class="code">s</code> with zeroes.</p>
+
+</div>
+</td></tr>
+<tr><td align="left"><div>X</div></td></tr>
+<tr><td><a href="Cryptokit.html#VALxor_bytes">xor_bytes</a> [<a href="Cryptokit.html">Cryptokit</a>]</td>
+<td><div class="info">
+<p><code class="code">xor_bytes src spos dst dpos len</code> performs the xor (exclusive or)
+        of characters <code class="code">spos, ..., spos + len - 1</code> of <code class="code">src</code>
+        with characters <code class="code">dpos, ..., dpos + len - 1</code> of <code class="code">dst</code>,
+        storing the result in <code class="code">dst</code> starting at position <code class="code">dpos</code>.</p>
+
+</div>
+</td></tr>
+<tr><td><a href="Cryptokit.html#VALxor_string">xor_string</a> [<a href="Cryptokit.html">Cryptokit</a>]</td>
+<td><div class="info">
+<p>Same as <code class="code">xor_bytes</code>, but the source is a string instead of a 
+        byte array.</p>
+
+</div>
+</td></tr>
+</table>
+</body>
+</html>

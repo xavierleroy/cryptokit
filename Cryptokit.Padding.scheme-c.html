@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="Up" href="Cryptokit.Padding.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><title>Cryptokit.Padding.scheme</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="Cryptokit.Padding.html" title="Cryptokit.Padding">Up</a>
+&nbsp;</div>
+<h1>Class type <a href="type_Cryptokit.Padding.scheme.html">Cryptokit.Padding.scheme</a></h1>
+
+<pre><span id="TYPEscheme"><span class="keyword">class type</span> scheme</span> = <code class="code">object</code> <a href="Cryptokit.Padding.scheme-c.html">..</a> <code class="code">end</code></pre><div class="info classtype top">
+<div class="info-desc">
+<p>Generic interface of a padding scheme.</p>
+</div>
+</div>
+<hr width="100%">
+
+<pre><span id="METHODpad"><span class="keyword">method</span> pad</span> : <code class="type">bytes -> int -> unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">pad buf used</code> is called with a byte array <code class="code">buf</code>
+            containing valid input data at positions <code class="code">0, ..., used-1</code>.
+            The <code class="code">pad</code> method must write padding characters in positions
+            <code class="code">used</code> to <code class="code">Bytes.length str - 1</code>.  It is guaranteed that
+            <code class="code">used &lt; Bytes.length str</code>, so that at least one character of
+            padding must be added.  The padding scheme must be unambiguous
+            in the following sense: from <code class="code">buf</code> after padding, it must be
+            possible to determine <code class="code">used</code> unambiguously.  (This is what
+            method <a href="Cryptokit.Padding.scheme-c.html#METHODstrip"><code class="code">Cryptokit.Padding.scheme.strip</code></a> does.)</p>
+</div>
+</div>
+
+<pre><span id="METHODstrip"><span class="keyword">method</span> strip</span> : <code class="type">bytes -> int</code></pre><div class="info ">
+<div class="info-desc">
+<p>This is the converse of the <code class="code">pad</code> operation: from a padded
+            byte array <code class="code">buf</code> as built by method <code class="code">pad</code>, <code class="code">strip buf</code> determines
+            and returns the starting position of the padding data,
+            or equivalently the length of valid, non-padded input data
+            in <code class="code">buf</code>.  This method must raise <code class="code">Error Bad_padding</code> if
+            <code class="code">buf</code> does not have the format of a padded block as produced
+            by <code class="code">pad</code>.</p>
+</div>
+</div>
+</body></html>

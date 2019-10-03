@@ -1,0 +1,31 @@
+<html><head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><title>Cryptokit.DH</title>
+</head>
+<body>
+<code class="code"><span class="keyword">sig</span><br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;parameters&nbsp;=&nbsp;{&nbsp;p&nbsp;:&nbsp;string;&nbsp;g&nbsp;:&nbsp;string;&nbsp;privlen&nbsp;:&nbsp;int;&nbsp;}<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;new_parameters&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?rng:<span class="constructor">Cryptokit</span>.<span class="constructor">Random</span>.rng&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;?privlen:int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">DH</span>.parameters<br>
+&nbsp;&nbsp;<span class="keyword">type</span>&nbsp;private_secret<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;private_secret&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;?rng:<span class="constructor">Cryptokit</span>.<span class="constructor">Random</span>.rng&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">DH</span>.parameters&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">DH</span>.private_secret<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;message&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">DH</span>.parameters&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">DH</span>.private_secret&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;shared_secret&nbsp;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">DH</span>.parameters&nbsp;<span class="keywordsign">-&gt;</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="constructor">Cryptokit</span>.<span class="constructor">DH</span>.private_secret&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string<br>
+&nbsp;&nbsp;<span class="keyword">val</span>&nbsp;derive_key&nbsp;:&nbsp;?diversification:string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;int&nbsp;<span class="keywordsign">-&gt;</span>&nbsp;string<br>
+<span class="keyword">end</span></code></body></html>

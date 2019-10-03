@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Cryptokit.transform-c.html">
+<link rel="Up" href="Cryptokit.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><title>Cryptokit.hash</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Cryptokit.transform-c.html" title="Cryptokit.transform">Previous</a>
+&nbsp;<a class="up" href="Cryptokit.html" title="Cryptokit">Up</a>
+&nbsp;</div>
+<h1>Class type <a href="type_Cryptokit.hash.html">Cryptokit.hash</a></h1>
+
+<pre><span id="TYPEhash"><span class="keyword">class type</span> hash</span> = <code class="code">object</code> <a href="Cryptokit.hash-c.html">..</a> <code class="code">end</code></pre><div class="info classtype top">
+<div class="info-desc">
+<p>A <i>hash</i> is a function that maps arbitrarily-long character
+    sequences to small, fixed-size strings.</p>
+</div>
+</div>
+<hr width="100%">
+
+<pre><span id="METHODadd_substring"><span class="keyword">method</span> add_substring</span> : <code class="type">bytes -> int -> int -> unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">add_substring b pos len</code> adds <code class="code">len</code> characters from byte array
+          <code class="code">b</code>, starting at character number <code class="code">pos</code>, to the running
+          hash computation.</p>
+</div>
+</div>
+
+<pre><span id="METHODadd_string"><span class="keyword">method</span> add_string</span> : <code class="type">string -> unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">add_string str</code> adds all characters of string <code class="code">str</code>
+          to the running hash computation.</p>
+</div>
+</div>
+
+<pre><span id="METHODadd_char"><span class="keyword">method</span> add_char</span> : <code class="type">char -> unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">add_char c</code> adds character <code class="code">c</code> to the running hash computation.</p>
+</div>
+</div>
+
+<pre><span id="METHODadd_byte"><span class="keyword">method</span> add_byte</span> : <code class="type">int -> unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">add_byte b</code> adds the character having code <code class="code">b</code>
+          to the running hash computation.  <code class="code">b</code> must be between <code class="code">0</code> and <code class="code">255</code>
+          inclusive.</p>
+</div>
+</div>
+
+<pre><span id="METHODresult"><span class="keyword">method</span> result</span> : <code class="type">string</code></pre><div class="info ">
+<div class="info-desc">
+<p>Terminate the hash computation and return the hash value for
+          the input data provided via the <code class="code">add_*</code> methods.  The hash
+          value is a string of length <code class="code">hash_size</code> characters.
+          After calling <code class="code">result</code>, the hash can no longer accept
+          additional data.  Hence, do not call any of the <code class="code">add_*</code> methods
+          after <code class="code">result</code>.</p>
+</div>
+</div>
+
+<pre><span id="METHODhash_size"><span class="keyword">method</span> hash_size</span> : <code class="type">int</code></pre><div class="info ">
+<div class="info-desc">
+<p>Return the size of hash values produced by this hash function,
+          in bytes.</p>
+</div>
+</div>
+
+<pre><span id="METHODwipe"><span class="keyword">method</span> wipe</span> : <code class="type">unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Erase all internal buffers and data structures of this hash,
+          overwriting them with zeroes.  See <a href="Cryptokit.transform-c.html#METHODwipe"><code class="code">Cryptokit.transform.wipe</code></a>.</p>
+</div>
+</div>
+</body></html>

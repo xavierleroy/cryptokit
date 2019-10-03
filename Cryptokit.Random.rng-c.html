@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="Up" href="Cryptokit.Random.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><title>Cryptokit.Random.rng</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a class="up" href="Cryptokit.Random.html" title="Cryptokit.Random">Up</a>
+&nbsp;</div>
+<h1>Class type <a href="type_Cryptokit.Random.rng.html">Cryptokit.Random.rng</a></h1>
+
+<pre><span id="TYPErng"><span class="keyword">class type</span> rng</span> = <code class="code">object</code> <a href="Cryptokit.Random.rng-c.html">..</a> <code class="code">end</code></pre><div class="info classtype top">
+<div class="info-desc">
+<p>Generic interface for a random number generator.</p>
+</div>
+</div>
+<hr width="100%">
+
+<pre><span id="METHODrandom_bytes"><span class="keyword">method</span> random_bytes</span> : <code class="type">bytes -> int -> int -> unit</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">random_bytes buf pos len</code> stores <code class="code">len</code> random bytes
+            in byte array <code class="code">buf</code>, starting at position <code class="code">pos</code>.</p>
+</div>
+</div>
+
+<pre><span id="METHODwipe"><span class="keyword">method</span> wipe</span> : <code class="type">unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Erases the internal state of the generator.
+            Do not call <code class="code">random_bytes</code> after calling <code class="code">wipe</code>.</p>
+</div>
+</div>
+</body></html>

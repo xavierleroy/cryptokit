@@ -1,0 +1,42 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Cryptokit.Block.ofb-c.html">
+<link rel="Up" href="Cryptokit.Block.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><title>Cryptokit.Block.ctr</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Cryptokit.Block.ofb-c.html" title="Cryptokit.Block.ofb">Previous</a>
+&nbsp;<a class="up" href="Cryptokit.Block.html" title="Cryptokit.Block">Up</a>
+&nbsp;</div>
+<h1>Class <a href="type_Cryptokit.Block.ctr.html">Cryptokit.Block.ctr</a></h1>
+
+<pre><span id="TYPEctr"><span class="keyword">class</span> ctr</span> : <code class="type">?iv:string -> ?inc:int -> <a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a> -> </code><code class="type"><a href="Cryptokit.Block.block_cipher-c.html">block_cipher</a></code></pre><div class="info class top">
+<div class="info-desc">
+<p>Add Counter mode to the given block cipher.  Viewing the IV
+        as a <code class="code">blocksize</code>-byte integer in big-endian representation,
+        the blocks <code class="code">IV</code>, <code class="code">IV+1</code>, <code class="code">IV+2</code>, ... are encrypted using
+        the given block cipher, and the result is xor-ed with the
+        input blocks to produce the output blocks.  The additions
+        <code class="code">IV+n</code> are performed modulo 2 to the <code class="code">8 * inc</code> power.
+        In other words, only the low <code class="code">inc</code> bytes of the <code class="code">IV</code> are
+        subject to incrementation; the high <code class="code">blocksize - inc</code> bytes
+        are unaffected.  <code class="code">inc</code> defaults to <code class="code">blocksize</code>.
+        The returned block cipher has the same block size as
+        the underlying block cipher, and is usable both for
+        encryption and decryption.</p>
+</div>
+</div>
+<hr width="100%">
+</body></html>

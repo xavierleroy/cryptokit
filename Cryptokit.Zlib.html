@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Cryptokit.Hexa.html">
+<link rel="Up" href="Cryptokit.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><title>Cryptokit.Zlib</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Cryptokit.Hexa.html" title="Cryptokit.Hexa">Previous</a>
+&nbsp;<a class="up" href="Cryptokit.html" title="Cryptokit">Up</a>
+&nbsp;</div>
+<h1>Module <a href="type_Cryptokit.Zlib.html">Cryptokit.Zlib</a></h1>
+
+<pre><span id="MODULEZlib"><span class="keyword">module</span> Zlib</span>: <code class="code">sig</code> <a href="Cryptokit.Zlib.html">..</a> <code class="code">end</code></pre><div class="info module top">
+<div class="info-desc">
+<p>The <code class="code">Zlib</code> module supports the compression and decompression
+    of data, using the <code class="code">zlib</code> library.  The algorithm used is
+    Lempel-Ziv compression as in the <code class="code">gzip</code> and <code class="code">zip</code> compressors.
+    While compression itself is not encryption, it is often used prior
+    to encryption to hide regularities in the plaintext, and reduce
+    the size of the ciphertext.</p>
+</div>
+</div>
+<hr width="100%">
+
+<pre><span id="VALcompress"><span class="keyword">val</span> compress</span> : <code class="type">?level:int -> ?write_zlib_header:bool -> unit -> <a href="Cryptokit.transform-c.html">Cryptokit.transform</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Return a transform that compresses its input.
+        The optional <code class="code">level</code> argument is an integer between 1 and 9
+        specifying how hard the transform should try to compress data:
+        1 is lowest but fastest compression, while 9 is highest but
+        slowest compression. The default level is 6.
+        The optional <code class="code">write_zlib_header</code> argument dictates whether the 
+        output should be wrapped within a zlib header and checksum.
+        The default is false.</p>
+</div>
+</div>
+
+<pre><span id="VALuncompress"><span class="keyword">val</span> uncompress</span> : <code class="type">?expect_zlib_header:bool -> unit -> <a href="Cryptokit.transform-c.html">Cryptokit.transform</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Return a transform that decompresses its input.
+        The optional <code class="code">expect_zlib_header</code> argument dictates whether the
+        input is wrapped within a zlib header and checksum. The default
+        is false.</p>
+</div>
+</div>
+</body></html>

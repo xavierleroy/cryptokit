@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Cryptokit.Stream.html">
+<link rel="next" href="Cryptokit.Hexa.html">
+<link rel="Up" href="Cryptokit.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><title>Cryptokit.Base64</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Cryptokit.Stream.html" title="Cryptokit.Stream">Previous</a>
+&nbsp;<a class="up" href="Cryptokit.html" title="Cryptokit">Up</a>
+&nbsp;<a class="post" href="Cryptokit.Hexa.html" title="Cryptokit.Hexa">Next</a>
+</div>
+<h1>Module <a href="type_Cryptokit.Base64.html">Cryptokit.Base64</a></h1>
+
+<pre><span id="MODULEBase64"><span class="keyword">module</span> Base64</span>: <code class="code">sig</code> <a href="Cryptokit.Base64.html">..</a> <code class="code">end</code></pre><div class="info module top">
+<div class="info-desc">
+<p>The <code class="code">Base64</code> module supports the encoding and decoding of
+    binary data in base 64 format, using only alphanumeric
+    characters that can safely be transmitted over e-mail or
+    in URLs.</p>
+</div>
+</div>
+<hr width="100%">
+
+<pre><span id="VALencode_multiline"><span class="keyword">val</span> encode_multiline</span> : <code class="type">unit -> <a href="Cryptokit.transform-c.html">Cryptokit.transform</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Return a transform that performs base 64 encoding.
+        The output is divided in lines of length 76 characters,
+        and final <code class="code">=</code> characters are used to pad the output,
+        as specified in the MIME standard. 
+        The output is approximately <code class="code">4/3</code> longer than the input.</p>
+</div>
+</div>
+
+<pre><span id="VALencode_compact"><span class="keyword">val</span> encode_compact</span> : <code class="type">unit -> <a href="Cryptokit.transform-c.html">Cryptokit.transform</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Same as <a href="Cryptokit.Base64.html#VALencode_multiline"><code class="code">Cryptokit.Base64.encode_multiline</code></a>, but the output is not
+        split into lines, and no final padding is added.
+        This is adequate for encoding short strings for
+        transmission as part of URLs, for instance.</p>
+</div>
+</div>
+
+<pre><span id="VALencode_compact_pad"><span class="keyword">val</span> encode_compact_pad</span> : <code class="type">unit -> <a href="Cryptokit.transform-c.html">Cryptokit.transform</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Same as <a href="Cryptokit.Base64.html#VALencode_compact"><code class="code">Cryptokit.Base64.encode_compact</code></a>, but the output is
+        padded with <code class="code">=</code> characters at the end (if necessary).</p>
+</div>
+</div>
+
+<pre><span id="VALdecode"><span class="keyword">val</span> decode</span> : <code class="type">unit -> <a href="Cryptokit.transform-c.html">Cryptokit.transform</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Return a transform that performs base 64 decoding.
+        The input must consist of valid base 64 characters;
+        blanks are ignored.  Raise <code class="code">Error Bad_encoding</code>
+        if invalid base 64 characters are encountered in the input.</p>
+</div>
+</div>
+</body></html>

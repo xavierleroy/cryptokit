@@ -1,0 +1,255 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="Start" href="index.html">
+<link rel="previous" href="Cryptokit.MAC.html">
+<link rel="next" href="Cryptokit.DH.html">
+<link rel="Up" href="Cryptokit.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of class types" rel=Appendix href="index_class_types.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Cryptokit" rel="Chapter" href="Cryptokit.html"><title>Cryptokit.RSA</title>
+</head>
+<body>
+<div class="navbar"><a class="pre" href="Cryptokit.MAC.html" title="Cryptokit.MAC">Previous</a>
+&nbsp;<a class="up" href="Cryptokit.html" title="Cryptokit">Up</a>
+&nbsp;<a class="post" href="Cryptokit.DH.html" title="Cryptokit.DH">Next</a>
+</div>
+<h1>Module <a href="type_Cryptokit.RSA.html">Cryptokit.RSA</a></h1>
+
+<pre><span id="MODULERSA"><span class="keyword">module</span> RSA</span>: <code class="code">sig</code> <a href="Cryptokit.RSA.html">..</a> <code class="code">end</code></pre><div class="info module top">
+<div class="info-desc">
+<p>The <code class="code">RSA</code> module implements RSA public-key cryptography.
+    Public-key cryptography is asymmetric: two distinct keys are used
+    for encrypting a message, then decrypting it.  Moreover, while one of
+    the keys must remain secret, the other can be made public, since
+    it is computationally very hard to reconstruct the private key
+    from the public key.   This feature supports both public-key
+    encryption (anyone can encode with the public key, but only the
+    owner of the private key can decrypt) and digital signature
+    (only the owner of the private key can sign, but anyone can check
+    the signature with the public key).</p>
+</div>
+</div>
+<hr width="100%">
+
+<pre><code><span id="TYPEkey"><span class="keyword">type</span> <code class="type"></code>key</span> = {</code></pre><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTkey.size">size</span>&nbsp;: <code class="type">int</code>;</code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+<div class="info-desc">
+<p>Size of the modulus <code class="code">n</code>, in bits</p>
+</div>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTkey.n">n</span>&nbsp;: <code class="type">string</code>;</code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+<div class="info-desc">
+<p>Modulus <code class="code">n = p.q</code></p>
+</div>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTkey.e">e</span>&nbsp;: <code class="type">string</code>;</code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+<div class="info-desc">
+<p>Public exponent <code class="code">e</code></p>
+</div>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTkey.d">d</span>&nbsp;: <code class="type">string</code>;</code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+<div class="info-desc">
+<p>Private exponent <code class="code">d</code></p>
+</div>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTkey.p">p</span>&nbsp;: <code class="type">string</code>;</code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+<div class="info-desc">
+<p>Prime factor <code class="code">p</code> of <code class="code">n</code></p>
+</div>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTkey.q">q</span>&nbsp;: <code class="type">string</code>;</code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+<div class="info-desc">
+<p>The other prime factor <code class="code">q</code> of <code class="code">n</code></p>
+</div>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTkey.dp">dp</span>&nbsp;: <code class="type">string</code>;</code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+<div class="info-desc">
+<p><code class="code">dp</code> is <code class="code">d mod (p-1)</code></p>
+</div>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTkey.dq">dq</span>&nbsp;: <code class="type">string</code>;</code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+<div class="info-desc">
+<p><code class="code">dq</code> is <code class="code">d mod (q-1)</code></p>
+</div>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code>&nbsp;&nbsp;</code></td>
+<td align="left" valign="top" >
+<code><span id="TYPEELTkey.qinv">qinv</span>&nbsp;: <code class="type">string</code>;</code></td>
+<td class="typefieldcomment" align="left" valign="top" ><code>(*</code></td><td class="typefieldcomment" align="left" valign="top" ><div class="info ">
+<div class="info-desc">
+<p><code class="code">qinv</code> is a multiplicative inverse of <code class="code">q</code> modulo <code class="code">p</code></p>
+</div>
+</div>
+</td><td class="typefieldcomment" align="left" valign="bottom" ><code>*)</code></td>
+</tr></table>
+}
+
+<div class="info ">
+<div class="info-desc">
+<p>The type of RSA keys.  Components <code class="code">size</code>, <code class="code">n</code> and <code class="code">e</code> define
+        the public part of the key.  Components <code class="code">size</code>, <code class="code">n</code> and <code class="code">d</code>
+        define the private part of the key.  To speed up private key operations
+        through the use of the Chinese remainder theorem (CRT), additional
+        components <code class="code">p</code>, <code class="code">q</code>, <code class="code">dp</code>, <code class="code">dq</code> and <code class="code">qinv</code> are provided.  These
+        are part of the private key.</p>
+</div>
+</div>
+
+
+<pre><span id="VALwipe_key"><span class="keyword">val</span> wipe_key</span> : <code class="type"><a href="Cryptokit.RSA.html#TYPEkey">key</a> -> unit</code></pre><div class="info ">
+<div class="info-desc">
+<p>Erase all components of a RSA key.</p>
+</div>
+</div>
+
+<pre><span id="VALnew_key"><span class="keyword">val</span> new_key</span> : <code class="type">?rng:<a href="Cryptokit.Random.rng-c.html">Cryptokit.Random.rng</a> -> ?e:int -> int -> <a href="Cryptokit.RSA.html#TYPEkey">key</a></code></pre><div class="info ">
+<div class="info-desc">
+<p>Generate a new, random RSA key.  The non-optional <code class="code">int</code>
+        argument is the desired size for the modulus, in bits
+        (e.g. 2048).  The optional <code class="code">rng</code> argument specifies a random
+        number generator to use for generating the key; it defaults to
+        <a href="Cryptokit.Random.html#VALsecure_rng"><code class="code">Cryptokit.Random.secure_rng</code></a>.  The optional <code class="code">e</code> argument
+        specifies the public exponent desired.  If not specified, <code class="code">e</code>
+        is chosen randomly.  Small values of <code class="code">e</code> such as
+        <code class="code">e = 65537</code> significantly speeds up encryption and
+        signature checking compared with a random <code class="code">e</code>.
+        Very small values of <code class="code">e</code> such as <code class="code">e = 3</code> can weaken security
+        and are best avoided.
+        The result of <code class="code">new_key</code> is a complete RSA key with all
+        components defined: public, private, and private for use with
+        the CRT.</p>
+</div>
+</div>
+
+<pre><span id="VALencrypt"><span class="keyword">val</span> encrypt</span> : <code class="type"><a href="Cryptokit.RSA.html#TYPEkey">key</a> -> string -> string</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">encrypt k msg</code> encrypts the string <code class="code">msg</code> with the public part
+        of key <code class="code">k</code> (components <code class="code">n</code> and <code class="code">e</code>).
+        <code class="code">msg</code> must be smaller than <code class="code">key.n</code> when both strings
+        are viewed as natural numbers in big-endian notation.
+        In practice, <code class="code">msg</code> should be of length <code class="code">key.size / 8 - 1</code>,
+        using padding if necessary.  If you need to encrypt longer plaintexts
+        using RSA, encrypt them with a symmetric cipher, using a
+        randomly-generated key, and encrypt only that key with RSA.</p>
+</div>
+</div>
+
+<pre><span id="VALdecrypt"><span class="keyword">val</span> decrypt</span> : <code class="type"><a href="Cryptokit.RSA.html#TYPEkey">key</a> -> string -> string</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">decrypt k msg</code> decrypts the ciphertext string <code class="code">msg</code> with the
+        private part of key <code class="code">k</code> (components <code class="code">n</code> and <code class="code">d</code>).  The size of
+        <code class="code">msg</code> is limited as described for <a href="Cryptokit.RSA.html#VALencrypt"><code class="code">Cryptokit.RSA.encrypt</code></a>.</p>
+</div>
+</div>
+
+<pre><span id="VALdecrypt_CRT"><span class="keyword">val</span> decrypt_CRT</span> : <code class="type"><a href="Cryptokit.RSA.html#TYPEkey">key</a> -> string -> string</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">decrypt_CRT k msg</code> decrypts the ciphertext string <code class="code">msg</code> with
+        the CRT private part of key <code class="code">k</code> (components <code class="code">n</code>, <code class="code">p</code>, <code class="code">q</code>,
+        <code class="code">dp</code>, <code class="code">dq</code> and <code class="code">qinv</code>).  The use of the Chinese remainder
+        theorem (CRT) allows significantly faster decryption than
+        <a href="Cryptokit.RSA.html#VALdecrypt"><code class="code">Cryptokit.RSA.decrypt</code></a>, at no loss in security.  The size of
+        <code class="code">msg</code> is limited as described for <a href="Cryptokit.RSA.html#VALencrypt"><code class="code">Cryptokit.RSA.encrypt</code></a>.</p>
+</div>
+</div>
+
+<pre><span id="VALsign"><span class="keyword">val</span> sign</span> : <code class="type"><a href="Cryptokit.RSA.html#TYPEkey">key</a> -> string -> string</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">sign k msg</code> encrypts the plaintext string <code class="code">msg</code> with the
+        private part of key <code class="code">k</code> (components <code class="code">n</code> and <code class="code">d</code>), thus
+        performing a digital signature on <code class="code">msg</code>.
+        The size of <code class="code">msg</code> is limited as described for <a href="Cryptokit.RSA.html#VALencrypt"><code class="code">Cryptokit.RSA.encrypt</code></a>.
+        If you need to sign longer messages, compute a cryptographic
+        hash of the message and sign only the hash with RSA.</p>
+</div>
+</div>
+
+<pre><span id="VALsign_CRT"><span class="keyword">val</span> sign_CRT</span> : <code class="type"><a href="Cryptokit.RSA.html#TYPEkey">key</a> -> string -> string</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">sign_CRT k msg</code> encrypts the plaintext string <code class="code">msg</code> with the
+        CRT private part of key <code class="code">k</code> (components <code class="code">n</code>, <code class="code">p</code>, <code class="code">q</code>, <code class="code">dp</code>,
+        <code class="code">dq</code> and <code class="code">qinv</code>), thus performing a digital signature on
+        <code class="code">msg</code>.  The use of the Chinese remainder theorem (CRT) allows
+        significantly faster signature than <a href="Cryptokit.RSA.html#VALsign"><code class="code">Cryptokit.RSA.sign</code></a>, at
+        no loss in security.  The size of <code class="code">msg</code> is limited as
+        described for <a href="Cryptokit.RSA.html#VALencrypt"><code class="code">Cryptokit.RSA.encrypt</code></a>.</p>
+</div>
+</div>
+
+<pre><span id="VALunwrap_signature"><span class="keyword">val</span> unwrap_signature</span> : <code class="type"><a href="Cryptokit.RSA.html#TYPEkey">key</a> -> string -> string</code></pre><div class="info ">
+<div class="info-desc">
+<p><code class="code">unwrap_signature k msg</code> decrypts the ciphertext string <code class="code">msg</code>
+        with the public part of key <code class="code">k</code> (components <code class="code">n</code> and <code class="code">d</code>),
+        thus extracting the plaintext that was signed by the sender.
+        The size of <code class="code">msg</code> is limited as described for
+        <a href="Cryptokit.RSA.html#VALencrypt"><code class="code">Cryptokit.RSA.encrypt</code></a>.</p>
+</div>
+</div>
+</body></html>
