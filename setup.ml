@@ -1772,7 +1772,7 @@ module OASISFeatures = struct
     Map.Make
       (struct
         type t = plugin_kind * name
-        let compare = Pervasives.compare
+        let compare = compare
       end)
 
   module Data =
@@ -3465,7 +3465,7 @@ module BaseEnv = struct
           ([], None)
           (List.sort
              (fun (o1, _) (o2, _) ->
-                Pervasives.compare o2 o1)
+                compare o2 o1)
              lst)
       in
       match res, errors with
