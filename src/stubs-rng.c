@@ -92,15 +92,6 @@ CAMLprim value caml_system_rng_random_bytes(value vhc, value str,
 #include <stdint.h>
 #include <string.h>
 
-CAMLprim value caml_hardware_rng_available(value unit)
-{
-  uint32_t ax, bx, cx, dx;
-  __asm__ __volatile__ ("cpuid"
-                        : "=a" (ax), "=b" (bx), "=c" (cx), "=d" (dx)
-                        : "a" (1));
-  return Val_bool(cx & (1U << 30));
-}
-
 static inline int rdrand64(uint64_t * res)
 {
   uint64_t n;
@@ -112,6 +103,27 @@ static inline int rdrand64(uint64_t * res)
     if (ok) { *res = n; return 1; }
   }
   return 0;
+}
+
+CAMLprim value caml_hardware_rng_available(value unit)
+{
+  uint32_t ax, bx, cx, dx;
+  uint64_t n;
+  int retries;
+  __asm__ __volatile__ ("cpuid"
+                        : "=a" (ax), "=b" (bx), "=c" (cx), "=d" (dx)
+                        : "a" (1));
+  if ((cx & (1U << 30)) == 0) return Val_false;
+  /* Early AMD Ryzen 3000 processors have a most annoying bug:
+     the rdrand instruction always returns 0xFF....FF.
+     We check for this condition here. */
+  for (retries = 0; retries < 8; retries++) {
+    if (rdrand64(&n) && n != (uint64_t) (-1)) return Val_true;
+  }
+  /* If we reach here, either rdrand64 failed 8*20=160 times in a row,
+     or it returned 8*64=512 "1" bits in a row.  In either case,
+     it's unusable. */
+  return Val_false;
 }
 
 CAMLprim value caml_hardware_rng_random_bytes(value str, value ofs, value len)
