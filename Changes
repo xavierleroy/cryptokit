@@ -1,4 +1,16 @@
-- Issue #1: wrong documentation formatting for Cryptokit.hash_channel
+Release 1.14:
+- Ensure compatibility with OCaml 4.09 and up.
+- Detect early AMD Ryzen 3000 bug where the RDRAND instruction always
+  generates 0xFF...FF, and, in this case, report the hardware RNG as
+  unavailable.
+- Fix formatting of documentation comments (issue #3, PR #5)
+- Optional argument to control whether the zlib transform expects a
+  zlib header (PR #12).
+- Fix issue with zlib >= 1.2.9 where internal sanity check is affected
+  by the stream data block being moved by OCaml's GC (issue #7, PR #17).
+- DH.new_parameters: update documentation to suggest at least 2048
+  bits (PR #18).
+- DH.derive_key: use SHA256 instead of SHA1 (PR #19).
 
 Release 1.13:
 - Add the Chacha20 stream cipher.
