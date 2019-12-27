@@ -27,18 +27,18 @@
 CAMLprim value caml_aes_cook_encrypt_key(value key)
 {
   CAMLparam1(key);
-  value ckey = alloc_string(Cooked_key_size);
+  value ckey = caml_alloc_string(Cooked_key_size);
   int nr;
 
   if (aesni_available == -1) aesni_check_available();
   if (aesni_available == 1)
     nr = aesniKeySetupEnc((u8 *) String_val(ckey),
                           (const u8 *) String_val(key),
-                          8 * string_length(key));
+                          8 * caml_string_length(key));
   else
     nr = rijndaelKeySetupEnc((u32 *) String_val(ckey),
                              (const u8 *) String_val(key),
-                             8 * string_length(key));
+                             8 * caml_string_length(key));
   Byte(ckey, Cooked_key_NR_offset) = nr;
   CAMLreturn(ckey);
 }
@@ -46,18 +46,18 @@ CAMLprim value caml_aes_cook_encrypt_key(value key)
 CAMLprim value caml_aes_cook_decrypt_key(value key)
 {
   CAMLparam1(key);
-  value ckey = alloc_string(Cooked_key_size);
+  value ckey = caml_alloc_string(Cooked_key_size);
   int nr;
 
   if (aesni_available == -1) aesni_check_available();
   if (aesni_available == 1)
     nr = aesniKeySetupDec((u8 *) String_val(ckey),
                           (const u8 *) String_val(key),
-                          8 * string_length(key));
+                          8 * caml_string_length(key));
   else
     nr = rijndaelKeySetupDec((u32 *) String_val(ckey),
                              (const u8 *) String_val(key),
-                             8 * string_length(key));
+                             8 * caml_string_length(key));
   Byte(ckey, Cooked_key_NR_offset) = nr;
   CAMLreturn(ckey);
 }

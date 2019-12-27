@@ -22,14 +22,14 @@
 
 CAMLprim value caml_sha512_init(value unit)
 {
-  value ctx = alloc_string(sizeof(struct SHA512Context));
+  value ctx = caml_alloc_string(sizeof(struct SHA512Context));
   SHA512_init(Context_val(ctx), 512);
   return ctx;
 }
 
 CAMLprim value caml_sha384_init(value unit)
 {
-  value ctx = alloc_string(sizeof(struct SHA512Context));
+  value ctx = caml_alloc_string(sizeof(struct SHA512Context));
   SHA512_init(Context_val(ctx), 384);
   return ctx;
 }
@@ -45,7 +45,7 @@ CAMLprim value caml_sha512_final(value ctx)
   CAMLparam1(ctx);
   CAMLlocal1(res);
 
-  res = alloc_string(64);
+  res = caml_alloc_string(64);
   SHA512_finish(Context_val(ctx), 512, &Byte_u(res, 0));
   CAMLreturn(res);
 }
@@ -55,7 +55,7 @@ CAMLprim value caml_sha384_final(value ctx)
   CAMLparam1(ctx);
   CAMLlocal1(res);
 
-  res = alloc_string(48);
+  res = caml_alloc_string(48);
   SHA512_finish(Context_val(ctx), 384, &Byte_u(res, 0));
   CAMLreturn(res);
 }

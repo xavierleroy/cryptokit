@@ -26,10 +26,10 @@
 CAMLprim value caml_arcfour_cook_key(value key)
 {
   CAMLparam1(key);
-  value ckey = alloc_string(Cooked_key_size);
+  value ckey = caml_alloc_string(Cooked_key_size);
   arcfour_cook_key(Key_val(ckey),
                    (unsigned char *) String_val(key),
-                   string_length(key));
+                   caml_string_length(key));
   CAMLreturn(ckey);
 }
 

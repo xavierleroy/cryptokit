@@ -23,7 +23,7 @@
 CAMLprim value caml_blowfish_cook_key(value key)
 {
   CAMLparam1(key);
-  value ckey = alloc_string(sizeof(BLOWFISH_CTX));
+  value ckey = caml_alloc_string(sizeof(BLOWFISH_CTX));
   Blowfish_Init((BLOWFISH_CTX *) String_val(ckey),
                 &Byte_u(key, 0),
                 caml_string_length(key));

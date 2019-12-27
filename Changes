@@ -1,3 +1,6 @@
+- Caml FFI: use caml_ long names and CAML_NAME_SPACE; get rid of Begin_roots
+- Regenerate OASIS files in "dynamic" mode
+
 Release 1.14:
 - Ensure compatibility with OCaml 4.09 and up.
 - Detect early AMD Ryzen 3000 bug where the RDRAND instruction always

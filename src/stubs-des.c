@@ -25,7 +25,7 @@
 CAMLprim value caml_des_cook_key(value key, value ofs, value direction)
 {
   CAMLparam2(key,direction);
-  value ckey = alloc_string(Cooked_key_size);
+  value ckey = caml_alloc_string(Cooked_key_size);
   d3des_cook_key((u8 *) &Byte(key, Long_val(ofs)),
                  Int_val(direction),
                  (u32 *) String_val(ckey));

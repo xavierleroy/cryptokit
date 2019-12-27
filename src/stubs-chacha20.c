@@ -24,7 +24,7 @@
 CAMLprim value caml_chacha20_cook_key(value key, value iv, value counter)
 {
   CAMLparam2(key, iv);
-  value ckey = alloc_string(Cooked_key_size);
+  value ckey = caml_alloc_string(Cooked_key_size);
   chacha20_init(Key_val(ckey),
                 (unsigned char *) String_val(key), caml_string_length(key),
                 (unsigned char *) String_val(iv), Int64_val(counter));

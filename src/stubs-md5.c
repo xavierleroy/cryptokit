@@ -39,7 +39,7 @@ CAMLextern void caml_MD5Final (unsigned char *digest, struct MD5Context *ctx);
 
 CAMLprim value caml_md5_init(value unit)
 {
-  value ctx = alloc_string(sizeof(struct MD5Context));
+  value ctx = caml_alloc_string(sizeof(struct MD5Context));
   caml_MD5Init(Context_val(ctx));
   return ctx;
 }
@@ -55,7 +55,7 @@ CAMLprim value caml_md5_final(value ctx)
   CAMLparam1(ctx);
   CAMLlocal1(res);
 
-  res = alloc_string(16);
+  res = caml_alloc_string(16);
   caml_MD5Final(&Byte_u(res, 0), Context_val(ctx));
   CAMLreturn(res);
 }

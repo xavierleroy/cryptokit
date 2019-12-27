@@ -35,26 +35,26 @@ static const value * caml_zlib_error_exn = NULL;
 static void caml_zlib_error(char * fn, value vzs)
 {
   char * msg;
-  value s1 = Val_unit, s2 = Val_unit, tuple = Val_unit, bucket = Val_unit;
+  CAMLparam1(vzs);
+  CAMLlocal4(s1, s2, tuple, bucket);
 
   msg = ZStream_val(vzs)->msg;
   if (msg == NULL) msg = "";
   if (caml_zlib_error_exn == NULL) {
     caml_zlib_error_exn = caml_named_value("Cryptokit.Error");
     if (caml_zlib_error_exn == NULL)
-      invalid_argument("Exception Cryptokit.Error not initialized");
+      caml_invalid_argument("Exception Cryptokit.Error not initialized");
   }
-  Begin_roots4(s1, s2, tuple, bucket);
-    s1 = copy_string(fn);
-    s2 = copy_string(msg);
-    tuple = alloc_small(2, 0);
-    Field(tuple, 0) = s1;
-    Field(tuple, 1) = s2;
-    bucket = alloc_small(2, 0);
-    Field(bucket, 0) = *caml_zlib_error_exn;
-    Field(bucket, 1) = tuple;
-  End_roots();
-  mlraise(bucket);
+  s1 = caml_copy_string(fn);
+  s2 = caml_copy_string(msg);
+  tuple = caml_alloc_small(2, 0);
+  Field(tuple, 0) = s1;
+  Field(tuple, 1) = s2;
+  bucket = caml_alloc_small(2, 0);
+  Field(bucket, 0) = *caml_zlib_error_exn;
+  Field(bucket, 1) = tuple;
+  CAMLdrop;
+  caml_raise(bucket);
 }
 
 void caml_zlib_free_stream(value vzs)
@@ -117,7 +117,7 @@ value caml_zlib_deflate(value vzs, value srcbuf, value srcpos, value srclen,
   used_out = Long_val(dstlen) - zs->avail_out;
   zs->next_in = NULL;         /* not required, but cleaner */
   zs->next_out = NULL;        /* (avoid dangling pointers into Caml heap) */
-  res = alloc_small(3, 0);
+  res = caml_alloc_small(3, 0);
   Field(res, 0) = Val_bool(retcode == Z_STREAM_END);
   Field(res, 1) = Val_int(used_in);
   Field(res, 2) = Val_int(used_out);
@@ -163,7 +163,7 @@ value caml_zlib_inflate(value vzs, value srcbuf, value srcpos, value srclen,
   used_out = Long_val(dstlen) - zs->avail_out;
   zs->next_in = NULL;           /* not required, but cleaner */
   zs->next_out = NULL;          /* (avoid dangling pointers into Caml heap) */
-  res = alloc_small(3, 0);
+  res = caml_alloc_small(3, 0);
   Field(res, 0) = Val_bool(retcode == Z_STREAM_END);
   Field(res, 1) = Val_int(used_in);
   Field(res, 2) = Val_int(used_out);

@@ -68,7 +68,7 @@ CAMLprim value caml_system_rng_random_bytes(value vhc, value str,
 
 CAMLprim value caml_get_system_rng(value unit)
 {
-  raise_not_found();
+  caml_raise_not_found();
   return Val_unit;              /* not reached */
 }
 

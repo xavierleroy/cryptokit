@@ -22,7 +22,7 @@
 
 CAMLprim value caml_sha1_init(value unit)
 {
-  value ctx = alloc_string(sizeof(struct SHA1Context));
+  value ctx = caml_alloc_string(sizeof(struct SHA1Context));
   SHA1_init(Context_val(ctx));
   return ctx;
 }
@@ -38,7 +38,7 @@ CAMLprim value caml_sha1_final(value ctx)
   CAMLparam1(ctx);
   CAMLlocal1(res);
 
-  res = alloc_string(20);
+  res = caml_alloc_string(20);
   SHA1_finish(Context_val(ctx), &Byte_u(res, 0));
   CAMLreturn(res);
 }

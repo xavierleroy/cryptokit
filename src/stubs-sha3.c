@@ -73,7 +73,7 @@ CAMLprim value caml_sha3_extract(value official, value ctx)
   CAMLparam2(official, ctx);
   CAMLlocal1(res);
 
-  res = alloc_string(Context_val(ctx)->hsiz);
+  res = caml_alloc_string(Context_val(ctx)->hsiz);
   SHA3_extract(Bool_val(official) ? sha3_padding : keccak_padding, Context_val(ctx), &Byte_u(res, 0));
   CAMLreturn(res);
 }

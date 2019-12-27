@@ -22,14 +22,14 @@
 
 CAMLprim value caml_sha256_init(value unit)
 {
-  value ctx = alloc_string(sizeof(struct SHA256Context));
+  value ctx = caml_alloc_string(sizeof(struct SHA256Context));
   SHA256_init(Context_val(ctx), 256);
   return ctx;
 }
 
 CAMLprim value caml_sha224_init(value unit)
 {
-  value ctx = alloc_string(sizeof(struct SHA256Context));
+  value ctx = caml_alloc_string(sizeof(struct SHA256Context));
   SHA256_init(Context_val(ctx), 224);
   return ctx;
 }
@@ -45,7 +45,7 @@ CAMLprim value caml_sha256_final(value ctx)
   CAMLparam1(ctx);
   CAMLlocal1(res);
 
-  res = alloc_string(32);
+  res = caml_alloc_string(32);
   SHA256_finish(Context_val(ctx), 256, &Byte_u(res, 0));
   CAMLreturn(res);
 }
@@ -55,7 +55,7 @@ CAMLprim value caml_sha224_final(value ctx)
   CAMLparam1(ctx);
   CAMLlocal1(res);
 
-  res = alloc_string(28);
+  res = caml_alloc_string(28);
   SHA256_finish(Context_val(ctx), 224, &Byte_u(res, 0));
   CAMLreturn(res);
 }
