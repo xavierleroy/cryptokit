@@ -1,10 +1,10 @@
-OASISFormat: 0.3
+OASISFormat: 0.4
 Name:        cryptokit
-Version: 1.13
+Version: 1.15
 Authors:     Xavier Leroy
 License:     LGPL-2 with OCaml linking exception
 BuildTools:  ocamlbuild, ocamldoc
-Plugins:     META (0.3), DevFiles (0.3)
+Plugins:     META (0.4), DevFiles (0.4)
 
 Synopsis: Cryptographic primitives
 Description:
@@ -75,8 +75,9 @@ Library cryptokit
             chacha20.c,
             stubs-chacha20.c
   BuildDepends: unix, zarith
+  CCOpt: -DCAML_NAME_SPACE
   if flag(zlib)
-    CCOpt: -DHAVE_ZLIB
+    CCOpt+: -DHAVE_ZLIB
     if system(win32) || system(win64)
       CCLib: zlib.lib
     else
