@@ -1,5 +1,10 @@
+Release 1.15:
+- Added constant-time `string_equal` and `bytes_equal` comparison functions
+  (execution time depends on the lengths of the strings but not on their
+  contents) (issue #13, PR #14)
 - Caml FFI: use caml_ long names and CAML_NAME_SPACE; get rid of Begin_roots
-- Regenerate OASIS files in "dynamic" mode
+- OASIS files regenerated in dynamic mode for OCaml 4.09 compatibility.
+  For this reason, OASIS is now a build dependency.
 
 Release 1.14:
 - Ensure compatibility with OCaml 4.09 and up.
