@@ -2003,6 +2003,19 @@ end
 
 (* Utilities *)
 
+let seq_equal (len: 'a -> int) (get: 'a -> int -> char) (s1: 'a) (s2: 'a) =
+  let l = len s1 in
+  let rec equal i accu =
+    if i >= l
+    then accu = 0
+    else equal (i + 1)
+               (accu lor ((Char.code (get s1 i)) lxor (Char.code (get s2 i))))
+  in
+    l = len s2 && equal 0 0
+
+let string_equal = seq_equal String.length String.get
+let bytes_equal = seq_equal Bytes.length Bytes.get
+
 let xor_bytes src src_ofs dst dst_ofs len =
   if len < 0
   || src_ofs < 0 || src_ofs > Bytes.length src - len

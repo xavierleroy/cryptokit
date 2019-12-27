@@ -1222,12 +1222,28 @@ exception Error of error
 (** {1 Miscellaneous utilities} *)
 
 val wipe_bytes : bytes -> unit
-    (** [wipe_bytes s] overwrites [s] with zeroes.  Can be used
+    (** [wipe_bytes b] overwrites [b] with zeroes.  Can be used
         to reduce the memory lifetime of sensitive data. *)
 
 val wipe_string : string -> unit
     (** [wipe_string s] overwrites [s] with zeroes.  Can be used
-        to reduce the memory lifetime of sensitive data. *)
+        to reduce the memory lifetime of sensitive data.
+        Note that strings are normally immutable and this operation
+        violates this immutability property.  Therefore, this is
+        an unsafe operation, and it should be used only by code that
+        is the only owner of the string [s].  See {!Bytes.unsafe_of_string}
+        for more details on the ownership policy. *)
+
+val string_equal : string -> string -> bool
+    (** Constant-time comparison between strings.
+        [string_equal s1 s2] returns [true] if the strings [s1] and [s2]
+        have the same length and contain the same characters.
+        The execution time of this function is determined by the
+        lengths of [s1] and [s2], but is independent of their contents. *)
+
+val bytes_equal : bytes -> bytes -> bool
+    (** Constant-time comparison between byte sequences.
+        Like {!Cryptokit.string_equal}, but for byte sequences. *)
 
 val xor_bytes: bytes -> int -> bytes -> int -> int -> unit
     (** [xor_bytes src spos dst dpos len] performs the xor (exclusive or)

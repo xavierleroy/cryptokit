@@ -944,6 +944,23 @@ let _ =
     printf "not available\n"
   end
 
+(* Miscellaneous functions *)
+
+let test_equal_data = [ ""; "a"; "b"; "aa"; "ab"; "ba"; "abc" ]
+
+let test_equal (of_string: string -> 'a) (f: 'a -> 'a -> bool) =
+  List.fold_left
+    (fun acc s1 ->
+       List.fold_left
+         (fun acc s2 ->
+            acc && (f (of_string s1) (of_string s2) = String.equal s1 s2))
+         acc test_equal_data)
+    true test_equal_data
+
+let _ =
+  testing_function "Comparison functions";
+  test 1 (test_equal (fun x -> x) Cryptokit.string_equal) true;
+  test 2 (test_equal Bytes.of_string Cryptokit.bytes_equal) true
 
 (* End of tests *)
 
