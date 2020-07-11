@@ -73,7 +73,10 @@ Library cryptokit
             stubs-sha3.c,
             chacha20.h,
             chacha20.c,
-            stubs-chacha20.c
+            stubs-chacha20.c,
+            blake2.h,
+            blake2.c,
+            stubs-blake2.c
   BuildDepends: unix, zarith
   CCOpt: -DCAML_NAME_SPACE
   if flag(zlib)

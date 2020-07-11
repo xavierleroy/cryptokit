@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: c7ac7a160eaa5e93a581a4efbe9317de)
+# DO NOT EDIT (digest: 460f3639307284eb4bb0467641bc366c)
 aesni.o
 arcfour.o
 stubs-arcfour.o
@@ -25,4 +25,6 @@ keccak.o
 stubs-sha3.o
 chacha20.o
 stubs-chacha20.o
+blake2.o
+stubs-blake2.o
 # OASIS_STOP

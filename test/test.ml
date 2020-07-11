@@ -484,6 +484,40 @@ let _ =
   test 99 (hash_extremely_long (Hash.keccak 512))
          (hex "3e122edaf3739823 1cfaca4c7c216c9d 66d5b899ec1d7ac6 17c40c7261906a45 fc01617a021e5da3 bd8d4182695b5cb7 85a28237cbb16759 0e34718e56d8aab8")
 
+(* BLAKE2b *)
+
+let _ =
+  testing_function "BLAKE2b-512";
+  let hash s = hash_string (Hash.blake2b512 ()) s in
+(*  print_string (tohex (hash "")); print_newline(); *)
+  test 1 (hash "")
+         (hex "786a02f742015903c6c6fd852552d272912f4740e15847618a86e217f71f5419d25e1031afee585313896444934eb04b903a685b1448b755d56f701afe9be2ce");
+  test 2 (hash "abc")
+         (hex "ba80a53f981c4d0d6a2797b69f12f6e94c212f14685ac4b74b12bb6fdbffa2d17d87c5392aab792dc252d5de4533cc9518d38aa8dbf1925ab92386edd4009923");
+  test 3 (hash "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu")
+         (hex "ce741ac5930fe346811175c5227bb7bfcd47f42612fae46c0809514f9e0e3a11ee1773287147cdeaeedff50709aa716341fe65240f4ad6777d6bfaf9726e5e52")
+
+let _ =
+  testing_function "BLAKE2b-512 (keyed)";
+  let mkstring n = String.init n  (fun i -> Char.chr i) in
+  let key = mkstring 0x40 in
+  let hash s = hash_string (MAC.blake2b512 key) s in
+  List.iter
+    (fun (len, result) -> test len (hash (mkstring len)) (hex result))
+    [
+0, "10ebb67700b1868efb4417987acf4690ae9d972fb7a590c2f02871799aaa4786b5e996e8f0f4eb981fc214b005f42d2ff4233499391653df7aefcbc13fc51568";
+1, "961f6dd1e4dd30f63901690c512e78e4b45e4742ed197c3c5e45c549fd25f2e4187b0bc9fe30492b16b0d0bc4ef9b0f34c7003fac09a5ef1532e69430234cebd";
+2, "da2cfbe2d8409a0f38026113884f84b50156371ae304c4430173d08a99d9fb1b983164a3770706d537f49e0c916d9f32b95cc37a95b99d857436f0232c88a965";
+3, "33d0825dddf7ada99b0e7e307104ad07ca9cfd9692214f1561356315e784f3e5a17e364ae9dbb14cb2036df932b77f4b292761365fb328de7afdc6d8998f5fc1";
+4, "beaa5a3d08f3807143cf621d95cd690514d0b49efff9c91d24b59241ec0eefa5f60196d407048bba8d2146828ebcb0488d8842fd56bb4f6df8e19c4b4daab8ac";
+5, "098084b51fd13deae5f4320de94a688ee07baea2800486689a8636117b46c1f4c1f6af7f74ae7c857600456a58a3af251dc4723a64cc7c0a5ab6d9cac91c20bb";
+6, "6044540d560853eb1c57df0077dd381094781cdb9073e5b1b3d3f6c7829e12066bbaca96d989a690de72ca3133a83652ba284a6d62942b271ffa2620c9e75b1f";
+7, "7a8cfe9b90f75f7ecb3acc053aaed6193112b6f6a4aeeb3f65d3de541942deb9e2228152a3c4bbbe72fc3b12629528cfbb09fe630f0474339f54abf453e2ed52";
+128, "72065ee4dd91c2d8509fa1fc28a37c7fc9fa7d5b3f8ad3d0d7a25626b57b1b44788d4caf806290425f9890a3a2a35a905ab4b37acfd0da6e4517b2525c9651e4";
+192, "8d6cf87c08380d2d1506eee46fd4222d21d8c04e585fbfd08269c98f702833a156326a0724656400ee09351d57b440175e2a5de93cc5f80db6daf83576cf75fa";
+255, "142709d62e28fcccd0af97fad0f8465b971e82201dc51070faa0372aa43e92484be1c1e73ba10906d5d1853db6a4106e0a7bf9800d373d6dee2d46d62ef2a461"
+    ]
+
 (* RIPEMD-160 *)
 let _ =
   testing_function "RIPEMD-160";

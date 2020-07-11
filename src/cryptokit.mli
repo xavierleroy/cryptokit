@@ -603,6 +603,14 @@ module Hash : sig
   val sha512: unit -> hash
     (** SHA-512 is SHA-2 specialized to 512 bit hashes (64 bytes). *)
 
+  val blake2b: int -> hash
+    (** The BLAKE2b hash function produces hashes of length 1 to 64 bytes.
+        The parameter is the desired size of the hash, in bits.
+        It must be between 8 and 512, and a multiple of 8. *)
+
+  val blake2b512: unit -> hash
+    (** BLAKE2b512 is BLAKE2b specialized to 512 bit hashes (64 bytes). *)
+
   val ripemd160: unit -> hash
     (** RIPEMD-160 produces 160-bit hashes (20 bytes).  *)
 
@@ -631,9 +639,10 @@ end
     and if it matches the transmitted MAC, be reasonably certain that
     the text was authentified by someone who possesses the secret key.
 
-    The module [MAC] provides five MAC functions based on the hashes
-    SHA-1, SHA256, SHA512, RIPEMD160 and MD5, and five MAC functions based on
-    the block ciphers AES, DES, and Triple-DES. *)
+    The module [MAC] provides six MAC functions based on the hashes
+    BLAKE2b, SHA-1, SHA256, SHA512, RIPEMD160 and MD5,
+    and five MAC functions based on the block ciphers AES, DES, and Triple-DES.
+*)
 module MAC: sig
 
   val hmac_sha1: string -> hash
@@ -668,6 +677,20 @@ module MAC: sig
         applied to MD5.  The returned hash values are 128 bits (16 bytes)
         long.  The [key] argument is the MAC key; it can have any length,
         but a minimal length of 16 bytes is recommended. *)
+
+  val blake2b: int -> string -> hash
+    (** [blake2b sz key] is the BLAKE2b keyed hash function.
+        The returned hash values have length 1 to 64 bytes.
+        The [sz] is the desired size of the hash, in bits.
+        It must be between 8 and 512, and a multiple of 8.
+        The [key] argument is the MAC key.  It must have length 64 at most.
+        A length of 64 bytes is recommended. *)
+
+  val blake2b512: string -> hash
+    (** [blake2b512 key] is the BLAKE2b keyed hash function specialized
+        to 512 byte hashes (64 bytes).
+        The [key] argument is the MAC key.  It must have length 64 at most.
+        A length of 64 bytes is recommended. *)
 
   val aes_cmac: ?iv:string -> string -> hash
     (** [aes_cmac key] returns a MAC based on AES encryption in CMAC mode,

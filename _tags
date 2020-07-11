@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 62ba61e1d8ad56a1e96795f7c6fb78e2)
+# DO NOT EDIT (digest: 552f3e8992f1455e10be051255154125)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -42,6 +42,8 @@ true: annot, bin_annot
 "src/stubs-sha3.c": oasis_library_cryptokit_ccopt
 "src/chacha20.c": oasis_library_cryptokit_ccopt
 "src/stubs-chacha20.c": oasis_library_cryptokit_ccopt
+"src/blake2.c": oasis_library_cryptokit_ccopt
+"src/stubs-blake2.c": oasis_library_cryptokit_ccopt
 <src/cryptokit.{cma,cmxa}>: oasis_library_cryptokit_cclib
 "src/libcryptokit_stubs.lib": oasis_library_cryptokit_cclib
 "src/dllcryptokit_stubs.dll": oasis_library_cryptokit_cclib
@@ -100,6 +102,10 @@ true: annot, bin_annot
 "src/chacha20.c": pkg_zarith
 "src/stubs-chacha20.c": pkg_unix
 "src/stubs-chacha20.c": pkg_zarith
+"src/blake2.c": pkg_unix
+"src/blake2.c": pkg_zarith
+"src/stubs-blake2.c": pkg_unix
+"src/stubs-blake2.c": pkg_zarith
 # Executable test
 "test/test.native": pkg_unix
 "test/test.native": pkg_zarith

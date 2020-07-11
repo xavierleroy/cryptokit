@@ -90,6 +90,9 @@ external ripemd160_final: bytes -> string = "caml_ripemd160_final"
 external md5_init: unit -> bytes = "caml_md5_init"
 external md5_update: bytes -> bytes -> int -> int -> unit = "caml_md5_update"
 external md5_final: bytes -> string = "caml_md5_final"
+external blake2b_init: int -> string -> bytes = "caml_blake2b_init"
+external blake2b_update: bytes -> bytes -> int -> int -> unit = "caml_blake2b_update"
+external blake2b_final: bytes -> int -> string = "caml_blake2b_final"
 
 (* Abstract transform type *)
 
@@ -1092,6 +1095,31 @@ class md5 =
 
 let md5 () = new md5
 
+class blake2b sz key =
+  object(self)
+    val context =
+      if sz >= 8 && sz <= 512 && sz mod 8 = 0 && String.length key <= 64
+      then blake2b_init (sz / 8) key
+      else raise (Error Wrong_key_size)
+    method hash_size = sz / 8
+    method add_substring src ofs len =
+      if ofs < 0 || len < 0 || ofs > Bytes.length src - len
+      then invalid_arg "blake2b#add_substring";
+      blake2b_update context src ofs len
+    method add_string src =
+      blake2b_update context (Bytes.unsafe_of_string src) 0 (String.length src)
+    method add_char c =
+      self#add_string (String.make 1 c)
+    method add_byte b =
+      self#add_char (Char.unsafe_chr b)
+    method result = blake2b_final context (sz / 8)
+    method wipe =
+      wipe_bytes context
+  end
+
+let blake2b sz = new blake2b sz ""
+let blake2b512 () = new blake2b 512 ""
+
 end
 
 (* High-level entry points for ciphers *)
@@ -1114,6 +1142,7 @@ let make_block_cipher ?(mode = CBC) ?pad ?iv dir block_cipher =
       (ECB, _) -> block_cipher
     | (CBC, Encrypt) -> new Block.cbc_encrypt ?iv block_cipher
     | (CBC, Decrypt) -> new Block.cbc_decrypt ?iv block_cipher
+
     | (CFB n, Encrypt) -> new Block.cfb_encrypt ?iv n block_cipher
     | (CFB n, Decrypt) -> new Block.cfb_decrypt ?iv n block_cipher
     | (OFB n, _) -> new Block.ofb ?iv n block_cipher
@@ -1211,6 +1240,9 @@ let hmac_sha256 key = new HMAC_SHA256.hmac key
 let hmac_sha512 key = new HMAC_SHA512.hmac key
 let hmac_ripemd160 key = new HMAC_RIPEMD160.hmac key
 let hmac_md5 key = new HMAC_MD5.hmac key
+
+let blake2b sz key = new Hash.blake2b sz key
+let blake2b512 key = new Hash.blake2b 512 key
 
 let aes ?iv ?pad key =
   new Block.mac ?iv ?pad (new Block.aes_encrypt key)
