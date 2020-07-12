@@ -611,6 +611,14 @@ module Hash : sig
   val blake2b512: unit -> hash
     (** BLAKE2b512 is BLAKE2b specialized to 512 bit hashes (64 bytes). *)
 
+  val blake2s: int -> hash
+    (** The BLAKE2s hash function produces hashes of length 1 to 32 bytes.
+        The parameter is the desired size of the hash, in bits.
+        It must be between 8 and 256, and a multiple of 8. *)
+
+  val blake2s256: unit -> hash
+    (** BLAKE2s256 is BLAKE2s specialized to 256 bit hashes (32 bytes). *)
+
   val ripemd160: unit -> hash
     (** RIPEMD-160 produces 160-bit hashes (20 bytes).  *)
 
@@ -691,6 +699,20 @@ module MAC: sig
         to 512 byte hashes (64 bytes).
         The [key] argument is the MAC key.  It must have length 64 at most.
         A length of 64 bytes is recommended. *)
+
+  val blake2s: int -> string -> hash
+    (** [blake2s sz key] is the BLAKE2s keyed hash function.
+        The returned hash values have length 1 to 32 bytes.
+        The [sz] is the desired size of the hash, in bits.
+        It must be between 8 and 256, and a multiple of 8.
+        The [key] argument is the MAC key.  It must have length 32 at most.
+        A length of 32 bytes is recommended. *)
+
+  val blake2s256: string -> hash
+    (** [blake2s256 key] is the BLAKE2s keyed hash function specialized
+        to 256 byte hashes (32 bytes).
+        The [key] argument is the MAC key.  It must have length 32 at most.
+        A length of 32 bytes is recommended. *)
 
   val aes_cmac: ?iv:string -> string -> hash
     (** [aes_cmac key] returns a MAC based on AES encryption in CMAC mode,

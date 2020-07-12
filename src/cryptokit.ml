@@ -93,6 +93,9 @@ external md5_final: bytes -> string = "caml_md5_final"
 external blake2b_init: int -> string -> bytes = "caml_blake2b_init"
 external blake2b_update: bytes -> bytes -> int -> int -> unit = "caml_blake2b_update"
 external blake2b_final: bytes -> int -> string = "caml_blake2b_final"
+external blake2s_init: int -> string -> bytes = "caml_blake2s_init"
+external blake2s_update: bytes -> bytes -> int -> int -> unit = "caml_blake2s_update"
+external blake2s_final: bytes -> int -> string = "caml_blake2s_final"
 
 (* Abstract transform type *)
 
@@ -1120,6 +1123,31 @@ class blake2b sz key =
 let blake2b sz = new blake2b sz ""
 let blake2b512 () = new blake2b 512 ""
 
+class blake2s sz key =
+  object(self)
+    val context =
+      if sz >= 8 && sz <= 256 && sz mod 8 = 0 && String.length key <= 32
+      then blake2s_init (sz / 8) key
+      else raise (Error Wrong_key_size)
+    method hash_size = sz / 8
+    method add_substring src ofs len =
+      if ofs < 0 || len < 0 || ofs > Bytes.length src - len
+      then invalid_arg "blake2s#add_substring";
+      blake2s_update context src ofs len
+    method add_string src =
+      blake2s_update context (Bytes.unsafe_of_string src) 0 (String.length src)
+    method add_char c =
+      self#add_string (String.make 1 c)
+    method add_byte b =
+      self#add_char (Char.unsafe_chr b)
+    method result = blake2s_final context (sz / 8)
+    method wipe =
+      wipe_bytes context
+  end
+
+let blake2s sz = new blake2s sz ""
+let blake2s256 () = new blake2s 256 ""
+
 end
 
 (* High-level entry points for ciphers *)
@@ -1243,6 +1271,9 @@ let hmac_md5 key = new HMAC_MD5.hmac key
 
 let blake2b sz key = new Hash.blake2b sz key
 let blake2b512 key = new Hash.blake2b 512 key
+
+let blake2s sz key = new Hash.blake2s sz key
+let blake2s256 key = new Hash.blake2s 256 key
 
 let aes ?iv ?pad key =
   new Block.mac ?iv ?pad (new Block.aes_encrypt key)

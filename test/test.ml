@@ -480,16 +480,17 @@ let _ =
   test 20 (hash 512 s)
     (hex "0eab42de4c3ceb92 35fc91acffe746b2 9c29a8c366b7c60e 4e67c466f36a4304 c00fa9caf9d87976 ba469bcbe06713b4 35f091ef2769fb16 0cdab33d3670680e");
   test 98 (hash_extremely_long (Hash.keccak 256))
-         (hex "5f313c39963dcf79 2b5470d4ade9f3a3 56a3e4021748690a 958372e2b06f82a4");
+         (hex "5f313c39963dcf79 2b5470d4ade9f3a3 56a3e4021748690a 958372e2b06f82a4")
+(*
   test 99 (hash_extremely_long (Hash.keccak 512))
          (hex "3e122edaf3739823 1cfaca4c7c216c9d 66d5b899ec1d7ac6 17c40c7261906a45 fc01617a021e5da3 bd8d4182695b5cb7 85a28237cbb16759 0e34718e56d8aab8")
+*)
 
 (* BLAKE2b *)
 
 let _ =
   testing_function "BLAKE2b-512";
   let hash s = hash_string (Hash.blake2b512 ()) s in
-(*  print_string (tohex (hash "")); print_newline(); *)
   test 1 (hash "")
          (hex "786a02f742015903c6c6fd852552d272912f4740e15847618a86e217f71f5419d25e1031afee585313896444934eb04b903a685b1448b755d56f701afe9be2ce");
   test 2 (hash "abc")
@@ -516,6 +517,27 @@ let _ =
 128, "72065ee4dd91c2d8509fa1fc28a37c7fc9fa7d5b3f8ad3d0d7a25626b57b1b44788d4caf806290425f9890a3a2a35a905ab4b37acfd0da6e4517b2525c9651e4";
 192, "8d6cf87c08380d2d1506eee46fd4222d21d8c04e585fbfd08269c98f702833a156326a0724656400ee09351d57b440175e2a5de93cc5f80db6daf83576cf75fa";
 255, "142709d62e28fcccd0af97fad0f8465b971e82201dc51070faa0372aa43e92484be1c1e73ba10906d5d1853db6a4106e0a7bf9800d373d6dee2d46d62ef2a461"
+    ]
+
+let _ =
+  testing_function "BLAKE2s-256 (keyed)";
+  let mkstring n = String.init n  (fun i -> Char.chr i) in
+  let key = mkstring 0x20 in
+  let hash s = hash_string (MAC.blake2s256 key) s in
+  List.iter
+    (fun (len, result) -> test len (hash (mkstring len)) (hex result))
+    [
+0, "48a8997da407876b3d79c0d92325ad3b89cbb754d86ab71aee047ad345fd2c49";
+1, "40d15fee7c328830166ac3f918650f807e7e01e177258cdc0a39b11f598066f1";
+2, "6bb71300644cd3991b26ccd4d274acd1adeab8b1d7914546c1198bbe9fc9d803";
+3, "1d220dbe2ee134661fdf6d9e74b41704710556f2f6e5a091b227697445dbea6b";
+4, "f6c3fbadb4cc687a0064a5be6e791bec63b868ad62fba61b3757ef9ca52e05b2";
+5, "49c1f21188dfd769aea0e911dd6b41f14dab109d2b85977aa3088b5c707e8598";
+6, "fdd8993dcd43f696d44f3cea0ff35345234ec8ee083eb3cada017c7f78c17143";
+7, "e6c8125637438d0905b749f46560ac89fd471cf8692e28fab982f73f019b83a9";
+128, "0c311f38c35a4fb90d651c289d486856cd1413df9b0677f53ece2cd9e477c60a";
+192, "5950d39a23e1545f301270aa1a12f2e6c453776e4d6355de425cc153f9818867";
+255, "3fb735061abc519dfe979e54c1ee5bfad0a9d858b3315bad34bde999efd724dd"
     ]
 
 (* RIPEMD-160 *)

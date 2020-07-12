@@ -110,6 +110,8 @@ let _ =
     (hash (Hash.sha3 512) 4000000 16);
   time_fn "BLAKE2b 512, 64_000_000 bytes, 16-byte chunks"
     (hash (Hash.blake2b 512) 4000000 16);
+  time_fn "BLAKE2s 256, 64_000_000 bytes, 16-byte chunks"
+    (hash (Hash.blake2s 256) 4000000 16);
   time_fn "RIPEMD-160, 64_000_000 bytes, 16-byte chunks"
     (hash (Hash.ripemd160()) 4000000 16);
   time_fn "MD5, 64_000_000 bytes, 16-byte chunks"
