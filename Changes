@@ -1,5 +1,5 @@
 Working version
-- Add BLAKE2b hash and MAC functions.
+- Add BLAKE2b and BLAKE2s hash and MAC functions.
 
 Release 1.15:
 - Added constant-time `string_equal` and `bytes_equal` comparison functions
