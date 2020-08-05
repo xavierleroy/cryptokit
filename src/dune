@@ -30,4 +30,4 @@
          stubs-chacha20
          blake2
          stubs-blake2))
-  (flags :standard -w -7 -w -27 -w -37))
+  (flags :standard -safe-string -w -7 -w -27 -w -37))
