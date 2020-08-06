@@ -1,21 +1,16 @@
-(executable
- (public_name test)
+(test
+ (name test)
  (modules test)
  (libraries cryptokit)
  (flags :standard -w -35))
 
 (executable
- (public_name prngtest)
+ (name prngtest)
  (modules prngtest)
  (libraries cryptokit))
 
 (executable
- (public_name speedtest)
+ (name speedtest)
  (modules speedtest)
  (libraries cryptokit)
  (flags :standard -w -35))
-
-; We only add test.exe to the standard runtest target
-(rule
- (alias  runtest)
- (action (run ./test.exe)))
