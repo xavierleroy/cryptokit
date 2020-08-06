@@ -17,28 +17,28 @@ This library is distributed under the conditions of the GNU Library General Publ
 ## Requirements
 
 * OCaml 4.02 or more recent.
-* The findlib/ocamlfind tool.
-* The OASIS tool.
+* The Dune build system.
 * The Zarith library, version 1.4 or more recent.
 * The Zlib C library, version 1.1.3 or up is recommended. If it is not installed on your system (look for libz.a or libz.so), get it from http://www.gzip.org/, or indicate in the Makefile that you do not have it.  If you are running Linux or BSD or MacOS, your distribution provides precompiled binaries for this library.
 * If the operating system does not provide the `/dev/random` device for random number generation, consider installing the [EGD](http://egd.sourceforge.net/) entropy gathering daemon.  Without `/dev/random` nor EGD, this library cannot generate cryptographically-strong random data nor RSA keys.  The remainder of the library still works, though.
 
-## Installation
+## Build, test and install
 
-```
-./configure --enable-tests
-make
-make test
-make install
-```
+* To build, run `dune build`.
+
+* To execute a test, run `dune exec test/<name>.exe` where `<name>` can be `test`,
+  `prngtest` or `speedtest`, supplying additional command line parameters if needed.
+  The main test file `test/test.ml` is also included into the `runtest` alias, so it
+  can be executed simply by `dune test`.
+
+* To install, run `dune install`.
 
 ## Documentation
 
-See the extensive documentation comments in file src/cryptokit.mli.
+See the extensive documentation comments in file `src/cryptokit.mli`.
 
-Compilation options: `ocamlfind ocamlopt -package cryptokit`...
-
-Linking options: `ocamlfind ocamlopt -linkpkg -package cryptokit`...
+To build HTML documentation, run `dune build @doc`. The resulting index file is
+located at `_build/default/_doc/_html/cryptokit/Cryptokit/index.html`.
 
 ## Warnings and disclaimers
 
