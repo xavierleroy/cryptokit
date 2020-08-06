@@ -2,11 +2,11 @@
 
 let write_sexp file list =
   let oc = open_out file in
-  let content = String.concat " " list in
+  let content = List.map (Printf.sprintf "%S") list |> String.concat " " in
   Printf.fprintf oc "(%s)" content;
   close_out oc
 
-(* TODO: Allow overriding [zlib] and [hardwaresupport]. *)
+(* We could also allow the user to override [zlib] and [hardwaresupport]. *)
 let compute_flags ~os_type ~system ~architecture =
   let zlib = os_type <> "Win32" in
   let hardwaresupport =
@@ -14,7 +14,7 @@ let compute_flags ~os_type ~system ~architecture =
   in
   let append_if c y x = if c then x @ [ y ] else x in
   let flags =
-    [ "-DCAML_NAME_SPACE" ]
+    []
     |> append_if zlib "-DHAVE_ZLIB"
     |> append_if hardwaresupport "-maes"
   in

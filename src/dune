@@ -3,7 +3,7 @@
  (modules CryptokitBignum Cryptokit)
  (foreign_stubs
   (language c)
-  (flags (:include flags.sexp))
+  (flags -DCAML_NAME_SPACE (:include flags.sexp))
   (names aesni
          arcfour
          stubs-arcfour
