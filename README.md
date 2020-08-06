@@ -27,7 +27,7 @@ This library is distributed under the conditions of the GNU Library General Publ
 * To build, run `dune build`.
 
 * To execute a test, run `dune exec test/<name>.exe` where `<name>` can be `test`,
-  `prngtest` or `speedtest`, supplying additional command line parameters if needed.
+  `prngtest` or `speedtest`, supplying additional command line arguments if needed.
   The main test file `test/test.ml` is also included into the `runtest` alias, so it
   can be executed simply by `dune test`.
 
