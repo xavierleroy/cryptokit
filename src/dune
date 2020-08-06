@@ -3,6 +3,7 @@
  (modules CryptokitBignum Cryptokit)
  (foreign_stubs
   (language c)
+  (flags (:include flags.sexp))
   (names aesni
          arcfour
          stubs-arcfour
@@ -30,4 +31,11 @@
          stubs-chacha20
          blake2
          stubs-blake2))
+  (c_library_flags (:include library_flags.sexp))
   (flags :standard -safe-string -w -7 -w -27 -w -37))
+
+; compute flags
+(rule (targets flags.sexp library_flags.sexp)
+ (deps (:first_dep compute_flags.ml))
+ (action
+  (run %{ocaml} %{first_dep} -os_type %{os_type} -system %{system} -architecture %{architecture})))
