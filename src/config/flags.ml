@@ -6,11 +6,16 @@ let write_sexp file list =
   Printf.fprintf oc "(%s)" content;
   close_out oc
 
-(* We could also allow the user to override [zlib] and [hardwaresupport]. *)
+(* Compile and link a dummy C program with the given flags. *)
+let test ~c_flags ~link_flags =
+  let test_program = "int main() { return 0; }" in
+  let c = Configurator.V1.create "cryptokit" in
+  Configurator.V1.c_test c test_program ~c_flags ~link_flags
+
 let compute_flags ~os_type ~system ~architecture =
   let zlib = os_type <> "Win32" in
   let hardwaresupport =
-    (architecture = "amd64" || architecture = "i386") && os_type <> "Win32"
+    (architecture = "amd64" || architecture = "i386") && test ~c_flags:["-maes"] ~link_flags:[]
   in
   let append_if c y x = if c then x @ [ y ] else x in
   let flags =
