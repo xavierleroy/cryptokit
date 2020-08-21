@@ -1,0 +1,3 @@
+(executable
+  (name flags)
+  (libraries dune-configurator))

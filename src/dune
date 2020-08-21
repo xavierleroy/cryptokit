@@ -36,6 +36,5 @@
 
 ; compute flags
 (rule (targets flags.sexp library_flags.sexp)
- (deps (:first_dep compute_flags.ml))
  (action
-  (run %{ocaml} %{first_dep} -os_type %{os_type} -system %{system} -architecture %{architecture})))
+  (run config/flags.exe -os_type %{os_type} -system %{system} -architecture %{architecture})))
