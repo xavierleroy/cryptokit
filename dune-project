@@ -16,6 +16,8 @@ with a compositional, extensible interface.")
 
  (depends
   (ocaml (>= 4.02.0))
+  (dune (>= 2.0))
+  dune-configurator
   (zarith (>= 1.4))
   conf-zlib
   conf-gmp-powm-sec))
