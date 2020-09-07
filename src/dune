@@ -36,5 +36,4 @@
 
 ; compute flags
 (rule (targets flags.sexp library_flags.sexp)
- (action
-  (run config/flags.exe -os_type %{os_type} -system %{system} -architecture %{architecture})))
+ (action (run config/flags.exe)))
