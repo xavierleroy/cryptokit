@@ -1,6 +1,7 @@
 (lang dune 2.0)
 (generate_opam_files true)
 
+(name cryptokit)
 (source (github xavierleroy/cryptokit))
 (authors "Xavier Leroy")
 (maintainers "Xavier Leroy <xavier.leroy@inria.fr>")
