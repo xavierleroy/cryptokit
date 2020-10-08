@@ -1,0 +1,48 @@
+#!/usr/bin/env ocaml
+(* -*- tuareg -*- *)
+
+type 'a value =
+    | This of 'a
+    | Auto
+
+let string_of_value to_string = function
+  | This a -> "This (" ^ to_string a ^ ")"
+  | Auto -> "Auto"
+
+let () =
+  let declare_flag arg description =
+    let reference = ref Auto in
+    let args =
+       [ "--enable-" ^ arg, Arg.Unit (fun () -> reference := This true),
+         " Enable " ^ description
+       ; "--disable-" ^ arg, Arg.Unit (fun () -> reference := This false),
+         " Disable " ^ description
+       ]
+    in args, reference
+   in
+  let args_zlib, ref_zlib = declare_flag "zlib" "ZLib" in
+  let args_hardware_support, ref_hardware_support =
+    declare_flag "hardwaresupport"
+                 "hardware support for AES and GCM (needs GCC or Clang)" in
+  Arg.parse
+    (Arg.align (args_zlib @ args_hardware_support))
+    (fun s -> raise (Arg.Bad (Printf.sprintf "don't know what to do with %S" s)))
+    "Usage: ./configure [OPTIONS]";
+  let oc = open_out_bin "src/config/config_vars.ml" in
+  Printf.fprintf oc {|
+type 'a value =
+    | This of 'a
+    | Auto
+
+let enable_zlib = %s
+let enable_hardware_support = %s
+|}
+    (string_of_value string_of_bool !ref_zlib)
+    (string_of_value string_of_bool !ref_hardware_support);
+  close_out oc;
+  (* Below is a temporary workaround to make sure the configuration happens
+     every time this script is run. *)
+  (try
+    Sys.remove "_build/default/src/flags.sexp";
+  with _ -> ());
+  exit (Sys.command "dune build @configure --release")

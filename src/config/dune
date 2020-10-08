@@ -1,3 +1,8 @@
 (executable
   (name flags)
   (libraries dune-configurator))
+
+(rule
+  (mode fallback)
+
+  (action (copy config_vars.ml.default config_vars.ml)))

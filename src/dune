@@ -35,5 +35,7 @@
   (flags :standard -safe-string -w -7 -w -27 -w -37))
 
 ; compute flags
-(rule (targets flags.sexp library_flags.sexp)
+(rule
+ (alias configure)
+ (targets flags.sexp library_flags.sexp)
  (action (run config/flags.exe)))
