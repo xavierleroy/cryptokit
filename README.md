@@ -24,6 +24,8 @@ This library is distributed under the conditions of the GNU Library General Publ
 
 ## Build, test and install
 
+* To configure, run `./configure`.  There are options to disable or enable some features (run `./configure --help` for a list), but the default configuration is fine most of the time.
+
 * To build, run `dune build`.
 
 * To execute a test, run `dune exec test/<name>.exe` where `<name>` can be `test`,
@@ -84,4 +86,4 @@ The seeded PRNG is just the Chacha20 stream cipher encrypting the all-zeroes mes
 
 ## Performance
 
-If you configure with the options `--enable-tests --enable-bench`, then do `make test`, a simple benchmark is performed and shows the speed of various operations from this library.
+If you run `dune exec test/speedtest.exe`, a simple benchmark is performed and shows the speed of various operations from this library.
