@@ -186,12 +186,12 @@ static void caml_zlib_not_supported(void)
   if (caml_zlib_error_exn == NULL) {
     caml_zlib_error_exn = caml_named_value("Cryptokit.Error");
     if (caml_zlib_error_exn == NULL)
-      invalid_argument("Exception Cryptokit.Error not initialized");
+      caml_invalid_argument("Exception Cryptokit.Error not initialized");
   }
-  bucket = alloc_small(2, 0);
+  bucket = caml_alloc_small(2, 0);
   Field(bucket, 0) = *caml_zlib_error_exn;
   Field(bucket, 1) = Val_int(12); /* Compression_not_supported */
-  mlraise(bucket);
+  caml_raise(bucket);
 }
 
 CAMLprim
