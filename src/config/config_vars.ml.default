@@ -1,0 +1,7 @@
+type 'a value =
+    | This of 'a
+    | Auto
+
+let enable_zlib = Auto
+
+let enable_hardware_support = Auto

@@ -1,0 +1,16 @@
+(test
+ (name test)
+ (modules test)
+ (libraries cryptokit)
+ (flags :standard -w -35))
+
+(executable
+ (name prngtest)
+ (modules prngtest)
+ (libraries cryptokit))
+
+(executable
+ (name speedtest)
+ (modules speedtest)
+ (libraries cryptokit)
+ (flags :standard -w -35))

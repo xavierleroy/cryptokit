@@ -1,0 +1,41 @@
+(library (name cryptokit) (public_name cryptokit)
+ (libraries unix zarith)
+ (modules CryptokitBignum Cryptokit)
+ (foreign_stubs
+  (language c)
+  (flags -DCAML_NAME_SPACE (:include flags.sexp))
+  (names aesni
+         arcfour
+         stubs-arcfour
+         blowfish
+         stubs-blowfish
+         d3des
+         stubs-des
+         rijndael-alg-fst
+         ripemd160
+         stubs-ripemd160
+         sha1
+         stubs-sha1
+         sha256
+         stubs-sha256
+         sha512
+         stubs-sha512
+         stubs-aes
+         stubs-md5
+         stubs-misc
+         stubs-rng
+         stubs-zlib
+         keccak
+         stubs-sha3
+         chacha20
+         stubs-chacha20
+         blake2
+         stubs-blake2))
+  (c_library_flags (:include library_flags.sexp))
+  (flags :standard -safe-string -w -7 -w -27 -w -37))
+
+; compute flags
+(rule
+ (alias configure)
+ (targets flags.sexp library_flags.sexp)
+ (action (run config/flags.exe)))
