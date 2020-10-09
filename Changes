@@ -1,4 +1,5 @@
 Working version
+- Use dune as the build system (contributed by Andrey Mokhov, PR #24)
 - Add BLAKE2b and BLAKE2s hash and MAC functions.
 
 Release 1.15:
