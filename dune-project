@@ -4,7 +4,7 @@
 (name cryptokit)
 (source (github xavierleroy/cryptokit))
 (authors "Xavier Leroy")
-(maintainers "Xavier Leroy <xavier.leroy@inria.fr>")
+(maintainers "Xavier Leroy <xavier.leroy@college-de-france.fr>")
 
 (package
  (name cryptokit)
