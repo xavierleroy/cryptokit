@@ -41,6 +41,10 @@ let test test_number answer correct_answer =
    printf " %d..." test_number
  end
 
+(* Whether to run the most expensive tests or not *)
+
+let long_tests = ref false
+
 (* Useful auxiliaries *)
 
 let hex s = transform_string (Hexa.decode()) s
@@ -318,6 +322,7 @@ let _ =
          (hex "84983E441C3BD26EBAAE4AA1F95129E5E54670F1");
   test 6 (hash_million_a (Hash.sha1()))
          (hex "34AA973CD4C4DAA4F61EEB2BDBAD27316534016F");
+  if !long_tests then
   test 99 (hash_extremely_long (Hash.sha1()))
          (hex "7789f0c9 ef7bfc40 d9331114 3dfbe69e 2017f592")
 
@@ -346,6 +351,7 @@ let _ =
     (hex "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1");
   test 4 (hash_million_a (Hash.sha2 256))
     (hex "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0");
+  if !long_tests then
   test 99 (hash_extremely_long (Hash.sha256()))
          (hex "50e72a0e 26442fe2 552dc393 8ac58658 228c0cbf b1d2ca87 2ae43526 6fcd055e")
 
@@ -376,6 +382,7 @@ let _ =
     (hex "8e959b75dae313da 8cf4f72814fc143f 8f7779c6eb9f7fa1 7299aeadb6889018 501d289e4900f7e4 331b99dec4b5433a c7d329eeb6dd2654 5e96e55b874be909");
   test 5 (hash_million_a (Hash.sha2 512))
     (hex "e718483d0ce76964 4e2e42c7bc15b463 8e1f98b13b204428 5632a803afa973eb de0ff244877ea60a 4cb0432ce577c31b eb009c5c2c49aa2e 4eadb217ad8cc09b");
+  if !long_tests then
   test 99 (hash_extremely_long (Hash.sha2 512))
          (hex "b47c933421ea2db1 49ad6e10fce6c7f9 3d0752380180ffd7 f4629a712134831d 77be6091b819ed35 2c2967a2e2d4fa50 50723c9630691f1a 05a7281dbe6c1086")
 
@@ -427,6 +434,7 @@ let _ =
     (hex "eee9e24d78c18553 37983451df97c8ad 9eedf256c6334f8e 948d252d5e0e7684 7aa0774ddb90a842 190d2c558b4b8340");
   test 20 (hash_million_a (Hash.sha3 512))
     (hex "3c3a876da14034ab 60627c077bb98f7e 120a2a5370212dff b3385a18d4f38859 ed311d0a9d5141ce 9cc5c66ee689b266 a8aa18ace8282a0e 0db596c90b0a7b87");
+  if !long_tests then
   test 99 (hash_extremely_long (Hash.sha3 512))
     (hex "235ffd53504ef836 a1342b488f483b39 6eabbfe642cf78ee 0d31feec788b23d0 d18d5c339550dd59 58a500d4b95363da 1b5fa18affc1bab2 292dc63b7d85097c")
 
@@ -479,12 +487,12 @@ let _ =
     (hex "2c23146a63a29acf 99e73b88f8c24eaa 7dc60aa771780ccc 006afbfa8fe2479b 2dd2b21362337441 ac12b515911957ff");
   test 20 (hash 512 s)
     (hex "0eab42de4c3ceb92 35fc91acffe746b2 9c29a8c366b7c60e 4e67c466f36a4304 c00fa9caf9d87976 ba469bcbe06713b4 35f091ef2769fb16 0cdab33d3670680e");
+  if !long_tests then
   test 98 (hash_extremely_long (Hash.keccak 256))
-         (hex "5f313c39963dcf79 2b5470d4ade9f3a3 56a3e4021748690a 958372e2b06f82a4")
-(*
+         (hex "5f313c39963dcf79 2b5470d4ade9f3a3 56a3e4021748690a 958372e2b06f82a4");
+  if !long_tests then
   test 99 (hash_extremely_long (Hash.keccak 512))
          (hex "3e122edaf3739823 1cfaca4c7c216c9d 66d5b899ec1d7ac6 17c40c7261906a45 fc01617a021e5da3 bd8d4182695b5cb7 85a28237cbb16759 0e34718e56d8aab8")
-*)
 
 (* BLAKE2b *)
 
