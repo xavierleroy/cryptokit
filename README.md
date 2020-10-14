@@ -35,6 +35,14 @@ This library is distributed under the conditions of the GNU Library General Publ
 
 * To install, run `dune install`.
 
+## Using the library
+
+The package name is `cryptokit`.  With Dune, use `(library cryptokit)`.  With ocamlfind, do
+```
+        ocamlfind ocamlopt -package cryptokit ...             # for compilation
+        ocamlfind ocamlopt -package cryptokit -linkpkg ...    # for linking
+```
+
 ## Documentation
 
 See the extensive documentation comments in file `src/cryptokit.mli`.

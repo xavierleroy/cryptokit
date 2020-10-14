@@ -11,8 +11,6 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id$ *)
-
 (** The Cryptokit library provides a variety of cryptographic primitives
     that can be used to implement cryptographic protocols in
     security-sensitive applications.  The primitives provided include:
@@ -23,11 +21,6 @@
       and MACs based on AES and DES.
     - Random number generation.
     - Encodings and compression: base 64, hexadecimal, Zlib compression.
-
-    To use this library, link with 
-      [ocamlc unix.cma nums.cma cryptokit.cma]
-    or
-      [ocamlopt unix.cmxa nums.cmxa cryptokit.cmxa].
 *)
 
 (** {1 General-purpose abstract interfaces} *)
