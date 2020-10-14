@@ -16,7 +16,7 @@ SHA-3), MACs, compression, random number generation -- all presented
 with a compositional, extensible interface.")
 
  (depends
-  (ocaml (>= 4.02.0))
+  (ocaml (>= 4.03.0))
   (dune (>= 2.0))
   dune-configurator
   (zarith (>= 1.4))
