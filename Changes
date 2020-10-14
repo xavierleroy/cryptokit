@@ -1,3 +1,7 @@
+Release 1.16.1:
+- Make the tests faster and more robust
+- Update dependencies and documentation.
+
 Release 1.16:
 - Use dune as the build system (contributed by Andrey Mokhov, PR #24)
 - Add BLAKE2b and BLAKE2s hash and MAC functions.
