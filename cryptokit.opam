@@ -6,7 +6,7 @@ Cryptokit includes block ciphers (AES, DES, 3DES), stream ciphers
 (ARCfour), public-key crypto (RSA, DH), hashes (SHA-1, SHA-256,
 SHA-3), MACs, compression, random number generation -- all presented
 with a compositional, extensible interface."""
-maintainer: ["Xavier Leroy <xavier.leroy@inria.fr>"]
+maintainer: ["Xavier Leroy <xavier.leroy@college-de-france.fr>"]
 authors: ["Xavier Leroy"]
 homepage: "https://github.com/xavierleroy/cryptokit"
 bug-reports: "https://github.com/xavierleroy/cryptokit/issues"

@@ -960,14 +960,20 @@ let chisquare b =
     let t = Char.code (Bytes.get b i) in
     freq.(t) <- freq.(t) + 1
   done;
-  let t = Array.fold_left (fun s x -> let x = float x in s +. x *. x) 0.0 freq
-  and r = float r
-  and n = float n in
-  let sr = 2.0 *. sqrt r in
-  abs_float ((r *. t /. n) -. n -. r) <= sr
+  let expected = float n /. float r in
+  let t =
+    Array.fold_left
+      (fun s x -> let d = float x -. expected in d *. d +. s)
+      0.0 freq in
+  let chi2 = t /. expected in
+  let degfree = float r -. 1.0 in
+  (* The degree of freedom is high, so we approximate as a normal
+     distribution with mean equal to degfree and variance 2 * degfree.
+     Four sigmas correspond to a 99.9936% confidence interval. *)
+  chi2 <= degfree +. 4.0 *. sqrt (2.0 *. degfree)
 
-let test_rng ?(len = 100000) (r: Random.rng) =
-  let b = Bytes.create len in
+let test_rng ?(len = 10000) (r: Random.rng) =
+  let b = Bytes.make len '\000' in
   r#random_bytes b 0 len;
   r#wipe;
   printf "chi^2 %s\n"
