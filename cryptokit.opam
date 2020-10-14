@@ -11,7 +11,7 @@ authors: ["Xavier Leroy"]
 homepage: "https://github.com/xavierleroy/cryptokit"
 bug-reports: "https://github.com/xavierleroy/cryptokit/issues"
 depends: [
-  "ocaml" {>= "4.02.0"}
+  "ocaml" {>= "4.03.0"}
   "dune" {>= "2.0"}
   "dune-configurator"
   "zarith" {>= "1.4"}
