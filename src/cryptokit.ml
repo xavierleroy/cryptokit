@@ -1349,7 +1349,7 @@ let system_rng () =
 
 class device_rng filename =
   object(self)
-    val fd = Unix.openfile filename [Unix.O_RDONLY] 0
+    val fd = Unix.openfile filename [Unix.O_RDONLY; Unix.O_CLOEXEC] 0
     method random_bytes buf ofs len =
       if len > 0 then begin    
         let n = Unix.read fd buf ofs len in
