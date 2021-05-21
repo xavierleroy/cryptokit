@@ -43,7 +43,7 @@ CAMLprim value caml_get_system_rng(value unit)
 
   if (! CryptAcquireContext(&prov, NULL, NULL, PROV_RSA_FULL,
                             CRYPT_VERIFYCONTEXT | CRYPT_SILENT))
-    raise_not_found();
+    caml_raise_not_found();
   res = caml_alloc((sizeof(HCRYPTPROV) + sizeof(value) - 1) / sizeof(value),
               Abstract_tag);
   HCRYPTPROV_val(res) = prov;
