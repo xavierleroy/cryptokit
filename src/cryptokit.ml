@@ -154,7 +154,7 @@ let transform_channel tr ?len ic oc =
   tr#finish;
   let (obuf, opos, olen) = tr#get_substring in
   output oc obuf opos olen;
-  tr#wipe  
+  tr#wipe
 
 class compose (tr1 : transform) (tr2 : transform) =
   object(self)
@@ -328,7 +328,7 @@ class buffered_output initial_buffer_size =
       r
 
     method get_byte =
-      Char.code self#get_char          
+      Char.code self#get_char
 
     method wipe =
       wipe_bytes obuf
@@ -1258,7 +1258,7 @@ module HMAC_SHA256 =
   HMAC(struct class h = Hash.sha256  let blocksize = 64 end)
 module HMAC_SHA512 =
   HMAC(struct class h = Hash.sha512  let blocksize = 128 end)
-module HMAC_RIPEMD160 = 
+module HMAC_RIPEMD160 =
   HMAC(struct class h = Hash.ripemd160  let blocksize = 64 end)
 module HMAC_MD5 =
   HMAC(struct class h = Hash.md5  let blocksize = 64 end)
@@ -1327,7 +1327,7 @@ let string rng len =
 type system_rng_handle
 external get_system_rng: unit -> system_rng_handle = "caml_get_system_rng"
 external close_system_rng: system_rng_handle -> unit = "caml_close_system_rng"
-external system_rng_random_bytes: 
+external system_rng_random_bytes:
   system_rng_handle -> bytes -> int -> int -> bool
   = "caml_system_rng_random_bytes"
 
@@ -1351,7 +1351,7 @@ class device_rng filename =
   object(self)
     val fd = Unix.openfile filename [Unix.O_RDONLY; Unix.O_CLOEXEC] 0
     method random_bytes buf ofs len =
-      if len > 0 then begin    
+      if len > 0 then begin
         let n = Unix.read fd buf ofs len in
         if n = 0 then raise(Error Entropy_source_closed);
         if n < len then self#random_bytes buf (ofs + n) (len - n)
@@ -1371,7 +1371,7 @@ class egd_rng socketname =
       with exn ->
         Unix.close s; raise exn
     method random_bytes buf ofs len =
-      if len > 0 then begin    
+      if len > 0 then begin
         let reqd = min 255 len in
         let msg = Bytes.create 2 in
         Bytes.set msg 0 '\002'; (* read entropy blocking *)
@@ -1398,7 +1398,7 @@ external hardware_rng_random_bytes: bytes -> int -> int -> bool = "caml_hardware
 class hardware_rng =
   object
     method random_bytes buf ofs len =
-      if ofs < 0 || len < 0 || ofs > Bytes.length buf - len      
+      if ofs < 0 || len < 0 || ofs > Bytes.length buf - len
       then invalid_arg "hardware_rng#random_bytes";
       if not (hardware_rng_random_bytes buf ofs len)
       then raise (Error Entropy_source_closed)
@@ -1413,7 +1413,7 @@ let hardware_rng () =
 
 class no_rng =
   object
-    method random_bytes (buf:bytes) (ofs:int) (len:int) : unit = 
+    method random_bytes (buf:bytes) (ofs:int) (len:int) : unit =
       raise (Error No_entropy_source)
     method wipe = ()
   end
@@ -1447,7 +1447,7 @@ class pseudo_rng seed =
   object (self)
     val ckey =
       let l = String.length seed in
-      chacha20_cook_key 
+      chacha20_cook_key
         (if l >= 32 then String.sub seed 0 32
          else if l > 16 then seed ^ String.make (32 - l) '\000'
          else seed)
@@ -1496,6 +1496,7 @@ end
 
 (* RSA operations *)
 
+module CryptokitBignum = CryptokitBignum
 module Bn = CryptokitBignum
 
 module RSA = struct
@@ -1666,7 +1667,7 @@ let derive_key ?(diversification = "") sharedsec numbytes =
   let rec derive pos counter =
     if pos < numbytes then begin
       let h =
-        hash_string (Hash.sha256()) 
+        hash_string (Hash.sha256())
                     (diversification ^ sharedsec ^ string_of_int counter) in
       String.blit h 0 result pos (min (String.length h) (numbytes - pos));
       wipe_string h;
@@ -1715,7 +1716,7 @@ class encode multiline padding =
           Bytes.set obuf oend '\n';
           oend <- oend + 1;
           ocolumn <- 0
-        end 
+        end
       end
 
     method put_substring s ofs len =
@@ -1957,7 +1958,7 @@ external inflate_end: stream -> unit = "caml_zlib_inflateEnd"
 class compress level write_zlib_header =
   object(self)
     val zs = deflate_init level write_zlib_header
-    
+
     inherit buffered_output 512 as output_buffer
 
     method input_block_size = 1
@@ -2007,12 +2008,12 @@ class compress level write_zlib_header =
       output_buffer#wipe
 end
 
-let compress ?(level = 6) ?(write_zlib_header = false) () = new compress level write_zlib_header 
+let compress ?(level = 6) ?(write_zlib_header = false) () = new compress level write_zlib_header
 
 class uncompress expect_zlib_header =
   object(self)
     val zs = inflate_init expect_zlib_header
-    
+
     inherit buffered_output 512 as output_buffer
 
     method input_block_size = 1
@@ -2085,14 +2086,14 @@ let xor_bytes src src_ofs dst dst_ofs len =
   || dst_ofs < 0 || dst_ofs > Bytes.length dst - len
   then invalid_arg "xor_bytes";
   xor_bytes src src_ofs dst dst_ofs len
-  
+
 let xor_string src src_ofs dst dst_ofs len =
   if len < 0
   || src_ofs < 0 || src_ofs > String.length src - len
   || dst_ofs < 0 || dst_ofs > Bytes.length dst - len
   then invalid_arg "xor_string";
   xor_string src src_ofs dst dst_ofs len
-  
+
 let mod_power a b c =
   Bn.to_bytes ~numbits:(String.length c * 8)
     (Bn.mod_power (Bn.of_bytes a) (Bn.of_bytes b) (Bn.of_bytes c))

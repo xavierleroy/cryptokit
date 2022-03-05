@@ -69,7 +69,7 @@ class type transform =
     method flush: unit
       (** [flush] causes the transform to flush its internal buffers
           and make all output processed up to this point available through
-          the [get_*] methods.  
+          the [get_*] methods.
           Raise [Error Wrong_data_length] if the total length
           of input data provided via the [put_*] methods is not
           an integral number of the input block size
@@ -159,7 +159,7 @@ val transform_channel:
       is provided, exactly [len] characters are read from [ic] and
       transformed; [End_of_file] is raised if [ic] does not contain
       at least [len] characters.  If [len] is not provided, [ic] is
-      read all the way to end of file. 
+      read all the way to end of file.
       The transform [t] is wiped before returning, hence can
       no longer be used for further transformations. *)
 
@@ -208,7 +208,7 @@ class type hash =
 
 val hash_string: hash -> string -> string
   (** [hash_string h s] runs the string [s] through the hash function [h]
-      and returns the hash value of [s].  
+      and returns the hash value of [s].
       The hash [h] is wiped before returning, hence can
       no longer be used for further hash computations. *)
 
@@ -218,7 +218,7 @@ val hash_channel: hash -> ?len:int -> in_channel -> string
       If the optional [len] argument is provided, exactly [len] characters
       are read from [ic] and hashed; [End_of_file] is raised if [ic]
       does not contain at least [len] characters.
-      If [len] is not provided, [ic] is read all the way to end of file.      
+      If [len] is not provided, [ic] is read all the way to end of file.
       The hash [h] is wiped before returning, hence can
       no longer be used for further hash computations. *)
 
@@ -315,7 +315,7 @@ module Random : sig
         pseudo-random data is the result of encrypting the 128-bit integers
         [0, 1, 2, ...] with this key. *)
 
-end        
+end
 
 (** The [Padding] module defines a generic interface
     for padding input data to an integral number of blocks,
@@ -444,7 +444,7 @@ module Cipher : sig
         reused.
 
         The string argument is the key; its length must be either 16
-        or (better) 32.  
+        or (better) 32.
 
         The optional [iv] argument is the initialization vector (also
         called nonce) that can be used to diversify the key.  If present,
@@ -760,6 +760,8 @@ module MAC: sig
         the final MAC. *)
 end
 
+module CryptokitBignum = CryptokitBignum
+
 (** The [RSA] module implements RSA public-key cryptography.
     Public-key cryptography is asymmetric: two distinct keys are used
     for encrypting a message, then decrypting it.  Moreover, while one of
@@ -863,7 +865,7 @@ end
   by exchanging messages, with the guarantee that even if an attacker
   eavesdrop on the messages, he cannot recover the shared secret.
   Diffie-Hellman is one such key agreement protocol, relying on
-  the difficulty of computing discrete logarithms.  Notice that 
+  the difficulty of computing discrete logarithms.  Notice that
   the Diffie-Hellman protocol is vulnerable to active attacks
   (man-in-the-middle attacks).
 
@@ -910,7 +912,7 @@ module DH: sig
     (** The abstract type of private secrets generated during key agreement. *)
 
   val private_secret: ?rng: Random.rng -> parameters -> private_secret
-    (** Generate a random private secret.  
+    (** Generate a random private secret.
       The optional [rng] argument specifies a random number generator
       to use; it defaults to {!Cryptokit.Random.secure_rng}. *)
 
@@ -938,7 +940,7 @@ module DH: sig
       counter until [numbytes] bytes have been obtained. *)
 end
 
-(** {1 Advanced, compositional interface to block ciphers 
+(** {1 Advanced, compositional interface to block ciphers
        and stream ciphers} *)
 
 (** The [Block] module provides classes that implements
@@ -1055,7 +1057,7 @@ module Block : sig
 
   class cbc_decrypt: ?iv: string -> block_cipher -> block_cipher
     (** Add Cipher Block Chaining (CBC) to the given block cipher
-        in decryption mode.  This works like {!Cryptokit.Block.cbc_encrypt}, 
+        in decryption mode.  This works like {!Cryptokit.Block.cbc_encrypt},
         except that input blocks are first decrypted by the block
         cipher before being xor-ed with the previous input block. *)
 
@@ -1074,7 +1076,7 @@ module Block : sig
     (** Add Output Feedback Block (OFB) to the given block cipher.
         The integer argument [n] is the number of
         bytes processed at a time; it must lie between [1] and
-        the block size of the underlying cipher, included.        
+        the block size of the underlying cipher, included.
         The returned block cipher has block size [n].
         It is usable both for encryption and decryption. *)
 
@@ -1149,7 +1151,7 @@ module Base64: sig
     (** Return a transform that performs base 64 encoding.
         The output is divided in lines of length 76 characters,
         and final [=] characters are used to pad the output,
-        as specified in the MIME standard. 
+        as specified in the MIME standard.
         The output is approximately [4/3] longer than the input. *)
 
   val encode_compact : unit -> transform
@@ -1201,7 +1203,7 @@ module Zlib: sig
         specifying how hard the transform should try to compress data:
         1 is lowest but fastest compression, while 9 is highest but
         slowest compression. The default level is 6.
-        The optional [write_zlib_header] argument dictates whether the 
+        The optional [write_zlib_header] argument dictates whether the
         output should be wrapped within a zlib header and checksum.
         The default is false. *)
 
@@ -1290,7 +1292,7 @@ val xor_bytes: bytes -> int -> bytes -> int -> int -> unit
         storing the result in [dst] starting at position [dpos]. *)
 
 val xor_string: string -> int -> bytes -> int -> int -> unit
-    (** Same as [xor_bytes], but the source is a string instead of a 
+    (** Same as [xor_bytes], but the source is a string instead of a
         byte array. *)
 
 val mod_power: string -> string -> string -> string
