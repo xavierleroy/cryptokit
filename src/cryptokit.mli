@@ -25,7 +25,7 @@
 
 (** {1 General-purpose abstract interfaces} *)
 
-(** A <I>transform</I> is an arbitrary mapping from sequences of characters
+(** A {i transform} is an arbitrary mapping from sequences of characters
     to sequences of characters.  Examples of transforms include
     ciphering, deciphering, compression, decompression, and encoding
     of binary data as text.  Input data to a transform is provided
@@ -167,7 +167,7 @@ val compose: transform -> transform -> transform
   (** Compose two transforms, feeding the output of the first transform
       to the input of the second transform. *)
 
-(** A <I>hash</I> is a function that maps arbitrarily-long character
+(** A {i hash} is a function that maps arbitrarily-long character
     sequences to small, fixed-size strings.  *)
 class type hash =
   object
@@ -557,9 +557,9 @@ end
     SHA-256, SHA-512, SHA-3, RIPEMD-160 and MD5), also known as
     message digest functions.
     Hash functions used in cryptography are characterized as being
-    <I>one-way</I> (given a hash value, it is computationally
+    {i one-way} (given a hash value, it is computationally
     infeasible to find a text that hashes to this value) and
-    <I>collision-resistant</I> (it is computationally infeasible to
+    {i collision-resistant} (it is computationally infeasible to
     find two different texts that hash to the same value).  Thus, the
     hash of a text can be used as a compact replacement for this text
     for the purposes of ensuring integrity of the text. *)
