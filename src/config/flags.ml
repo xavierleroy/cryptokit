@@ -20,13 +20,14 @@ let () = Configurator.main ~name:"cryptokit" (fun cfg ->
   let hardware_support = match enable_hardware_support with
     | This bool -> bool
     | Auto -> (architecture = "amd64" || architecture = "i386")
-              && test ~cfg ~c_flags:[ "-maes" ] ~link_flags:[]
+              && test ~cfg ~c_flags:[ "-maes"; "-mpclmul" ] ~link_flags:[]
   in
   let append_if c y x = if c then x @ [ y ] else x in
   let flags =
     []
     |> append_if zlib "-DHAVE_ZLIB"
     |> append_if hardware_support "-maes"
+    |> append_if hardware_support "-mpclmul"
   in
   let library_flags =
     []
