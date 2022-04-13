@@ -30,7 +30,10 @@
          chacha20
          stubs-chacha20
          blake2
-         stubs-blake2))
+         stubs-blake2
+         ghash
+         pclmul
+         stubs-ghash))
   (c_library_flags (:include library_flags.sexp))
   (flags :standard -safe-string -w -7 -w -27 -w -37))
 
