@@ -581,7 +581,22 @@ let _ =
   test 4 (hash "message digest")
          (hex "F96B697D7CB7938D525A2F31AAF161D0")
 
-(* Chaining modes *)
+(* GHASH *)
+
+module GHash = struct
+  type t
+  external init: string -> t = "caml_ghash_init"
+  external mult: t -> bytes -> unit = "caml_ghash_mult"
+  let mul x y =
+    let g = init x and h = Bytes.of_string y in
+    mult g h;
+    Bytes.to_string h
+  let _ =
+    testing_function "GFmul";
+    test 1 (mul (hex "dfa6bf4ded81db03ffcaff95f830f061")
+                (hex "952b2a56a5604ac0b32b6656a05b40b6"))
+           (hex "da53eb0ad2c55bb64fc4802cc3feda60")
+end
 
 open Cipher
 
@@ -954,6 +969,24 @@ The quick brown fox jumps over the lazy dog.
   with Error Compression_not_supported ->
     printf " (not supported)"
 
+(* Miscellaneous functions *)
+
+let test_equal_data = [ ""; "a"; "b"; "aa"; "ab"; "ba"; "abc" ]
+
+let test_equal (of_string: string -> 'a) (f: 'a -> 'a -> bool) =
+  List.fold_left
+    (fun acc s1 ->
+       List.fold_left
+         (fun acc s2 ->
+            acc && (f (of_string s1) (of_string s2) = String.equal s1 s2))
+         acc test_equal_data)
+    true test_equal_data
+
+let _ =
+  testing_function "Comparison functions";
+  test 1 (test_equal (fun x -> x) Cryptokit.string_equal) true;
+  test 2 (test_equal Bytes.of_string Cryptokit.bytes_equal) true
+
 (* Random numbers *)
 (* This is not a serious statistical test of Cryptokit's RNGs
    (use Dieharder or TestU01 for this).  Rather, it's a simplistic
@@ -1013,24 +1046,6 @@ let _ =
   with Error No_entropy_source ->
     printf "not available\n"
   end
-
-(* Miscellaneous functions *)
-
-let test_equal_data = [ ""; "a"; "b"; "aa"; "ab"; "ba"; "abc" ]
-
-let test_equal (of_string: string -> 'a) (f: 'a -> 'a -> bool) =
-  List.fold_left
-    (fun acc s1 ->
-       List.fold_left
-         (fun acc s2 ->
-            acc && (f (of_string s1) (of_string s2) = String.equal s1 s2))
-         acc test_equal_data)
-    true test_equal_data
-
-let _ =
-  testing_function "Comparison functions";
-  test 1 (test_equal (fun x -> x) Cryptokit.string_equal) true;
-  test 2 (test_equal Bytes.of_string Cryptokit.bytes_equal) true
 
 (* End of tests *)
 
