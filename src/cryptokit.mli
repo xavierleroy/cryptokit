@@ -222,6 +222,106 @@ val hash_channel: hash -> ?len:int -> in_channel -> string
       The hash [h] is wiped before returning, hence can
       no longer be used for further hash computations. *)
 
+(** An <I>authenticated transform</I> maps sequences of bytes
+    to sequences of bytes, just like a transform, but also builds
+    a message authentication tag for the transformed data.
+    The tag is returned by the [finish] method.
+    Authenticated transforms are used for authenticated encryption
+    and decryption. *)
+
+class type authenticated_transform =
+  object
+    method input_block_size: int
+    method output_block_size: int
+    method tag_size: int
+
+    method put_substring: bytes -> int -> int -> unit
+      (** See {!Cryptokit.transform.put_substring}. *)
+
+    method put_string: string -> unit
+      (** See {!Cryptokit.transform.put_string}. *)
+
+    method put_char: char -> unit
+      (** See {!Cryptokit.transform.put_char}. *)
+
+    method put_byte: int -> unit
+      (** See {!Cryptokit.transform.put_byte}. *)
+
+    method finish_and_get_tag: string
+      (** Call method [finish_and_get_tag] to indicate that no further data will
+          be processed through the transform.  This causes the transform
+          to flush its internal buffers and perform all appropriate
+          finalization actions, e.g. add final padding.
+          The authentication tag for the transformed data is computed
+          and returned.  It's a string of length
+          {!Cryptokit.authenticated_transform.tag_size}.
+          After calling [finish_and_get_tag], the transform can no
+          longer accept additional data.  Hence, after calling
+          [finish_and_get_tag], do not call any of the [put_*] methods
+          nor [finish_and_get_tag] again. *)
+
+    method available_output: int
+      (** See {!Cryptokit.transform.available_output}. *)
+
+    method get_string: string
+      (** See {!Cryptokit.transform.get_string}. *)
+
+    method get_substring: bytes * int * int
+      (** See {!Cryptokit.transform.get_substring}. *)
+
+    method get_char: char
+      (** See {!Cryptokit.transform.get_char}. *)
+
+    method get_byte: int
+      (** See {!Cryptokit.transform.get_byte}. *)
+
+    method tag_size: int
+      (** The size in bytes of the authentication tags. *)
+
+    method wipe: unit
+      (** See {!Cryptokit.transform.wipe}. *)
+  end
+
+val auth_transform_string: authenticated_transform -> string -> string
+  (** [auth_transform_string t s] runs the string [s] through the
+      authenticated transform [t] and returns the concatenation
+      of the transformed string and its authentication tag.
+      The transform [t] is wiped before returning, hence can
+      no longer be used for further transformations. *)
+
+val auth_check_transform_string:
+          authenticated_transform -> string -> string option
+  (** [auth_check_transform_string t s] splits the string [s]
+      into an input string [s1] and an expected authentication tag [a].
+      It runs [s1] through the authenticated transform [t]
+      and checks that the authentication tag is the expected tag [a].
+      If so, the transformed string is returned.
+      If not, [None] is returned.
+      The input string [s] must have length greater than or equal to
+      [t#tag_size].  Otherwise, the [Wrong_data_length] exception is raised.
+      The transform [t] is wiped before returning, hence can
+      no longer be used for further transformations. *)
+
+val auth_transform_string_detached:
+          authenticated_transform -> string -> string * string
+  (** [auth_transform_string_detached t s] runs the string [s] through the
+      authenticated transform [t] and returns a pair of
+      the transformed string and its authentication tag.
+      The transform [t] is wiped before returning, hence can
+      no longer be used for further transformations. *)
+
+val transform_then_hash: transform -> hash -> authenticated_transform
+  (** Build an authenticated transform from a transform [t] and a hash [h].
+      Input data is run through [t], producing transformed data.
+      The transformed data is hashed using [h].  The authentication tag
+      is the final hash value. *)
+
+val transform_and_hash: transform -> hash -> authenticated_transform
+  (** Build an authenticated transform from a transform [t] and a hash [h].
+      Input data is run through [t], producing transformed data.
+      In parallel, the input data is hashed using [h].  The
+      authentication tag is the final hash value. *)
+
 (** {1 Utilities: random numbers and padding schemes} *)
 
 (** The [Random] module provides random and pseudo-random number generators
@@ -551,6 +651,78 @@ module Cipher : sig
 
         The [blowfish] function returns a transform that performs encryption
         or decryption, depending on the direction argument. *)
+end
+
+(** The [AEAD] module implements authenticated encryption
+    with associated data.  This provides the same confidentiality
+    guarantees as plain encryption, but also provides integrity
+    guarantees.  This module implements the widely-used AES-GCM AEAD
+    algorithm, plus less common algorithms combining the AES cipher
+    in CBC mode with HMAC-SHA keyed hash functions.
+*)
+
+module AEAD : sig
+
+  type direction = Encrypt | Decrypt
+    (** Indicate whether the cipher should perform encryption
+        (transforming plaintext to ciphertext) or decryption
+        (transforming ciphertext to plaintext). *)
+
+  val aes_gcm: ?header: string -> iv: string -> string -> direction -> authenticated_transform
+    (** AES-GCM is a standardized and widely-used authenticated encryption
+        algorithm.  It's an encrypt-then-MAC schema based on the AES
+        cipher in counter mode and on the GHASH hash function.
+        It supports keys of 128, 192, or 256 bits, and produces
+        authentication tags of size 128 bits (16 bytes).
+
+        [aes_gcm ?header ~iv key dir] returns an authenticated transform
+        (see {!Cryptokit.authenticated_transform}).
+      - [key] is the encryption key; it must have length 16, 24 or 32.
+      - [dir] specifies whether encryption or decryption is to be performed.
+      - [iv] (mandatory) is the initialization vector used for counter mode.
+        It must not be reused for several encryptions.  It is recommended
+        to use a 96-bit (12 bytes) randomly-generated initialization vector.
+        Initialization vectors of size other than 12 bytes are supported
+        but trigger additional computations.
+      - [header] is the associated data.  It is not encrypted but it is
+        authenticated, i.e. taken into account for computing the authentication
+        tag.  If not provided, it defaults to the empty string.
+
+    *)
+
+  val aes_128_cbc_hmac_sha_256: ?header: string -> iv:string -> string -> string -> direction -> authenticated_transform
+    (** This is an authenticated encryption algorithm based on AES-128
+        in CBC mode and the HMAC-SHA-256 keyed hash function, as described
+        in the 2014 IETF draft "Authenticated Encryption with AES-CBC
+        and HMAC-SHA".
+
+        [aes_128_cbc_hmac_sha_256 ?header ~iv key1 key2 dir] returns
+        an authenticated transform (see {!Cryptokit.authenticated_transform})
+        producing authentication tags of size 128 bits (16 bytes).
+      - [key1] is the encryption key; it must have length 16 bytes.
+      - [key2] is the MAC key; it must have length 16 bytes.
+      - [dir] specifies whether encryption or decryption is to be performed.
+      - [iv] (mandatory) is the initialization vector used for CBC
+        mode.  It must be 128 bits (16 bytes) long.  It must not be
+        reused for several encryptions.  It is recommended to generate
+        it randomly.
+      - [header] is the associated data.  It is not encrypted but it is
+        authenticated, i.e. taken into account for computing the authentication
+        tag.  If not provided, it defaults to the empty string.
+
+        @see <https://tools.ietf.org/id/draft-mcgrew-aead-aes-cbc-hmac-sha2-03.html> the specification
+*)
+
+  val aes_256_cbc_hmac_sha_512: ?header: string -> iv:string -> string -> string -> direction -> authenticated_transform
+    (** Like {!Cryptokit.AEAD.aes_128_cbc_hmac_sha_256}, but uses AES-256
+        and HMAC-SHA-512 for stronger encryption and authentication.
+        This authenticated transform produces tags of size 256 bits (32 bytes).
+        The arguments are as described in
+        {!Cryptokit.AEAD.aes_128_cbc_hmac_sha_256}, except that the
+        two keys must have length 32 bytes each.
+
+        @see <https://tools.ietf.org/id/draft-mcgrew-aead-aes-cbc-hmac-sha2-03.html> the specification
+*)
 end
 
 (** The [Hash] module implements unkeyed cryptographic hashes (SHA-1,

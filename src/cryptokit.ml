@@ -11,8 +11,6 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id$ *)
-
 let wipe_bytes s = Bytes.fill s 0 (Bytes.length s) '\000'
 let wipe_string s = wipe_bytes (Bytes.unsafe_of_string s)
 
@@ -24,6 +22,16 @@ let shl1_bytes src soff dst doff len =
       shl1 (n lsr 7) (i - 1)
     end
   in shl1 0 (len - 1)
+
+(*DEBUG
+let print_hex_string oc s =
+  output_char oc '|';
+  String.iter (fun c -> Printf.fprintf oc "%02x" (Char.code c)) s;
+  output_char oc '|'
+
+let print_hex_bytes oc b =
+  print_hex_string oc (Bytes.to_string b)
+*)
 
 type error =
   | Wrong_key_size
@@ -96,6 +104,9 @@ external blake2b_final: bytes -> int -> string = "caml_blake2b_final"
 external blake2s_init: int -> string -> bytes = "caml_blake2s_init"
 external blake2s_update: bytes -> bytes -> int -> int -> unit = "caml_blake2s_update"
 external blake2s_final: bytes -> int -> string = "caml_blake2s_final"
+type ghash_context
+external ghash_init: bytes -> ghash_context = "caml_ghash_init"
+external ghash_mult: ghash_context -> bytes -> unit = "caml_ghash_mult"
 
 (* Abstract transform type *)
 
@@ -229,55 +240,51 @@ let hash_channel hash ?len ic =
   hash#wipe;
   res
 
-(* Padding schemes *)
-
-module Padding = struct
-
-class type scheme =
+class type authenticated_transform =
   object
-    method pad: bytes -> int -> unit
-    method strip: bytes -> int
+    method input_block_size: int
+    method output_block_size: int
+    method tag_size: int
+
+    method put_substring: bytes -> int -> int -> unit
+    method put_string: string -> unit
+    method put_char: char -> unit
+    method put_byte: int -> unit
+
+    method finish_and_get_tag: string
+
+    method available_output: int
+
+    method get_string: string
+    method get_substring: bytes * int * int
+    method get_char: char
+    method get_byte: int
+
+    method wipe: unit
   end
 
-class length =
-  object
-    method pad buffer used =
-      let n = Bytes.length buffer - used in
-      assert (n > 0 && n < 256);
-      Bytes.fill buffer used n (Char.chr n)
-    method strip buffer =
-      let blocksize = Bytes.length buffer in
-      let n = Char.code (Bytes.get buffer (blocksize - 1)) in
-      if n = 0 || n > blocksize then raise (Error Bad_padding);
-      (* Characters blocksize - n to blocksize - 1 must be equal to n *)
-      for i = blocksize - n to blocksize - 2 do
-        if Char.code (Bytes.get buffer i) <> n then raise (Error Bad_padding)
-      done;
-      blocksize - n
-  end
+let auth_transform_string_detached tr s =
+  tr#put_string s;
+  let tag = tr#finish_and_get_tag in
+  let txt = tr#get_string in
+  tr#wipe;
+  (txt, tag)
 
-let length = new length
+let auth_transform_string tr s =
+  let (txt, tag) = auth_transform_string_detached tr s in
+  txt ^ tag
 
-class _8000 =
-  object
-    method pad buffer used =
-      Bytes.set buffer used '\128';
-      for i = used + 1 to Bytes.length buffer - 1 do
-        Bytes.set buffer i '\000'
-      done
-    method strip buffer =
-      let rec strip pos =
-        if pos < 0 then raise (Error Bad_padding) else
-          match Bytes.get buffer pos with
-            '\128' -> pos
-          | '\000' -> strip (pos - 1)
-          |    _   -> raise (Error Bad_padding)
-      in strip (Bytes.length buffer - 1)
-  end
-
-let _8000 = new _8000
-
-end
+let auth_check_transform_string tr s =
+  let ls = String.length s in
+  let lt = tr#tag_size in
+  if ls < lt then raise (Error Wrong_data_length);
+  tr#put_string (String.sub s 0 (ls - lt));
+  let tag = tr#finish_and_get_tag in
+  let res =
+    if tag = String.sub s (ls - lt) lt
+    then Some (tr#get_string)
+    else None in
+  tr#wipe; res
 
 (* Generic handling of output buffering *)
 
@@ -333,6 +340,122 @@ class buffered_output initial_buffer_size =
     method wipe =
       wipe_bytes obuf
   end
+
+(* Combining a transform and a hash to get an authenticated transform *)
+
+class transform_then_hash (tr: transform) (h: hash) =
+  object(self)
+    inherit buffered_output 256 as output_buffer
+
+    method private transfer =
+      let (buf, ofs, len) = tr#get_substring in
+      h#add_substring buf ofs len;
+      self#ensure_capacity len;
+      Bytes.blit buf ofs obuf oend len;
+      oend <- oend + len
+
+    method input_block_size = tr#input_block_size
+    method output_block_size = tr#output_block_size
+    method tag_size = h#hash_size
+
+    method put_substring buf ofs len =
+      tr#put_substring buf ofs len; self#transfer
+    method put_string s =
+      tr#put_string s; self#transfer
+    method put_char c =
+      tr#put_char c; self#transfer
+    method put_byte b =
+      tr#put_byte b; self#transfer
+
+    method finish_and_get_tag =
+      tr#finish; self#transfer; h#result
+
+    method wipe =
+      output_buffer#wipe; tr#wipe; h#wipe
+
+end
+
+let transform_then_hash tr h = new transform_then_hash tr h
+
+class transform_and_hash (tr: transform) (h: hash) =
+  object(self)
+    method input_block_size = tr#input_block_size
+    method output_block_size = tr#output_block_size
+    method tag_size = h#hash_size
+
+    method put_substring buf ofs len =
+      tr#put_substring buf ofs len; h#add_substring buf ofs len
+    method put_string s =
+      tr#put_string s; h#add_string s
+    method put_char c =
+      tr#put_char c; h#add_char c
+    method put_byte b =
+      tr#put_byte b; h#add_byte b
+
+    method finish_and_get_tag =
+      tr#finish; h#result
+
+    method wipe =
+      tr#wipe; h#wipe
+
+    method available_output = tr#available_output
+    method get_substring = tr#get_substring
+    method get_string = tr#get_string
+    method get_char = tr#get_char
+    method get_byte = tr#get_byte
+end
+
+let transform_and_hash tr h = new transform_and_hash tr h
+
+(* Padding schemes *)
+
+module Padding = struct
+
+class type scheme =
+  object
+    method pad: bytes -> int -> unit
+    method strip: bytes -> int
+  end
+
+class length =
+  object
+    method pad buffer used =
+      let n = Bytes.length buffer - used in
+      assert (n > 0 && n < 256);
+      Bytes.fill buffer used n (Char.chr n)
+    method strip buffer =
+      let blocksize = Bytes.length buffer in
+      let n = Char.code (Bytes.get buffer (blocksize - 1)) in
+      if n = 0 || n > blocksize then raise (Error Bad_padding);
+      (* Characters blocksize - n to blocksize - 1 must be equal to n *)
+      for i = blocksize - n to blocksize - 2 do
+        if Char.code (Bytes.get buffer i) <> n then raise (Error Bad_padding)
+      done;
+      blocksize - n
+  end
+
+let length = new length
+
+class _8000 =
+  object
+    method pad buffer used =
+      Bytes.set buffer used '\128';
+      for i = used + 1 to Bytes.length buffer - 1 do
+        Bytes.set buffer i '\000'
+      done
+    method strip buffer =
+      let rec strip pos =
+        if pos < 0 then raise (Error Bad_padding) else
+          match Bytes.get buffer pos with
+            '\128' -> pos
+          | '\000' -> strip (pos - 1)
+          |    _   -> raise (Error Bad_padding)
+      in strip (Bytes.length buffer - 1)
+  end
+
+let _8000 = new _8000
+
+end
 
 (* Block ciphers *)
 
@@ -1307,6 +1430,251 @@ let aes_cmac ?iv key =
   if Char.code (Bytes.get k1 0) land 0x80 > 0 then xor_bytes b 0 k2 0 16;
   wipe_bytes l;
   new Block.cmac ?iv cipher k1 k2
+end
+
+(* Authenticated encryption with associated data *)
+
+module AEAD = struct
+
+type direction = dir = Encrypt | Decrypt
+
+(* AES-GCM *)
+
+(* The H multiplier for GHASH is derived from the AES key by
+   encrypting the all-zero block. *)
+
+let ghash_multiplier (aes: Block.block_cipher) =
+  let b = Bytes.make 16 '\000' in
+  aes#transform b 0 b 0;
+  (*DEBUG Printf.printf "H = %a\n" print_hex_bytes b; *)
+  ghash_init b
+
+(* Add a block to the rolling MAC.  len must be between 0 and 16.
+   If less than 16, we logically pad with zeros at the end,
+   i.e. we "xor with zero" (= keep unchanged) the MAC bytes
+   between len and 16. *)
+
+let ghash_block h mac buf ofs len =
+  xor_bytes buf ofs mac 0 len;
+  ghash_mult h mac
+
+let ghash_block_s h mac buf ofs len =
+  xor_string buf ofs mac 0 len;
+  ghash_mult h mac
+
+(* Hash the given string, with zero padding.  Used for the non-encrypted
+   authenticated data and for counter generation. *)
+
+let ghash_string h msg =
+  let mac = Bytes.make 16 '\000' in
+  let l = String.length msg in
+  let i = ref 0 in
+  while !i + 16 <= l do
+    ghash_block_s h mac msg !i 16;
+    i := !i + 16
+  done;
+  if !i < l then ghash_block_s h mac msg !i (l - !i);
+  mac
+
+(* Produce the final authentication tag *)
+
+let ghash_final h mac headerlen cipherlen e0 =
+  let buf = Bytes.create 16 in
+  (* Hash the extra block containing the lengths *)
+  Bytes.set_int64_be buf 0 (Int64.mul headerlen 8L); (* in bits *)
+  Bytes.set_int64_be buf 8 (Int64.mul cipherlen 8L); (* in bits *)
+  (* DEBUG Printf.printf "len A || len C: %a\n" print_hex_bytes buf; *)
+  ghash_block h mac buf 0 16;
+  (* DEBUG Printf.printf "GHASH(H,A,C): %a\n" print_hex_bytes mac; *)
+  (* Authentication tag = final MAC xor encryption of the IV *)
+  Bytes.blit mac 0 buf 0 16;
+  xor_bytes e0 0 buf 0 16;
+  Bytes.to_string buf
+
+(* Initial value of the counter *)
+
+let counter0 h iv =
+  if String.length iv = 12 then
+    Bytes.of_string (iv ^ "\000\000\000\001")
+  else begin
+    let mac = ghash_string h iv in
+    let buf = Bytes.make 16 '\000' in
+    Bytes.set_int64_be buf 8 (Int64.mul (Int64.of_int (String.length iv)) 8L);
+    ghash_block h mac buf 0 16;
+    (*DEBUG Printf.printf "Y0 = %a\n" print_hex_bytes mac; *)
+    mac
+  end
+
+(* Encryption of the initial counter *)
+
+let enc_initial_counter (aes: Block.block_cipher) counter0 =
+  (* DEBUG Printf.printf "Y0 = %a\n" print_hex_bytes counter0; *)
+  let b = Bytes.create 16 in
+  aes#transform counter0 0 b 0;
+  (* DEBUG Printf.printf "E(Y0) = %a\n" print_hex_bytes b; *)
+  b
+
+(* CTR encryption / decryption *)
+
+let ctr_enc_dec (aes: Block.block_cipher) ctr buf src soff dst doff len =
+  Block.increment_counter ctr 12 15;
+  (* DEBUG Printf.printf "Y = %a\n" print_hex_bytes ctr; *)
+  aes#transform ctr 0 buf 0;
+  xor_bytes src soff buf 0 len;
+  Bytes.blit buf 0 dst doff len
+
+class aes_gcm_encrypt ?(header = "") ~iv key =
+  (* The AES block cipher *)
+  let aes = new Block.aes_encrypt key in
+  (* The multiplier for the GHASH MAC *)
+  let h = ghash_multiplier aes in
+  (* The counter for use in CTR mode. *)
+  let ctr = counter0 h iv in
+  (* The encryption of the initial counter, to be used for the final MAC *)
+  let e0 = enc_initial_counter aes ctr in
+  (* The current MAC, initialized with the header
+     (the non-encrypted authenticated data) *)
+  let mac = ghash_string h header in
+  (* Lengths of the authenticated data and the encrypted data *)
+  let headerlen = Int64.of_int (String.length header)
+  and cipherlen = ref 0L in
+  (* A wrapper around the block cipher that 
+     - performs encryption in CTR mode
+     - updates the MAC
+     - updates the length of encrypted data *)
+  let enc_wrapped : Block.block_cipher = 
+    let buf = Bytes.create 16 in
+    object
+      method blocksize = 16
+      method wipe = aes#wipe
+      method transform src soff dst doff =
+        ctr_enc_dec aes ctr buf src soff dst doff 16;
+        ghash_block h mac dst doff 16;
+        (* DEBUG Printf.printf "X = %a\n" print_hex_bytes mac;*)
+        cipherlen := Int64.(add !cipherlen 16L)
+    end in
+  object(self)
+    inherit (Block.cipher enc_wrapped)
+    method input_block_size = 1
+    method output_block_size = 1
+    method tag_size = 16
+    method finish_and_get_tag =
+      if used > 0 then begin
+        let buf = Bytes.create 16 in
+        (* Encrypt final block *)
+        self#ensure_capacity used;
+        ctr_enc_dec aes ctr buf ibuf 0 obuf oend used;
+        (* Hash final block padded with zeros *)
+        ghash_block h mac obuf oend used;
+        oend <- oend + used;
+        (* DEBUG Printf.printf "X = %a\n" print_hex_bytes mac; *)
+        cipherlen := Int64.(add !cipherlen (of_int used))
+      end;
+      (* Produce authentication tag *)
+      ghash_final h mac headerlen !cipherlen e0
+  end
+
+class aes_gcm_decrypt ?(header = "") ~iv key =
+  (* The AES block cipher *)
+  let aes = new Block.aes_encrypt key in
+  (* The multiplier for the GHASH MAC *)
+  let h = ghash_multiplier aes in
+  (* The counter for use in CTR mode. *)
+  let ctr = counter0 h iv in
+  (* The encryption of the initial counter, to be used for the final MAC *)
+  let e0 = enc_initial_counter aes ctr in
+  (* The current MAC, initialized with the header
+     (the non-encrypted authenticated data) *)
+  let mac = ghash_string h header in
+  (* Lengths of the authenticated data and the encrypted data *)
+  let headerlen = Int64.of_int (String.length header)
+  and cipherlen = ref 0L in
+  (* A wrapper around the block cipher that 
+     - updates the MAC
+     - performs decryption in CTR mode
+     - updates the length of encrypted data *)
+  let dec_wrapped : Block.block_cipher = 
+    let buf = Bytes.create 16 in
+    object
+      method blocksize = 16
+      method wipe = aes#wipe
+      method transform src soff dst doff =
+        ghash_block h mac src soff 16;
+        ctr_enc_dec aes ctr buf src soff dst doff 16;
+        cipherlen := Int64.(add !cipherlen 16L)
+    end in
+  object(self)
+    inherit (Block.cipher dec_wrapped)
+    method input_block_size = 1
+    method output_block_size = 1
+    method tag_size = 16
+    method finish_and_get_tag =
+      if used > 0 then begin
+        let buf = Bytes.create 16 in
+        (* Hash final block padded with zeros *)
+        ghash_block h mac ibuf 0 used;
+        (* Decrypt final block *)
+        self#ensure_capacity used;
+        ctr_enc_dec aes ctr buf ibuf 0 obuf oend used;
+        oend <- oend + used;
+        cipherlen := Int64.(add !cipherlen (of_int used))
+      end;
+      (* Produce authentication tag *)
+      ghash_final h mac headerlen !cipherlen e0
+  end
+
+let aes_gcm ?header ~iv key dir =
+  match dir with
+  | Encrypt -> (new aes_gcm_encrypt ?header ~iv key :> authenticated_transform)
+  | Decrypt -> (new aes_gcm_decrypt ?header ~iv key :> authenticated_transform)
+
+(* The AES-CBC-HMAC construction from the IETF 2014 draft
+   "Authenticated Encryption with AES-CBC and HMAC-SHA" *)
+
+class ad_transform_then_hash ~tagsz ?(header = "") (tr: transform) (h: hash) =
+  object(self)
+    inherit transform_then_hash tr h
+    initializer (h#add_string header)
+    method tag_size = tagsz
+    method finish_and_get_tag =
+      tr#finish; self#transfer;
+      let b = Bytes.create 8 in
+      Bytes.set_int64_be b 0 (Int64.(mul (of_int (String.length header)) 8L));
+      h#add_substring b 0 8;
+      String.sub h#result 0 tagsz
+  end
+
+class ad_transform_and_hash ~tagsz ?(header = "") (tr: transform) (h: hash) =
+  object
+    inherit transform_and_hash tr h
+    initializer (h#add_string header)
+    method tag_size = tagsz
+    method finish_and_get_tag =
+      tr#finish;
+      let b = Bytes.create 8 in
+      Bytes.set_int64_be b 0 (Int64.(mul (of_int (String.length header)) 8L));
+      h#add_substring b 0 8;
+      String.sub h#result 0 tagsz
+  end
+
+let aes_128_cbc_hmac_sha_256 ?header ~iv k1 k2 dir =
+  if not (String.length k1 = 16 && String.length k2 = 16)
+  then raise (Error Wrong_key_size);
+  let a = Cipher.aes ~mode:Cipher.CBC ~pad:Padding.length ~iv k1 dir in
+  let h = MAC.hmac_sha256 k2 in
+  match dir with
+  | Encrypt -> new ad_transform_then_hash ~tagsz:16 ?header a h
+  | Decrypt -> new ad_transform_and_hash  ~tagsz:16 ?header a h
+
+let aes_256_cbc_hmac_sha_512 ?header ~iv k1 k2 dir =
+  if not (String.length k1 = 32 && String.length k2 = 32)
+  then raise (Error Wrong_key_size);
+  let a = Cipher.aes ~mode:Cipher.CBC ~pad:Padding.length ~iv k1 dir in
+  let h = MAC.hmac_sha512 k2 in
+  match dir with
+  | Encrypt -> new ad_transform_then_hash ~tagsz:32 ?header a h
+  | Decrypt -> new ad_transform_and_hash  ~tagsz:32 ?header a h
+
 end
 
 (* Random number generation *)

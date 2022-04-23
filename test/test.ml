@@ -295,6 +295,139 @@ let _ =
     ("FEDCBA9876543210", "FFFFFFFFFFFFFFFF", "6B5C5A9C5D9E0A5A")
   ]
 
+(* AES-GCM *)
+
+let _ =
+  testing_function "AES-GCM";
+  let testcnt = ref 0 in
+  let do_test (key, plain, header, iv, cipher, tag) =
+    let key = hex key
+    and plain = hex plain
+    and header = hex header
+    and iv = hex iv
+    and cipher = hex cipher
+    and tag = hex tag in
+    let c = AEAD.(aes_gcm ~header ~iv key Encrypt) in
+    let (c1, t1) = auth_transform_string_detached c plain in
+    incr testcnt; test !testcnt c1 cipher;
+    incr testcnt; test !testcnt t1 tag;
+    let d = AEAD.(aes_gcm ~header ~iv key Decrypt) in
+    let (p2, t2) = auth_transform_string_detached d cipher in
+    incr testcnt; test !testcnt p2 plain;
+    incr testcnt; test !testcnt t2 tag in
+  List.iter do_test [
+    ("00000000000000000000000000000000",
+      "", "",
+      "000000000000000000000000",
+      "",
+      "58e2fccefa7e3061367f1d57a4e7455a");
+    ("00000000000000000000000000000000",
+     "00000000000000000000000000000000", "",
+     "000000000000000000000000",
+     "0388dace60b6a392f328c2b971b2fe78",
+     "ab6e47d42cec13bdf53a67b21257bddf");
+    ("feffe9928665731c6d6a8f9467308308",
+     "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b391aafd255", "",
+     "cafebabefacedbaddecaf888",
+     "42831ec2217774244b7221b784d0d49ce3aa212f2c02a4e035c17e2329aca12e21d514b25466931c7d8f6a5aac84aa051ba30b396a0aac973d58e091473f5985",
+     "4d5c2af327cd64a62cf35abd2ba6fab4");
+    ("feffe9928665731c6d6a8f9467308308",
+     "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39", "feedfacedeadbeeffeedfacedeadbeefabaddad2",
+     "cafebabefacedbaddecaf888",
+     "42831ec2217774244b7221b784d0d49ce3aa212f2c02a4e035c17e2329aca12e21d514b25466931c7d8f6a5aac84aa051ba30b396a0aac973d58e091",
+     "5bc94fbc3221a5db94fae95ae7121a47");
+    ("feffe9928665731c6d6a8f9467308308",
+     "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39", "feedfacedeadbeeffeedfacedeadbeefabaddad2",
+     "cafebabefacedbaddecaf888",
+     "42831ec2217774244b7221b784d0d49ce3aa212f2c02a4e035c17e2329aca12e21d514b25466931c7d8f6a5aac84aa051ba30b396a0aac973d58e091",
+     "5bc94fbc3221a5db94fae95ae7121a47");
+    ("feffe9928665731c6d6a8f9467308308",
+     "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39", "feedfacedeadbeeffeedfacedeadbeefabaddad2",
+     "cafebabefacedbad",
+     "61353b4c2806934a777ff51fa22a4755699b2a714fcdc6f83766e5f97b6c742373806900e49f24b22b097544d4896b424989b5e1ebac0f07c23f4598",
+     "3612d2e79e3b0785561be14aaca2fccb");
+    ("feffe9928665731c6d6a8f9467308308",
+     "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39", "feedfacedeadbeeffeedfacedeadbeefabaddad2",
+     "9313225df88406e555909c5aff5269aa6a7a9538534f7da1e4c303d2a318a728c3c0c95156809539fcf0e2429a6b525416aedbf5a0de6a57a637b39b",
+     "8ce24998625615b603a033aca13fb894be9112a5c3a211a8ba262a3cca7e2ca701e4a9a4fba43c90ccdcb281d48c7c6fd62875d2aca417034c34aee5",
+     "619cc5aefffe0bfa462af43c1699d050")
+  ]
+
+(* AES-128-CBC-HMAC-SHA-256 *)
+
+let _ =
+  testing_function "AES-128-CBC-HMAC-SHA-256";
+  let mk = hex "00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f"
+  and ek = hex "10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f"
+  and p  = hex "41 20 63 69 70 68 65 72 20 73 79 73 74 65 6d 20 
+          6d 75 73 74 20 6e 6f 74 20 62 65 20 72 65 71 75 
+          69 72 65 64 20 74 6f 20 62 65 20 73 65 63 72 65 
+          74 2c 20 61 6e 64 20 69 74 20 6d 75 73 74 20 62 
+          65 20 61 62 6c 65 20 74 6f 20 66 61 6c 6c 20 69 
+          6e 74 6f 20 74 68 65 20 68 61 6e 64 73 20 6f 66 
+          20 74 68 65 20 65 6e 65 6d 79 20 77 69 74 68 6f 
+          75 74 20 69 6e 63 6f 6e 76 65 6e 69 65 6e 63 65"
+  and iv = hex "1a f3 8c 2d c2 b9 6f fd d8 66 94 09 23 41 bc 04"
+  and a = hex "54 68 65 20 73 65 63 6f 6e 64 20 70 72 69 6e 63 
+          69 70 6c 65 20 6f 66 20 41 75 67 75 73 74 65 20 
+          4b 65 72 63 6b 68 6f 66 66 73"
+  and t = hex "65 2c 3f a3 6b 0a 7c 5b 32 19 fa b3 a3 0b c1 c4"
+  and c = hex "1a f3 8c 2d c2 b9 6f fd d8 66 94 09 23 41 bc 04 
+          c8 0e df a3 2d df 39 d5 ef 00 c0 b4 68 83 42 79 
+          a2 e4 6a 1b 80 49 f7 92 f7 6b fe 54 b9 03 a9 c9 
+          a9 4a c9 b4 7a d2 65 5c 5f 10 f9 ae f7 14 27 e2 
+          fc 6f 9b 3f 39 9a 22 14 89 f1 63 62 c7 03 23 36 
+          09 d4 5a c6 98 64 e3 32 1c f8 29 35 ac 40 96 c8 
+          6e 13 33 14 c5 40 19 e8 ca 79 80 df a4 b9 cf 1b 
+          38 4c 48 6f 3a 54 c5 10 78 15 8e e5 d7 9d e5 9f 
+          bd 34 d8 48 b3 d6 95 50 a6 76 46 34 44 27 ad e5 
+          4b 88 51 ff b5 98 f7 f8 00 74 b9 47 3c 82 e2 db 
+          65 2c 3f a3 6b 0a 7c 5b 32 19 fa b3 a3 0b c1 c4" in
+  let enc = AEAD.aes_128_cbc_hmac_sha_256 ~header:a ~iv ek mk AEAD.Encrypt
+  and dec = AEAD.aes_128_cbc_hmac_sha_256 ~header:a ~iv ek mk AEAD.Decrypt in
+  let (c1, t1) = auth_transform_string_detached enc p in
+  test 1 c1 c; test 2 t1 t; 
+  let (p2, t2) = auth_transform_string_detached dec c in
+  test 3 p2 p; test 4 t2 t
+
+let _ =
+  testing_function "AES-256-CBC-HMAC-SHA-512";
+  let mk = hex "00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 
+          10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f"
+  and ek = hex "20 21 22 23 24 25 26 27 28 29 2a 2b 2c 2d 2e 2f 
+          30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f"
+  and p = hex "41 20 63 69 70 68 65 72 20 73 79 73 74 65 6d 20 
+          6d 75 73 74 20 6e 6f 74 20 62 65 20 72 65 71 75 
+          69 72 65 64 20 74 6f 20 62 65 20 73 65 63 72 65 
+          74 2c 20 61 6e 64 20 69 74 20 6d 75 73 74 20 62 
+          65 20 61 62 6c 65 20 74 6f 20 66 61 6c 6c 20 69 
+          6e 74 6f 20 74 68 65 20 68 61 6e 64 73 20 6f 66 
+          20 74 68 65 20 65 6e 65 6d 79 20 77 69 74 68 6f 
+          75 74 20 69 6e 63 6f 6e 76 65 6e 69 65 6e 63 65"
+  and iv = hex "1a f3 8c 2d c2 b9 6f fd d8 66 94 09 23 41 bc 04"
+  and a = hex "54 68 65 20 73 65 63 6f 6e 64 20 70 72 69 6e 63 
+          69 70 6c 65 20 6f 66 20 41 75 67 75 73 74 65 20 
+          4b 65 72 63 6b 68 6f 66 66 73"
+  and t = hex "4d d3 b4 c0 88 a7 f4 5c 21 68 39 64 5b 20 12 bf
+          2e 62 69 a8 c5 6a 81 6d bc 1b 26 77 61 95 5b c5"
+  and c = hex "1a f3 8c 2d c2 b9 6f fd d8 66 94 09 23 41 bc 04 
+          4a ff aa ad b7 8c 31 c5 da 4b 1b 59 0d 10 ff bd
+          3d d8 d5 d3 02 42 35 26 91 2d a0 37 ec bc c7 bd
+          82 2c 30 1d d6 7c 37 3b cc b5 84 ad 3e 92 79 c2
+          e6 d1 2a 13 74 b7 7f 07 75 53 df 82 94 10 44 6b
+          36 eb d9 70 66 29 6a e6 42 7e a7 5c 2e 08 46 a1
+          1a 09 cc f5 37 0d c8 0b fe cb ad 28 c7 3f 09 b3
+          a3 b7 5e 66 2a 25 94 41 0a e4 96 b2 e2 e6 60 9e
+          31 e6 e0 2c c8 37 f0 53 d2 1f 37 ff 4f 51 95 0b
+          be 26 38 d0 9d d7 a4 93 09 30 80 6d 07 03 b1 f6
+          4d d3 b4 c0 88 a7 f4 5c 21 68 39 64 5b 20 12 bf
+          2e 62 69 a8 c5 6a 81 6d bc 1b 26 77 61 95 5b c5" in
+  let enc = AEAD.aes_256_cbc_hmac_sha_512 ~header:a ~iv ek mk AEAD.Encrypt
+  and dec = AEAD.aes_256_cbc_hmac_sha_512 ~header:a ~iv ek mk AEAD.Decrypt in
+  let (c1, t1) = auth_transform_string_detached enc p in
+  let (p2, t2) = auth_transform_string_detached dec c in
+  test 1 c1 c; test 2 t1 t; test 3 p2 p; test 4 t2 t
+
 (* Input message: a million 'a' *)
 let hash_million_a (h: hash) =
   for i = 1 to 10_000 do
