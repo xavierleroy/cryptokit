@@ -107,6 +107,8 @@ int pclmul_available = -1;
 
 int pclmul_check_available(void) { return 0; }
 
-void pclmul_mult(uint8_t a[16], const uint8_t b[16]) { abort(); }
+void pclmul_mult(uint8_t res[16],
+                 const uint8_t arg1[16], const uint8_t arg2[16])
+{ abort(); }
 
 #endif
