@@ -72,6 +72,10 @@ The Blowfish implementation is that of Paul Kocher with some performance improve
 
 ARCfour (``alleged RC4'') is implemented from scratch, based on the algorithm described in Schneier's _Applied Cryptography_
 
+For AES-GCM, the GHASH implementation is that of Steven M. Gibson at https://github.com/mko-x/SharedAES-GCM/blob/master/Sources/gcm.c .  On x86 processors that support the PCLMUL extension, hardware implementation is used instead.  Test vectors are taken from "The Galois/Counter Mode of Operation (GCM)" by David A. McGrew and John Viega.
+
+For Chacha20-Poly1305,  Poly1305 is based on the "Donna" implementation by Andrew Moon, https://github.com/floodyberry/poly1305-donna .  Test vectors are taken from RFC 7539 and from the BoringSSL project.
+
 SHA-1 is also implemented from scratch, based on the algorithm described in the _Handbook of Applied Cryptography_.   It passes the FIPS test vectors.
 
 SHA-2 is implemented from scratch based on FIPS publication 180-2.  It passes the FIPS test vectors.
