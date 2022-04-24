@@ -727,12 +727,17 @@ class ctr ?iv:iv_init ?inc (cipher : block_cipher) =
   object(self)
     val iv = make_initial_iv blocksize iv_init
     val out = Bytes.create blocksize
+    val mutable max_transf =
+      if nincr < 8 then Int64.(shift_left 1L (nincr * 8)) else 0L
     method blocksize = blocksize
     method transform src src_off dst dst_off =
       cipher#transform iv 0 out 0;
       Bytes.blit src src_off dst dst_off blocksize;
       xor_bytes out 0 dst dst_off blocksize;
-      increment_counter iv (blocksize - nincr) (blocksize - 1)
+      increment_counter iv (blocksize - nincr) (blocksize - 1);
+      let m = Int64.pred max_transf in
+      if m = 0L then raise (Error Message_too_long);
+      max_transf <- m
     method wipe =
       cipher#wipe;
       wipe_bytes iv;
@@ -1550,7 +1555,8 @@ class aes_gcm_encrypt ?(header = "") ~iv key =
       method transform src soff dst doff =
         ctr_enc_dec aes ctr buf src soff dst doff 16;
         ghash_block h mac dst doff 16;
-        cipherlen := Int64.(add !cipherlen 16L)
+        cipherlen := Int64.(add !cipherlen 16L);
+        if !cipherlen > 0xfffffffe0L then raise (Error Message_too_long)
     end in
   object(self)
     inherit (Block.cipher enc_wrapped)
@@ -1566,7 +1572,8 @@ class aes_gcm_encrypt ?(header = "") ~iv key =
         (* Hash final block padded with zeros *)
         ghash_block h mac obuf oend used;
         oend <- oend + used;
-        cipherlen := Int64.(add !cipherlen (of_int used))
+        cipherlen := Int64.(add !cipherlen (of_int used));
+        if !cipherlen > 0xfffffffe0L then raise (Error Message_too_long)
       end;
       (* Produce authentication tag *)
       ghash_final h mac headerlen !cipherlen e0

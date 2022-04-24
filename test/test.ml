@@ -716,6 +716,19 @@ let _ =
   test_enc_dec 3 (des ~mode:CTR ~pad:Padding._8000) "abcdefghijklmnopqrstuvwxyz";
   test_enc_dec 4 (des ~mode:CTR ~iv:"\000\000\000\000\255\255\255\255" ~pad:Padding._8000) "abcdefghijklmnopqrstuvwxyz"
 
+let _ =
+  testing_function "CTR_N";
+  test_enc_dec 1 (des ~mode:(CTR_N 1)) "abcdefgh";
+  let test_overflow len =
+    try ignore(transform_string (des ~mode:(CTR_N 1) some_key Encrypt)
+                                (String.make len 'x'));
+        false
+    with Error Message_too_long ->
+        true
+  in
+  test 2 (test_overflow (256 * 8)) true;
+  test 3 (test_overflow (255 * 8)) false
+
 (* HMAC-SHA256 *)
 
 let _ =

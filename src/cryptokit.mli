@@ -1375,8 +1375,11 @@ type error =
   | Seed_too_short
       (** The seed given to a pseudo random number generator is too short. *)
   | Message_too_long
-      (** The message passed to RSA encryption or decryption is greater
-          than the modulus of the RSA key *)
+      (** For symmetric ciphers in counter mode (CTR): the message
+          exceeds the maximal length supported, causing the counter
+          to wrap around.
+          For RSA encryption or decryption: the message is greater
+          than the modulus of the RSA key. *)
   | Bad_encoding
       (** Illegal characters were found in an encoding of binary data
           such as base 64 or hexadecimal. *)
