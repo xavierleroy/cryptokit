@@ -20,9 +20,41 @@
 #include <caml/fail.h>
 #include <caml/memory.h>
 
-/* Win32 system RNG */
+#if defined(HAVE_GETENTROPY) || defined(__APPLE__)
 
-#ifdef _WIN32
+/* getentropy() system RNG */
+
+#include <unistd.h>
+#ifdef __APPLE__
+#include <sys/random.h>
+#endif
+
+CAMLprim value caml_get_system_rng(value unit)
+{
+  return Val_unit;
+}
+
+CAMLprim value caml_close_system_rng(value vhc)
+{
+  return Val_unit;
+}
+
+CAMLprim value caml_system_rng_random_bytes(value vhc, value str,
+                                            value ofs, value len)
+{
+  unsigned char * p = &Byte_u(str, Long_val(ofs));
+  intnat l = Long_val(len);
+  while (l > 0) {
+    int n = l < 256 ? l : 256;
+    if (getentropy(p, n) == -1) return Val_false;
+    p += n; l -= n;
+  }
+  return Val_true;
+}
+
+#elif defined(_WIN32)
+
+/* Win32 system RNG */
 
 /* Inspired by Mike Lin's port of Cryptokit 1.0 */
 

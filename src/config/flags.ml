@@ -1,5 +1,6 @@
 (* Compute compilation and linking flags *)
 
+open Printf
 open Config_vars
 
 module Configurator = Configurator.V1
@@ -9,7 +10,16 @@ let test ~cfg ~c_flags ~link_flags =
   let test_program = "int main() { return 0; }" in
   Configurator.c_test cfg test_program ~c_flags ~link_flags
 
-let () = Configurator.main ~name:"cryptokit" (fun cfg ->
+(* Check that a list of header files declare a list of identifiers. *)
+let provides ~cfg ~c_flags ~link_flags ~headers ~functions =
+  let test_program =
+      List.map (fun h -> sprintf "#include <%s>\n" h) headers
+    @ ["int main() {\n"]
+    @ List.map (fun f -> sprintf "  void * ptr_%s = &%s;\n" f f) functions
+    @ ["}\n"] in
+  Configurator.c_test cfg (String.concat "" test_program) ~c_flags ~link_flags
+
+let () = Configurator.main ~name:"cryptokit" @@ fun cfg ->
   let os_type = Configurator.ocaml_config_var_exn cfg "os_type" in
   let system = Configurator.ocaml_config_var_exn cfg "system" in
   let architecture = Configurator.ocaml_config_var_exn cfg "architecture" in
@@ -22,9 +32,14 @@ let () = Configurator.main ~name:"cryptokit" (fun cfg ->
     | Auto -> (architecture = "amd64" || architecture = "i386")
               && test ~cfg ~c_flags:[ "-maes"; "-mpclmul" ] ~link_flags:[]
   in
+  let has_getentropy =
+    provides ~cfg ~c_flags:[] ~link_flags:[]
+             ~headers:["unistd.h"] ~functions:["getentropy"]
+  in
   let append_if c y x = if c then x @ [ y ] else x in
   let flags =
     []
+    |> append_if has_getentropy "-DHAVE_GETENTROPY"
     |> append_if zlib "-DHAVE_ZLIB"
     |> append_if hardware_support "-maes"
     |> append_if hardware_support "-mpclmul"
@@ -42,5 +57,7 @@ let () = Configurator.main ~name:"cryptokit" (fun cfg ->
     | true -> "enabled"
     | false -> "disabled"
   in
-  Printf.printf "ZLib: ............................... %s\n" (describe_bool zlib);
-  Printf.printf "Hardware support for AES and GCM: ... %s\n" (describe_bool hardware_support))
+  printf "ZLib: ............................... %s\n" (describe_bool zlib);
+  printf "Hardware support for AES and GCM: ... %s\n" (describe_bool hardware_support);
+  printf "getentropy():........................ %s\n" (describe_bool has_getentropy)
+
