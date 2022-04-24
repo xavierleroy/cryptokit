@@ -17,7 +17,7 @@ This library is distributed under the conditions of the GNU Library General Publ
 
 ## Requirements
 
-* OCaml 4.05 or more recent.
+* OCaml 4.08 or more recent.
 * The Dune build system, version 2.0 or more recent.
 * The Zarith library, version 1.4 or more recent.
 * The Zlib C library, version 1.1.3 or up is recommended. If it is not installed on your system (look for libz.a or libz.so), get it from http://www.gzip.org/, or indicate in the Makefile that you do not have it.  If you are running Linux or BSD or MacOS, your distribution provides precompiled binaries for this library.

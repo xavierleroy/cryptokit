@@ -2,7 +2,7 @@
  (name test)
  (modules test)
  (libraries cryptokit)
- (flags :standard -w -35))
+ (flags :standard -w -35 -alert -crypto))
 
 (executable
  (name prngtest)
@@ -13,4 +13,4 @@
  (name speedtest)
  (modules speedtest)
  (libraries cryptokit)
- (flags :standard -w -35))
+ (flags :standard -w -35 -alert -crypto))

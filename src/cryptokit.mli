@@ -552,6 +552,7 @@ module Cipher : sig
 
   val des: ?mode:chaining_mode -> ?pad:Padding.scheme -> ?iv:string ->
              string -> direction -> transform
+    [@@alert crypto "DES is broken"]
     (** DES is the Data Encryption Standard.  Very popular in the past,
         but now completely insecure owing to its small key size (56 bits)
         which can easily be broken by brute-force enumeration.
@@ -564,6 +565,7 @@ module Cipher : sig
 
   val triple_des: ?mode:chaining_mode -> ?pad:Padding.scheme -> ?iv:string ->
              string -> direction -> transform
+    [@@alert crypto "Triple-DES is weak (small block size)"]
     (** Triple DES with two or three DES keys.
         This is a popular variant of DES
         where each block is encrypted with a 56-bit key [k1],
@@ -583,6 +585,7 @@ module Cipher : sig
         ignored. *)
 
   val arcfour: string -> direction -> transform
+    [@@alert crypto "ARCfour is weak (statistical biases)"]
     (** ARCfour (``alleged RC4'') is a fast stream cipher
         that appears to produce equivalent results with the commercial
         RC4 cipher from RSA Data Security Inc.  This company holds the
@@ -611,6 +614,7 @@ module Cipher : sig
 
   val blowfish: ?mode:chaining_mode -> ?pad:Padding.scheme -> ?iv:string ->
              string -> direction -> transform
+    [@@alert crypto "Blowfish is weak (small block size)"]
     (** Blowfish is a fast block cipher proposed by B.Schneier in 1994.
         It processes data by blocks of 64 bits (8 bytes),
         and supports keys of 32 to 448 bits.
@@ -765,12 +769,14 @@ module Hash : sig
 (** {2 Weak hashes, not recommended for new applications} *)
 
   val sha1: unit -> hash
+    [@@alert crypto "SHA1 is broken"]
     (** SHA-1 is the Secure Hash Algorithm revision 1.  It is a NIST
         standard, is widely used, and produces 160-bit hashes (20 bytes).
         While popular in many legacy applications, it is now known
         to be insecure.  In particular, it is not collision-resistant. *)
 
   val md5: unit -> hash
+    [@@alert crypto "MD5 is broken"]
     (** MD5 is an older hash function, producing 128-bit hashes (16 bytes).
         While popular in many legacy applications, it is now known
         to be insecure.  In particular, it is not collision-resistant. *)
@@ -879,6 +885,7 @@ module MAC: sig
         integral number of 16-byte blocks. *)
 
   val des: ?iv:string -> ?pad:Padding.scheme -> string -> hash
+    [@@alert crypto "DES MAC is weak"]
     (** [des key] returns a MAC based on DES encryption in CBC mode.
         The construction is identical to that used for the [aes] MAC.
         The key size is 64 bits (8 bytes), of which only 56 are used.
@@ -886,6 +893,7 @@ module MAC: sig
         Due to the small hash size and key size, this MAC is weak. *)
 
   val triple_des: ?iv:string -> ?pad:Padding.scheme -> string -> hash
+    [@@alert crypto "Triple-DES MAC is weak"]
     (** [triple_des key] returns a MAC based on triple DES encryption in CBC mode.
         The construction is identical to that used for the [aes] MAC.
         The key size is 16 or 24 bytes.  The returned hash value has
@@ -894,6 +902,7 @@ module MAC: sig
         MAC is not collision-resistant. *)
 
   val des_final_triple_des: ?iv:string -> ?pad:Padding.scheme -> string -> hash
+    [@@alert crypto "Triple-DES MAC is weak"]
     (** [des_final_triple_des key] returns a MAC that uses DES CBC
         with the first 8 bytes of [key] as key.  The final initialization
         vector is then DES-decrypted with bytes 8 to 15 of [key],
@@ -1168,24 +1177,30 @@ module Block : sig
     (** The AES block cipher, in decryption mode. *)
 
   class des_encrypt: string -> block_cipher
+    [@@alert crypto "DES is broken"]
     (** The DES block cipher, in encryption mode.  The string argument
         is the key; its length must be 8 bytes. *)
 
   class des_decrypt: string -> block_cipher
+    [@@alert crypto "DES is broken"]
     (** The DES block cipher, in decryption mode. *)
 
   class triple_des_encrypt: string -> block_cipher
+    [@@alert crypto "Triple-DES is weak"] 
     (** The Triple-DES block cipher, in encryption mode.
         The key argument must have length 16 (two keys) or 24 (three keys). *)
 
   class triple_des_decrypt: string -> block_cipher
+    [@@alert crypto "Triple-DES is weak"] 
     (** The Triple-DES block cipher, in decryption mode. *)
 
   class blowfish_encrypt: string -> block_cipher
+    [@@alert crypto "Blowfish is weak"] 
     (** The Blowfish block cipher, in encryption mode.  The string argument
         is the key; its length must be between 4 and 56. *)
 
   class blowfish_decrypt: string -> block_cipher
+    [@@alert crypto "Blowfish is weak"] 
     (** The Blowfish block cipher, in decryption mode. *)
 
   (** {1 Chaining modes} *)
@@ -1265,6 +1280,7 @@ module Stream : sig
         The transform has input and output block size of 1. *)
 
   class arcfour: string -> stream_cipher
+    [@@alert crypto "ARCfour is weak"] 
     (** The ARCfour (``alleged RC4'') stream cipher.
         The argument is the key, and must be of length 1 to 256.
         This stream cipher works by xor-ing the input with the
@@ -1338,8 +1354,7 @@ end
     of data, using the [zlib] library.  The algorithm used is
     Lempel-Ziv compression as in the [gzip] and [zip] compressors.
     While compression itself is not encryption, it is often used prior
-    to encryption to hide regularities in the plaintext, and reduce
-    the size of the ciphertext. *)
+    to encryption to reduce the size of the ciphertext. *)
 module Zlib: sig
 
   val compress : ?level:int -> ?write_zlib_header:bool -> unit -> transform

@@ -1,9 +1,11 @@
 - Add interfaces for authenticated encryption (AEAD) and two implementations:
-  AES-GCM and Chacha20-Poly1305
-- Use `getentropy()` for `system_rng` when available (Linux, macOS, BSD)
-- Remove support for EGD (the Entropy Gathering Daemon)
-- Set file descriptor to close-on-exec in `device_rng` (#27)
-- Improve compatibility with OCaml 5.0 (#28)
+  AES-GCM and Chacha20-Poly1305.
+- Use `getentropy()` for `system_rng` when available (Linux, macOS, BSD).
+- Removed support for EGD (the Entropy Gathering Daemon).
+- Added compile-time alerts on uses of broken or weak ciphers and hashes.
+  (Can be silenced with "-alert -crypto".)
+- Set file descriptor to close-on-exec in `device_rng` (#27).
+- Improve compatibility with OCaml 5.0 (#28).
 
 Release 1.16.1:
 - Make the tests faster and more robust
