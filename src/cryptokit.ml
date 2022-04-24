@@ -114,11 +114,9 @@ external blake2s_final: bytes -> int -> string = "caml_blake2s_final"
 type ghash_context
 external ghash_init: bytes -> ghash_context = "caml_ghash_init"
 external ghash_mult: ghash_context -> bytes -> unit = "caml_ghash_mult"
-(*
-external poly1305_init: string -> bytes = "caml_poly1305_init"
+external poly1305_init: bytes -> bytes = "caml_poly1305_init"
 external poly1305_update: bytes -> bytes -> int -> int -> unit = "caml_poly1305_update"
 external poly1305_final: bytes -> string = "caml_poly1305_final"
-*)
 
 (* Abstract transform type *)
 
@@ -1644,6 +1642,94 @@ let aes_gcm ?header ~iv key dir =
   match dir with
   | Encrypt -> (new aes_gcm_encrypt ?header ~iv key :> authenticated_transform)
   | Decrypt -> (new aes_gcm_decrypt ?header ~iv key :> authenticated_transform)
+
+(* Chacha20-Poly1305 *)
+
+let poly1305_update_pad h n =
+  let n = (0x10 - n) land 0xF in
+  if n > 0 then poly1305_update h (Bytes.make n '\000') 0 n
+
+let poly1305_init_hash cha header =
+  let buf = Bytes.make 64 '\000' in
+  cha#transform buf 0 buf 0 64;
+  let h = poly1305_init buf in  (* only the first 32 bytes are used *)
+  wipe_bytes buf;
+  poly1305_update h (Bytes.unsafe_of_string header) 0 (String.length header);
+  (* Pad header to a multiple of 16 bytes *)
+  poly1305_update_pad h (String.length header land 0xF);
+  h
+
+let poly1305_finish_and_get_tag h headerlen cipherlen =
+  (* Pad ciphertext to a multiple of 16 bytes *)
+  poly1305_update_pad h Int64.(to_int (logand cipherlen 0xFL));
+  (* Add lengths as 64-bit little-endian numbers *)
+  let buf = Bytes.create 16 in
+  Bytes.set_int64_le buf 0 headerlen;
+  Bytes.set_int64_le buf 8 cipherlen;
+  poly1305_update h buf 0 16;
+  (* The final hash is the authentication tag *)
+  poly1305_final h
+
+class chapoly_encrypt ?(header = "") ~iv key =
+  (* The Chacha20 stream cipher *)
+  let cha = new Stream.chacha20 ~iv key in
+  (* The Poly1305 hash *)
+  let h = poly1305_init_hash cha header in
+  (* Lengths of the authenticated data and the encrypted data *)
+  let headerlen = Int64.of_int (String.length header)
+  and cipherlen = ref 0L in
+  (* Maximum length for encrypted data *)
+  let maxlen =
+    if String.length iv = 12 then 0x4000000000L else Int64.max_int in
+  (* The stream cipher that wraps Chacha20 with hash updates *)
+  let enc = object
+    method transform src soff dst doff len =
+      cha#transform src soff dst doff len;
+      poly1305_update h dst doff len;
+      cipherlen := Int64.(add !cipherlen (of_int len));
+      if !cipherlen > maxlen then raise (Error Message_too_long)
+    method wipe =
+      cha#wipe; wipe_bytes h
+  end in
+  object(self)
+    inherit (Stream.cipher enc)
+    method input_block_size = 1
+    method output_block_size = 1
+    method tag_size = 16
+    method finish_and_get_tag =
+      poly1305_finish_and_get_tag h headerlen !cipherlen
+  end
+
+class chapoly_decrypt ?(header = "") ~iv key =
+  (* The Chacha20 stream cipher *)
+  let cha = new Stream.chacha20 ~iv key in
+  (* The Poly1305 hash *)
+  let h = poly1305_init_hash cha header in
+  (* Lengths of the authenticated data and the encrypted data *)
+  let headerlen = Int64.of_int (String.length header)
+  and cipherlen = ref 0L in
+  (* The stream cipher that wraps Chacha20 with hash updates *)
+  let enc = object
+    method transform src soff dst doff len =
+      poly1305_update h src soff len;
+      cha#transform src soff dst doff len;
+      cipherlen := Int64.(add !cipherlen (of_int len))
+    method wipe =
+      cha#wipe; wipe_bytes h
+  end in
+  object(self)
+    inherit (Stream.cipher enc)
+    method input_block_size = 1
+    method output_block_size = 1
+    method tag_size = 16
+    method finish_and_get_tag =
+      poly1305_finish_and_get_tag h headerlen !cipherlen
+  end
+
+let chacha20_poly1305 ?header ~iv key dir =
+  match dir with
+  | Encrypt -> (new chapoly_encrypt ?header ~iv key :> authenticated_transform)
+  | Decrypt -> (new chapoly_decrypt ?header ~iv key :> authenticated_transform)
 
 end
 

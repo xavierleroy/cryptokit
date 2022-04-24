@@ -372,6 +372,75 @@ let _ =
      "619cc5aefffe0bfa462af43c1699d050")
   ]
 
+(* Chacha20-Poly1305 *)
+
+let _ =
+  testing_function "Chacha20-Poly1305";
+  let testcnt = ref 0 in
+  let do_test (key, iv, plain, header, cipher, tag) =
+    let key = hex key
+    and iv = hex iv
+    and cipher = hex cipher
+    and tag = hex tag in
+    let c = AEAD.(chacha20_poly1305 ~header ~iv key Encrypt) in
+    let ct = auth_transform_string c plain in
+    incr testcnt; test !testcnt ct (cipher ^ tag);
+    let d = AEAD.(chacha20_poly1305 ~header ~iv key Decrypt) in
+    let pp = auth_check_transform_string d ct in
+    incr testcnt; test !testcnt pp (Some plain) in
+  List.iter do_test [
+    (* From RFC 7539 *)
+    ("808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f",
+     "070000004041424344454647",
+     "Ladies and Gentlemen of the class of '99: If I could offer you only one tip for the future, sunscreen would be it.",
+     hex "50515253c0c1c2c3c4c5c6c7",
+     "d31a8d34648e60db7b86afbc53ef7ec2a4aded51296e08fea9e2b5a736ee62d63dbea45e8ca9671282fafb69da92728b1a71de0a9e060b2905d6a5b67ecd3b3692ddbd7f2d778b8c9803aee328091b58fab324e4fad675945585808b4831d7bc3ff4def08e4b7a9de576d26586cec64b6116",
+     "1ae10b594f09e26a7e902ecbd0600691");
+    (* From BoringSSL *)
+    (* Test padding AD with 15 zeros in the tag calculation. *)
+    ("808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f",
+     "070000004041424344454647",
+     "123456789abcdef0",
+     "1",
+     "ae49da6934cb77822c83ed9852e46c9e",
+     "dac9c841c168379dcf8f2bb8e22d6da2");
+    (* Test padding IN with 15 zeros in the tag calculation. *)
+    ("808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f",
+     "070000004041424344454647",
+     "1",
+     "123456789abcdef0",
+     "ae",
+     "3ed2f824f901a8994052f852127c196a");
+    (* Test padding AD with 1 zero in the tag calculation. *)
+    ("808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f",
+     "070000004041424344454647",
+     "123456789abcdef0",
+     "123456789abcdef",
+     "ae49da6934cb77822c83ed9852e46c9e",
+     "2e9c9b1689adb5ec444002eb920efb66");
+    (*  Test padding IN with 1 zero in the tag calculation. *)
+    ("808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f",
+     "070000004041424344454647",
+     "123456789abcdef",
+     "123456789abcdef0",
+     "ae49da6934cb77822c83ed9852e46c",
+     "05b2937f8bbc64fed21f0fb74cd7147c");
+    (* Test maximal nonce value. *)
+    ("808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f",
+     "ffffffffffffffffffffffff",
+     "123456789abcdef0",
+     "123456789abcdef0",
+     "e275aeb341e1fc9a70c4fd4496fc7cdb",
+     "41acd0560ea6843d3e5d4e5babf6e946");
+    (* Empty text *)
+    ("9a97f65b9b4c721b960a672145fca8d4e32e67f9111ea979ce9c4826806aeee6",
+     "000000003de9c0da2bd7f91e",
+     "",
+     "",
+     "",
+     "5a6e21f4ba6dbee57380e79e79c30def")
+  ]
+
 (* Input message: a million 'a' *)
 let hash_million_a (h: hash) =
   for i = 1 to 10_000 do

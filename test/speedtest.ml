@@ -82,6 +82,8 @@ let _ =
     (raw_block_cipher (new Block.blowfish_encrypt "0123456789ABCDEF")  8000000);
   time_fn "AES-GCM, 64_000_000 bytes"
     (transform (AEAD.aes_gcm ~iv:"0123456789AB" "0123456789ABCDEF" AEAD.Encrypt) 4000000 16);
+  time_fn "Chacha20-Poly1305, 64_000_000 bytes"
+    (transform (AEAD.chacha20_poly1305 ~iv:"0123456789AB" "0123456789ABCDEF" AEAD.Encrypt) 4000000 16);
   time_fn "Wrapped AES 128 CBC, 64_000_000 bytes"
     (transform (Cipher.aes "0123456789ABCDEF" Cipher.Encrypt) 4000000 16);
   time_fn "Wrapped AES 192 CBC, 64_000_000 bytes"

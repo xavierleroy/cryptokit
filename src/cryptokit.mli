@@ -467,7 +467,7 @@ end
     The same secret key is used for encryption and for decryption. *)
 module Cipher : sig
 
-  type direction = Encrypt | Decrypt
+  type direction = Encrypt | Decrypt  (** *)
     (** Indicate whether the cipher should perform encryption
         (transforming plaintext to ciphertext) or decryption
         (transforming ciphertext to plaintext). *)
@@ -478,7 +478,7 @@ module Cipher : sig
     | CFB of int
     | OFB of int
     | CTR
-    | CTR_N of int
+    | CTR_N of int                    (** *)
     (** Block ciphers such as AES or DES map a fixed-sized block of
         input data to a block of output data of the same size.
         A chaining mode indicates how to extend them to multiple blocks
@@ -656,13 +656,13 @@ end
 (** The [AEAD] module implements authenticated encryption
     with associated data.  This provides the same confidentiality
     guarantees as plain encryption, but also provides integrity
-    guarantees.  This module implements the widely-used AES-GCM
-    algorithm.
+    guarantees.  This module implements the AES-GCM and Chacha20-Poly1305
+    algorithms.
 *)
 
 module AEAD : sig
 
-  type direction = Encrypt | Decrypt
+  type direction = Encrypt | Decrypt    (** *)
     (** Indicate whether the cipher should perform encryption
         (transforming plaintext to ciphertext) or decryption
         (transforming ciphertext to plaintext). *)
@@ -671,7 +671,7 @@ module AEAD : sig
     (** AES-GCM is a standardized and widely-used authenticated encryption
         algorithm.  It's an encrypt-then-MAC schema based on the AES
         cipher in counter mode and on the GHASH hash function.
-        It supports keys of 128, 192, or 256 bits, and produces
+        It supports keys of size 128, 192, or 256 bits, and produces
         authentication tags of size 128 bits (16 bytes).
 
         [aes_gcm ?header ~iv key dir] returns an authenticated transform
@@ -686,7 +686,27 @@ module AEAD : sig
       - [header] is the associated data.  It is not encrypted but it is
         authenticated, i.e. taken into account for computing the authentication
         tag.  If not provided, it defaults to the empty string.
+    *)
 
+  val chacha20_poly1305: ?header: string -> iv: string -> string -> direction -> authenticated_transform
+    (** Chacha20-Poly1305 is a fast authenticated encryption
+        algorithm.  It's an encrypt-then-MAC schema combining the
+        Chacha20 cipher with the Poly1305 one-time authentication
+        function.
+        It supports keys of size 128 or 256 bits, and produces
+        authentication tags of size 128 bits (16 bytes).
+
+        [chacha20_poly1305 ?header ~iv key dir] returns an
+        authenticated transform (see {!Cryptokit.authenticated_transform}).
+      - [key] is the encryption key; it must have length 16 or 32.
+      - [dir] specifies whether encryption or decryption is to be performed.
+      - [iv] (mandatory) is the initialization vector used for counter mode.
+        It must not be reused for several encryptions.  It must have length
+        8 bytes (for the original Chacha20-Poly1305 algorithm) or
+        12 bytes (for the IETF variant described in RFC 7539).
+      - [header] is the associated data.  It is not encrypted but it is
+        authenticated, i.e. taken into account for computing the authentication
+        tag.  If not provided, it defaults to the empty string.
     *)
 end
 
