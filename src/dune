@@ -1,5 +1,6 @@
 (library (name cryptokit) (public_name cryptokit)
  (libraries unix zarith)
+ (wrapped false)
  (modules CryptokitBignum Cryptokit)
  (foreign_stubs
   (language c)

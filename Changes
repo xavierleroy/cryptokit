@@ -7,6 +7,7 @@ Release 1.17:
   (Can be silenced with "-alert -crypto".)
 - Set file descriptor to close-on-exec in `device_rng` (#27).
 - Improve compatibility with OCaml 5.0 (#28).
+- Make sure CryptokitBignum is installed like before the switch to Dune (#31).
 
 Release 1.16.1:
 - Make the tests faster and more robust
