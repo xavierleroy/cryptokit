@@ -10,13 +10,10 @@
  (name cryptokit)
  (synopsis "A library of cryptographic primitives")
  (version 1.17)
- (description "Cryptokit includes block ciphers (AES, DES, 3DES), stream ciphers
-(ARCfour), public-key crypto (RSA, DH), hashes (SHA-1, SHA-256,
-SHA-3), MACs, compression, random number generation -- all presented
-with a compositional, extensible interface.")
+ (description "Cryptokit includes authenticated encryption (AES-GCM, Chacha20-Poly1305), block ciphers (AES, DES, 3DES), stream ciphers (Chacha20, ARCfour), public-key cryptography (RSA, DH), hashes (SHA-256, SHA-512, SHA-3, Blake2), MACs, compression, random number generation -- all presented with a compositional, extensible interface.")
 
- (depends
-  (ocaml (>= 4.05.0))
+(depends
+  (ocaml (>= 4.08.0))
   (dune (>= 2.0))
   dune-configurator
   (zarith (>= 1.4))
