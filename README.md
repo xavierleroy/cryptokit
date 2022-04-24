@@ -5,6 +5,7 @@
 The Cryptokit library for OCaml provides a variety of cryptographic primitives that can be used to implement cryptographic protocols in security-sensitive applications.  The primitives provided include:
 
 * Symmetric-key ciphers: AES, Chacha20, DES, Triple-DES, Blowfish, ARCfour, in ECB, CBC, CFB, OFB and counter modes.
+* Authenticated encryption: AES-GCM, Chacha20-Poly1305.
 * Public-key cryptography: RSA encryption and signature, Diffie-Hellman key agreement.
 * Hash functions and MACs: SHA-3, SHA-2, BLAKE2b, RIPEMD-160, and MACs based on AES and DES.  (SHA-1 and MD5, despite being broken, are also provided for historical value.)
 * Random number generation.
