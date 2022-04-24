@@ -989,10 +989,17 @@ class arcfour key =
 class chacha20 ?iv ?(ctr = 0L) key =
   object
     val ckey =
-      let iv = Block.make_initial_iv 8 iv in
-      if String.length key = 16 || String.length key = 32
-      then chacha20_cook_key key iv ctr
-      else raise(Error Wrong_key_size)
+      if not (String.length key = 16 || String.length key = 32)
+      then raise (Error Wrong_key_size);
+      let iv =
+        match iv with
+        | None -> Bytes.make 8 '\000'
+        | Some s ->
+            if String.length s = 8
+            || String.length s = 12 && ctr < 0x1_000_000L
+            then Bytes.of_string s
+            else raise (Error Wrong_IV_size) in
+      chacha20_cook_key key iv ctr
     method transform src src_ofs dst dst_ofs len =
       if len < 0
       || src_ofs < 0 || src_ofs > Bytes.length src - len

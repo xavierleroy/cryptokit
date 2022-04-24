@@ -9,11 +9,12 @@ typedef struct {
   uint32_t input[16];           /* The current state */
   uint8_t output[64];           /* Output data for the current state */
   int next;                     /* Index of next unused byte in output */
+  int iv_length;                /* 8 or 12 */
 } chacha20_ctx;
 
 void chacha20_init(chacha20_ctx * ctx,
                    const uint8_t * key, size_t key_length,
-                   const uint8_t iv[8],
+                   const uint8_t * iv, size_t iv_length,
                    uint64_t ctr);
 
 void chacha20_extract(chacha20_ctx * ctx,

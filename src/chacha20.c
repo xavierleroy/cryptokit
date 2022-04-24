@@ -103,12 +103,10 @@ static void chacha20_block(chacha20_ctx * ctx)
   U32TO8_LITTLE(ctx->output + 52,x13);
   U32TO8_LITTLE(ctx->output + 56,x14);
   U32TO8_LITTLE(ctx->output + 60,x15);
-  /* Increment the 64-bit counter and, on overflow, the 64-bit nonce */
-  /* (Incrementing the nonce is not standard but a reasonable default.) */
-  if (++ ctx->input[12] == 0)
-    if (++ ctx->input[13] == 0)
-      if (++ ctx->input[14] == 0)
-        ++ ctx->input[15];
+  /* Increment the 32- or 64-bit counter */
+  if (++ ctx->input[12] == 0) {
+    if (ctx->iv_length == 8) ++ ctx->input[13];
+  }
 }
 
 void chacha20_transform(chacha20_ctx * ctx,
@@ -135,12 +133,13 @@ void chacha20_extract(chacha20_ctx * ctx,
 
 void chacha20_init(chacha20_ctx * ctx,
                    const uint8_t * key, size_t key_length,
-                   const uint8_t iv[8],
+                   const uint8_t * iv, size_t iv_length,
                    uint64_t counter)
 {
   const uint8_t *constants = 
     (uint8_t *) (key_length == 32 ? "expand 32-byte k" : "expand 16-byte k");
   assert (key_length == 16 || key_length == 32);
+  assert (iv_length == 8 || iv_length == 12);
   ctx->input[0] = U8TO32_LITTLE(constants + 0);
   ctx->input[1] = U8TO32_LITTLE(constants + 4);
   ctx->input[2] = U8TO32_LITTLE(constants + 8);
@@ -155,8 +154,15 @@ void chacha20_init(chacha20_ctx * ctx,
   ctx->input[10] = U8TO32_LITTLE(key + 8);
   ctx->input[11] = U8TO32_LITTLE(key + 12);
   ctx->input[12] = (uint32_t) counter;
-  ctx->input[13] = (uint32_t) (counter >> 32);
-  ctx->input[14] = U8TO32_LITTLE(iv + 0);
-  ctx->input[15] = U8TO32_LITTLE(iv + 4);
+  if (iv_length == 8) {
+    ctx->input[13] = (uint32_t) (counter >> 32);
+    ctx->input[14] = U8TO32_LITTLE(iv + 0);
+    ctx->input[15] = U8TO32_LITTLE(iv + 4);
+  } else {
+    ctx->input[13] = U8TO32_LITTLE(iv + 0);
+    ctx->input[14] = U8TO32_LITTLE(iv + 4);
+    ctx->input[15] = U8TO32_LITTLE(iv + 8);
+  }
+  ctx->iv_length = iv_length;
   ctx->next = 64;
 }

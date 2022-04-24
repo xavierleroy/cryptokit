@@ -548,7 +548,7 @@ module Cipher : sig
 
         The optional [iv] argument is the initialization vector (also
         called nonce) that can be used to diversify the key.  If present,
-        it must be 8 characters long.  If absent, it is taken to be
+        it must be 8 or 12 characters long.  If absent, it is taken to be
         eight zero bytes.
 
         The optional [ctr] argument is the initial value of the internal
