@@ -11,6 +11,21 @@
 (*                                                                     *)
 (***********************************************************************)
 
+(* Utilities *)
+
+let seq_equal (len: 'a -> int) (get: 'a -> int -> char) (s1: 'a) (s2: 'a) =
+  let l = len s1 in
+  let rec equal i accu =
+    if i >= l
+    then accu = 0
+    else equal (i + 1)
+               (accu lor ((Char.code (get s1 i)) lxor (Char.code (get s2 i))))
+  in
+    l = len s2 && equal 0 0
+
+let string_equal = seq_equal String.length String.get
+let bytes_equal = seq_equal Bytes.length Bytes.get
+
 let wipe_bytes s = Bytes.fill s 0 (Bytes.length s) '\000'
 let wipe_string s = wipe_bytes (Bytes.unsafe_of_string s)
 
@@ -22,6 +37,8 @@ let shl1_bytes src soff dst doff len =
       shl1 (n lsr 7) (i - 1)
     end
   in shl1 0 (len - 1)
+
+(* Error reporting *)
 
 type error =
   | Wrong_key_size
@@ -271,7 +288,7 @@ let auth_check_transform_string tr s =
   tr#put_string (String.sub s 0 (ls - lt));
   let tag = tr#finish_and_get_tag in
   let res =
-    if tag = String.sub s (ls - lt) lt
+    if string_equal tag (String.sub s (ls - lt) lt)
     then Some (tr#get_string)
     else None in
   tr#wipe; res
@@ -2367,19 +2384,6 @@ let uncompress ?(expect_zlib_header = false) () = new uncompress expect_zlib_hea
 end
 
 (* Utilities *)
-
-let seq_equal (len: 'a -> int) (get: 'a -> int -> char) (s1: 'a) (s2: 'a) =
-  let l = len s1 in
-  let rec equal i accu =
-    if i >= l
-    then accu = 0
-    else equal (i + 1)
-               (accu lor ((Char.code (get s1 i)) lxor (Char.code (get s2 i))))
-  in
-    l = len s2 && equal 0 0
-
-let string_equal = seq_equal String.length String.get
-let bytes_equal = seq_equal Bytes.length Bytes.get
 
 let xor_bytes src src_ofs dst dst_ofs len =
   if len < 0
