@@ -19,11 +19,15 @@ open Cryptokit
 
 let time_fn msg fn =
   let start = Sys.time() in
-  let res = fn() in
-  let stop = Sys.time() in
-  Printf.printf "%6.2f  %s\n" (stop -. start) msg;
-  flush stdout;
-  res
+  let rec do_time nrun =
+    let res = fn () in
+    let stop = Sys.time() in
+    let t = stop -. start in
+    if t < 0.5 then do_time (nrun + 1) else begin
+      Printf.printf "%7.3f  %s\n%!" (t /. float nrun) msg;
+      res
+    end
+  in do_time 1
 
 let rec repeat n fn () =
   if n <= 1 then fn() else (ignore(fn()); repeat (n-1) fn ())
