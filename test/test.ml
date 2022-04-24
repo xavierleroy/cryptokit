@@ -675,6 +675,22 @@ module GHash = struct
            (hex "da53eb0ad2c55bb64fc4802cc3feda60")
 end
 
+(* Poly1305 *)
+
+module Poly1305 = struct
+  external poly1305_init: string -> bytes = "caml_poly1305_init"
+  external poly1305_update: bytes -> bytes -> int -> int -> unit = "caml_poly1305_update"
+  external poly1305_final: bytes -> string = "caml_poly1305_final"
+  let _ =
+    testing_function "Poly1305";
+    let key = String.init 32 (fun i -> Char.chr (i + 221))
+    and msg = Bytes.init  73 (fun i -> Char.chr (i + 121)) in
+    let h = poly1305_init key in
+    poly1305_update h msg 0 73;
+    let mac = poly1305_final h in
+    test 1 mac (hex "dd b9 da 7d dd 5e 52 79 27 30 ed 5c da 5f 90 a4")
+end
+
 open Cipher
 
 let some_key = hex "0123456789abcdef"

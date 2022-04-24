@@ -114,6 +114,11 @@ external blake2s_final: bytes -> int -> string = "caml_blake2s_final"
 type ghash_context
 external ghash_init: bytes -> ghash_context = "caml_ghash_init"
 external ghash_mult: ghash_context -> bytes -> unit = "caml_ghash_mult"
+(*
+external poly1305_init: string -> bytes = "caml_poly1305_init"
+external poly1305_update: bytes -> bytes -> int -> int -> unit = "caml_poly1305_update"
+external poly1305_final: bytes -> string = "caml_poly1305_final"
+*)
 
 (* Abstract transform type *)
 

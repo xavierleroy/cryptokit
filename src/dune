@@ -33,7 +33,9 @@
          stubs-blake2
          ghash
          pclmul
-         stubs-ghash))
+         stubs-ghash
+         poly1305-donna
+         stubs-poly1305))
   (c_library_flags (:include library_flags.sexp))
   (flags :standard -safe-string -w -7 -w -27 -w -37))
 
