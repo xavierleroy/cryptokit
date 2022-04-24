@@ -1401,6 +1401,8 @@ module HMAC_SHA1 =
   HMAC(struct class h = Hash.sha1  let blocksize = 64 end)
 module HMAC_SHA256 =
   HMAC(struct class h = Hash.sha256  let blocksize = 64 end)
+module HMAC_SHA384 =
+  HMAC(struct class h = Hash.sha384  let blocksize = 128 end)
 module HMAC_SHA512 =
   HMAC(struct class h = Hash.sha512  let blocksize = 128 end)
 module HMAC_RIPEMD160 = 
@@ -1410,6 +1412,7 @@ module HMAC_MD5 =
 
 let hmac_sha1 key = new HMAC_SHA1.hmac key
 let hmac_sha256 key = new HMAC_SHA256.hmac key
+let hmac_sha384 key = new HMAC_SHA384.hmac key
 let hmac_sha512 key = new HMAC_SHA512.hmac key
 let hmac_ripemd160 key = new HMAC_RIPEMD160.hmac key
 let hmac_md5 key = new HMAC_MD5.hmac key
