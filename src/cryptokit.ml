@@ -1786,36 +1786,6 @@ class device_rng filename =
 
 let device_rng filename = new device_rng filename
 
-class egd_rng socketname =
-  object(self)
-    val fd =
-      let s = Unix.socket Unix.PF_UNIX Unix.SOCK_STREAM 0 in
-      try
-        Unix.connect s (Unix.ADDR_UNIX socketname); s
-      with exn ->
-        Unix.close s; raise exn
-    method random_bytes buf ofs len =
-      if len > 0 then begin    
-        let reqd = min 255 len in
-        let msg = Bytes.create 2 in
-        Bytes.set msg 0 '\002'; (* read entropy blocking *)
-        Bytes.set msg 1 (Char.chr reqd);
-        ignore (Unix.write fd msg 0 2);
-        let rec do_read ofs len =
-          if len > 0 then begin
-            let r = Unix.read fd buf ofs len in
-            if r = 0 then raise(Error Entropy_source_closed);
-            do_read (ofs + r) (len - r)
-          end in
-        do_read ofs reqd;
-        if reqd < len then self#random_bytes buf (ofs + reqd) (len - reqd)
-      end
-    method wipe =
-      Unix.close fd
-  end
-
-let egd_rng socketname = new egd_rng socketname
-
 external hardware_rng_available: unit -> bool = "caml_hardware_rng_available"
 external hardware_rng_random_bytes: bytes -> int -> int -> bool = "caml_hardware_rng_random_bytes"
 
@@ -1849,22 +1819,9 @@ let secure_rng =
   try
     new device_rng "/dev/random"
   with Unix.Unix_error(_,_,_) ->
-  try
-    new egd_rng (Sys.getenv "EGD_SOCKET")
-  with Not_found | Unix.Unix_error(_,_,_) ->
-  try
-    new egd_rng (Filename.concat (Sys.getenv "HOME") ".gnupg/entropy")
-  with Not_found | Unix.Unix_error(_,_,_) ->
-  try
-    new egd_rng "/var/run/egd-pool"
-  with Unix.Unix_error(_,_,_) ->
-  try
-    new egd_rng "/dev/egd-pool"
-  with Unix.Unix_error(_,_,_) ->
-  try
-    new egd_rng "/etc/egd-pool"
-  with Unix.Unix_error(_,_,_) ->
-    new no_rng
+    if hardware_rng_available ()
+    then new hardware_rng
+    else new no_rng
 
 class pseudo_rng seed =
   let _ = if String.length seed < 16 then raise (Error Seed_too_short) in

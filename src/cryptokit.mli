@@ -349,38 +349,27 @@ module Random : sig
   val secure_rng: rng
     (** A high-quality random number generator, using hard-to-predict
         system data to generate entropy.  This generator either uses
-        the OS-provided RNG, if any, or reads from
-        [/dev/random] on systems that supports it, or interrogates
-        the EGD daemon otherwise (see [http://egd.sourceforge.net/]).
-        For EGD, the following paths are tried to locate the Unix socket
-        used to communicate with EGD:
-        - the value of the environment variable [EGD_SOCKET];
-        - [$HOME/.gnupg/entropy];
-        - [/var/run/egd-pool]; [/dev/egd-pool]; [/etc/egd-pool].
+        the OS-provided RNG, if any, or reads from [/dev/random] if
+        available, or uses the hardware random number generator, if
+        available.
 
-        The method [secure_rng#random_bytes] fails
-        if no suitable RNG is available.
-        [secure_rng#random_bytes] may block until enough entropy
-        has been gathered.  Do not use for generating large quantities
-        of random data, otherwise you could exhaust the entropy sources
-        of the system. *)
+        The method [secure_rng#random_bytes] fails if no suitable RNG
+        is available.  [secure_rng#random_bytes] may block until
+        enough entropy has been gathered.  Do not use for generating
+        large quantities of random data, otherwise you could exhaust
+        the entropy sources of the system. *)
 
   val system_rng: unit -> rng
     (** [system_rng ()] returns a random number generator derived
         from the OS-provided RNG.  It raises [Error No_entropy_source]
         if the OS does not provide a secure RNG.  Currently, this function
-        is supported under Win32, and always fails under Unix. *)
+        is supported under Win32, and under Unix if the [getentropy()]
+        function is provided. *)
 
   val device_rng: string -> rng
     (** [device_rng devicename] returns a random number generator
         that reads from the special file [devicename], e.g.
         [/dev/random] or [/dev/urandom]. *)
-
-  val egd_rng: string -> rng
-    (** [egd_rng egd_socket] returns a random number generator
-        that uses the Entropy Gathering Daemon ([http://egd.sourceforge.net/]).
-        [egd_socket] is the path to the Unix socket that EGD uses for
-        communication.  *)
 
   val hardware_rng: unit -> rng
     (** A hardware random number generator based on the [RDRAND] instruction
