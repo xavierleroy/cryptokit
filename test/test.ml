@@ -308,13 +308,11 @@ let _ =
     and cipher = hex cipher
     and tag = hex tag in
     let c = AEAD.(aes_gcm ~header ~iv key Encrypt) in
-    let (c1, t1) = auth_transform_string_detached c plain in
-    incr testcnt; test !testcnt c1 cipher;
-    incr testcnt; test !testcnt t1 tag;
+    let ct = auth_transform_string c plain in
+    incr testcnt; test !testcnt ct (cipher ^ tag);
     let d = AEAD.(aes_gcm ~header ~iv key Decrypt) in
-    let (p2, t2) = auth_transform_string_detached d cipher in
-    incr testcnt; test !testcnt p2 plain;
-    incr testcnt; test !testcnt t2 tag in
+    let pp = auth_check_transform_string d ct in
+    incr testcnt; test !testcnt pp (Some plain) in
   List.iter do_test [
     ("00000000000000000000000000000000",
       "", "",
