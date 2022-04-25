@@ -13,7 +13,9 @@
 
 (** The Cryptokit library provides a variety of cryptographic primitives
     that can be used to implement cryptographic protocols in
-    security-sensitive applications.  The primitives provided include:
+    security-sensitive applications.
+
+    The primitives provided include:
     - Symmetric-key ciphers: AES, Chacha20, DES, Triple-DES, Blowfish, ARCfour,
       in ECB, CBC, CFB, OFB and counter modes.
     - Authenticated encryption: AES-GCM, Chacha20-Poly1305
@@ -452,7 +454,7 @@ end
 
 (** The [Cipher] module implements the AES, DES, Triple-DES, ARCfour
     and Blowfish symmetric ciphers.  Symmetric ciphers are presented
-    as transforms parameterized by a secret key and a ``direction''
+    as transforms parameterized by a secret key and a "direction"
     indicating whether encryption or decryption is to be performed.
     The same secret key is used for encryption and for decryption. *)
 module Cipher : sig
@@ -462,43 +464,39 @@ module Cipher : sig
         (transforming plaintext to ciphertext) or decryption
         (transforming ciphertext to plaintext). *)
 
-  type chaining_mode =
-      ECB
-    | CBC
-    | CFB of int
-    | OFB of int
-    | CTR
-    | CTR_N of int                    (** *)
     (** Block ciphers such as AES or DES map a fixed-sized block of
         input data to a block of output data of the same size.
         A chaining mode indicates how to extend them to multiple blocks
-        of data.  The five chaining modes supported in this library are:
-        - [ECB]: Electronic Code Book mode.
-        - [CBC]: Cipher Block Chaining mode.
-        - [CFB n]:  Cipher Feedback Block with [n] bytes.
-        - [OFB n]: Output Feedback Block with [n] bytes
-        - [CTR]: Counter mode, incrementing all the bytes of the IV
-        - [CTR_N n]: Counter mode, incrementing only the final [n]
-          bytes of the IV.  For example, [CTR_N 4] increments
-          the final 32 bits of the IV, as in NIST Special Publication
-          800-38D.
-
-        A detailed description of these modes is beyond the scope of
+        of data.  The chaining modes supported in this library are: *)
+  type chaining_mode =
+      ECB           (** Electronic Code Book mode *)
+    | CBC           (** Cipher Block Chaining mode *)
+    | CFB of int    (** Cipher Feedback Block with [n] bytes *)
+    | OFB of int    (** Output Feedback Block with [n] bytes *)
+    | CTR           (** Counter mode, incrementing all the bytes of the IV *)
+    | CTR_N of int  (** Counter mode, incrementing only the final [n] bytes
+                        of the IV. *)
+    (** A detailed description of these modes is beyond the scope of
         this documentation; refer to a good cryptography book.
-        [CBC] is a recommended default.  For [CFB n] and [OFB n],
-        note that the blocksize is reduced to [n], but encryption
-        speed drops by a factor of [blocksize / n], where [blocksize]
-        is the block size of the underlying cipher; moreover, [n]
-        must be between [1] and [blocksize] included.  For [CTR_N n],
-        [n] must be between [1] and [blocksize] included.
-        [CTR] is equivalent to [CTR_N blocksize]. *)
+        [CTR] is a recommended default.
+
+        For [CFB n] and [OFB n], note that the blocksize is reduced to
+        [n], but encryption speed drops by a factor of
+        [blocksize / n], where [blocksize] is the block size of the
+        underlying cipher; moreover, [n] must be between [1] and
+        [blocksize] included.
+
+        For [CTR_N n], [n] must be between [1] and [blocksize] included.
+        [CTR] is equivalent to [CTR_N blocksize].
+        NIST Special Publication 800-38D uses [CTR_N 4], which
+        increments the final 32 bits of the IV. *)
 
 (** {2 Recommended ciphers} *)
 
   val aes: ?mode:chaining_mode -> ?pad:Padding.scheme -> ?iv:string ->
              string -> direction -> transform
-    (** AES is the Advanced Encryption Standard, also known as Rijndael.
-        This is a modern block cipher, recently standardized.
+    (** AES is the Advanced Encryption Standard.
+        This is a modern block cipher, standardized in 2001.
         It processes data by blocks of 128 bits (16 bytes),
         and supports keys of 128, 192 or 256 bits.
         The string argument is the key; it must have length 16, 24 or 32.
@@ -529,9 +527,10 @@ module Cipher : sig
         Hence, its natural block size is 1, and no padding is
         required.  Chaining modes do not apply.  A feature of stream
         ciphers is that the xor of two ciphertexts obtained with the
-        same key is the xor of the corresponding plaintexts, which
-        allows various attacks.  Hence, the same key must never be
-        reused.
+        same key, IV and counter is the xor of the corresponding
+        plaintexts, which allows various attacks.  Hence, the same key
+        can be used several times, but only with different IVs or
+        different counters.
 
         The string argument is the key; its length must be either 16
         or (better) 32.  
@@ -653,7 +652,6 @@ end
     guarantees.  This module implements the AES-GCM and Chacha20-Poly1305
     algorithms.
 *)
-
 module AEAD : sig
 
   type direction = Encrypt | Decrypt    (** *)
@@ -1418,7 +1416,7 @@ type error =
   | Compression_error of string * string
       (** Error during compression or decompression. *)
   | No_entropy_source
-      (** No entropy source (OS, [/dev/random] or EGD) was found for
+      (** No entropy source (OS, hardware, or [/dev/random]) was found for
           {!Cryptokit.Random.secure_rng}. *)
   | Entropy_source_closed
       (** End of file on a device or EGD entropy source. *)
@@ -1441,7 +1439,8 @@ val wipe_string : string -> unit
         Note that strings are normally immutable and this operation
         violates this immutability property.  Therefore, this is
         an unsafe operation, and it should be used only by code that
-        is the only owner of the string [s].  See {!Bytes.unsafe_of_string}
+        is the only owner of the string [s].  See
+        {!Stdlib.Bytes.unsafe_of_string}
         for more details on the ownership policy. *)
 
 val string_equal : string -> string -> bool

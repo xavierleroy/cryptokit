@@ -11,7 +11,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
-(* Arithmetic on big integers *)
+(** Operations on big integers, used for the implementation of module
+    {!Cryptokit}. *)
 
 type t
 
