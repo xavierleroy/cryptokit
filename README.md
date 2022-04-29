@@ -54,7 +54,7 @@ located at `_build/default/_doc/_html/cryptokit/Cryptokit/index.html`.
 
 Disclaimer 1: the author is not an expert in cryptography.  While reasonable care has been taken to select good, widely-used implementations of the ciphers and hashes, and follow recommended practices found in reputable applied cryptography textbooks, you are advised to review thoroughly the implementation of this module before using it in a security-critical application.
 
-Disclaimer 2: some knowledge of cryptography is needed to use effectively this library.  A recommended reading is the [Handbook of Applied Cryptography](http://www.cacr.math.uwaterloo.ca/hac/).  Building secure applications out of cryptographic primitives also requires a general background in computer security.
+Disclaimer 2: some knowledge of cryptography is needed to use effectively this library.  A good introduction is the book __Serious Cryptography__ by J.-P. Aumasson (2018).  Building secure applications out of cryptographic primitives also requires a general background in computer security.
 
 Disclaimer 3: in some countries, the use, distribution, import and/or export of cryptographic applications is restricted by law. The precise restrictions may depend on the strenght of the cryptography used (e.g. key size), but also on its purpose (e.g. confidentiality vs. authentication).  It is up to the users of this library to comply with regulations applicable in their country.
 
