@@ -469,7 +469,8 @@ module Cipher : sig
         A chaining mode indicates how to extend them to multiple blocks
         of data.  The chaining modes supported in this library are: *)
   type chaining_mode =
-      ECB           (** Electronic Code Book mode *)
+      ECB [@alert crypto "ECB mode is weak"]
+                    (** Electronic Code Book mode *)
     | CBC           (** Cipher Block Chaining mode *)
     | CFB of int    (** Cipher Feedback Block with [n] bytes *)
     | OFB of int    (** Output Feedback Block with [n] bytes *)
