@@ -5,7 +5,8 @@ Release 1.17:
 - Removed support for EGD (the Entropy Gathering Daemon).
 - Added compile-time alerts on uses of broken or weak ciphers and hashes.
   (Can be silenced with "-alert -crypto".)
-- Add hmac_sha384 MAC (#8).
+- Add the hmac_sha384 MAC (#8).
+- Add the SipHash MAC.
 - Set file descriptor to close-on-exec in `device_rng` (#27).
 - Improve compatibility with OCaml 5.0 (#28).
 - Make sure CryptokitBignum is installed like before the switch to Dune (#31).
