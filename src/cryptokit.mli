@@ -21,7 +21,7 @@
     - Authenticated encryption: AES-GCM, Chacha20-Poly1305
     - Public-key cryptography: RSA encryption, Diffie-Hellman key agreement.
     - Hash functions and MACs: SHA-3, SHA-2, BLAKE2, RIPEMD-160,
-      and MACs based on AES and DES.
+      and MACs based on AES, DES, and SipHash.
     - Random number generation.
     - Encodings and compression: base 64, hexadecimal, Zlib compression.
 *)
@@ -793,8 +793,9 @@ end
     the text was authentified by someone who possesses the secret key.
 
     The module [MAC] provides six MAC functions based on the hashes
-    BLAKE2b, SHA-1, SHA256, SHA512, RIPEMD160 and MD5,
-    and five MAC functions based on the block ciphers AES, DES, and Triple-DES.
+    BLAKE2b, SHA-1, SHA256, SHA512, RIPEMD160 and MD5;
+    five MAC functions based on the block ciphers AES, DES, and Triple-DES;
+    and the SipHash algorithm.
 *)
 module MAC: sig
 
@@ -920,6 +921,19 @@ module MAC: sig
         key size as a triple DES MAC, but runs faster because triple
         encryption is not performed on all data blocks, but only on
         the final MAC. *)
+
+  val siphash: string -> hash
+    (** [siphash key] is the SipHash-2-4 function.
+        The returned hash values have length 8 bytes.
+        The [key] argument is the MAC key.  It must be 16 bytes (128 bits) long.
+        This MAC is very fast, especially for short inputs.  However,
+        it has not been cryptanalyzed as intensively as the other
+        MACs above. *)
+
+  val siphash128: string -> hash
+    (** [siphash128 key] is a variant of [siphash] that returns
+        hash values of length 16 bytes instead of 8 bytes. *)
+
 end
 
 (** The [RSA] module implements RSA public-key cryptography.

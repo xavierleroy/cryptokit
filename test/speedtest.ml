@@ -126,6 +126,12 @@ let _ =
     (hash (MAC.aes_cmac "0123456789ABCDEF") 4000000 16);
   time_fn "HMAC-SHA1, 64_000_000 bytes, 16-byte chunks"
     (hash (MAC.hmac_sha1 "0123456789ABCDEF") 4000000 16);
+  time_fn "HMAC-SHA256, 64_000_000 bytes, 16-byte chunks"
+    (hash (MAC.hmac_sha256 "0123456789ABCDEF") 4000000 16);
+  time_fn "SipHash 64, 64_000_000 bytes, 16-byte chunks"
+    (hash (MAC.siphash "0123456789ABCDEF") 4000000 16);
+  time_fn "SipHash 128, 64_000_000 bytes, 16-byte chunks"
+    (hash (MAC.siphash128 "0123456789ABCDEF") 4000000 16);
   let prng = Random.pseudo_rng "supercalifragilistusexpialidolcius" in
   let key =
   time_fn "RSA key generation (2048 bits) x 10"

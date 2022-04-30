@@ -7,7 +7,7 @@ The Cryptokit library for OCaml provides a variety of cryptographic primitives t
 * Symmetric-key ciphers: AES, Chacha20, DES, Triple-DES, Blowfish, ARCfour, in ECB, CBC, CFB, OFB and counter modes.
 * Authenticated encryption: AES-GCM, Chacha20-Poly1305.
 * Public-key cryptography: RSA encryption and signature, Diffie-Hellman key agreement.
-* Hash functions and MACs: SHA-3, SHA-2, BLAKE2b, RIPEMD-160, and MACs based on AES and DES.  (SHA-1 and MD5, despite being broken, are also provided for historical value.)
+* Hash functions and MACs: SHA-3, SHA-2, BLAKE2b, RIPEMD-160; MACs based on AES and DES; SipHash.  (SHA-1 and MD5, despite being broken, are also provided for historical value.)
 * Random number generation.
 * Encodings and compression: base 64, hexadecimal, Zlib compression.
 
@@ -82,17 +82,21 @@ SHA-2 is implemented from scratch based on FIPS publication 180-2.  It passes th
 
 SHA-3 is based on the "readable" implementation of Keccak written by Markku-Juhani O. Saarinen <mjos@iki.fi>.
 
-BLAKE2b is implemented from scratch based on RFC 7693.  The test vectors are taken from https://github.com/BLAKE2/BLAKE2/tree/master/testvectors; others were obtained with the b2sum program.
+BLAKE2b and BLAKE2s are implemented from scratch based on RFC 7693.  The test vectors are taken from https://github.com/BLAKE2/BLAKE2/tree/master/testvectors; others were obtained with the b2sum program.
 
 RIPEMD-160 is based on the reference implementation by A.Bosselaers. It passes the test vectors listed at http://www.esat.kuleuven.ac.be/~bosselae/ripemd160.html
 
 MD5 uses the public-domain implementation by Colin Plumb that is also used in the OCaml runtime system for module Digest.
+
+SipHash is based on the reference implementation by J.-P. Aumasson and D. J. Bernstein, https://github.com/veorq/SipHash .  It passes their test vectors.
 
 RSA encryption and decryption was implemented from scratch, using the Zarith OCaml library for arbitrary-precision arithmetic, which itself uses GMP.  Modular  exponentiation is the constant-time implementation provided by GMP.  The Chinese remainder theorem is exploited when possible, though.  Like all ciphers in this library, the RSA implementation is *not* protected against timing attacks.
 
 RSA key generation uses GMP's `nextprime` function for probabilistic primality testing.
 
 The hardware RNG uses the RDRAND instruction of recent x86 processors, if supported.  It is not available on other platforms.  A check is included to reject the broken RDRAND on AMD Ryzen 3000 processors (https://arstechnica.com/gadgets/2019/10/how-a-months-old-amd-microcode-bug-destroyed-my-weekend/).
+
+The system RNG uses the `getentropy` function provided by Linux, macOS and the BSDs, or the `CryptGenRandom` function from the Windows cryptographic API.
 
 The seeded PRNG is just the Chacha20 stream cipher encrypting the all-zeroes message.  The seed is used as the Chacha20 key.  An alternate seeded PRNG is provided, based on AES encryption of a 128-bit counter.  Both PRNGs pass the Dieharder statistical tests.  Still, better use the system RNG or the hardware RNG if high-quality random numbers are needed.
 

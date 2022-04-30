@@ -117,6 +117,9 @@ external ghash_mult: ghash_context -> bytes -> unit = "caml_ghash_mult"
 external poly1305_init: bytes -> bytes = "caml_poly1305_init"
 external poly1305_update: bytes -> bytes -> int -> int -> unit = "caml_poly1305_update"
 external poly1305_final: bytes -> string = "caml_poly1305_final"
+external siphash_init: string -> int -> bytes = "caml_siphash_init"
+external siphash_update: bytes -> bytes -> int -> int -> unit = "caml_siphash_update"
+external siphash_final: bytes -> int -> string = "caml_siphash_final"
 
 (* Abstract transform type *)
 
@@ -1455,6 +1458,32 @@ let aes_cmac ?iv key =
   if Char.code (Bytes.get k1 0) land 0x80 > 0 then xor_bytes b 0 k2 0 16;
   wipe_bytes l;
   new Block.cmac ?iv cipher k1 k2
+
+class siphash sz key =
+  object(self)
+    val context =
+      if String.length key = 16 && (sz = 64 || sz = 128)
+      then siphash_init key (sz / 8)
+      else raise (Error Wrong_key_size)
+    method hash_size = sz / 8
+    method add_substring src ofs len =
+      if ofs < 0 || len < 0 || ofs > Bytes.length src - len
+      then invalid_arg "siphash#add_substring";
+      siphash_update context src ofs len
+    method add_string src =
+      siphash_update context (Bytes.unsafe_of_string src) 0 (String.length src)
+    method add_char c =
+      self#add_string (String.make 1 c)
+    method add_byte b =
+      self#add_char (Char.unsafe_chr b)
+    method result = siphash_final context (sz / 8)
+    method wipe =
+      wipe_bytes context
+  end
+
+let siphash key = new siphash 64 key
+let siphash128 key = new siphash 128 key
+
 end
 
 (* Authenticated encryption with associated data *)
