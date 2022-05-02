@@ -21,7 +21,6 @@
 
 #include <wmmintrin.h>
 #include <emmintrin.h>
-#include <smmintrin.h>
 #include <cpuid.h>
 
 int pclmul_available = -1;
