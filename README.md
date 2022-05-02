@@ -13,7 +13,7 @@ The Cryptokit library for OCaml provides a variety of cryptographic primitives t
 
 Additional ciphers and hashes can easily be used in conjunction with the library.  In particular, basic mechanisms such as chaining modes, output buffering, and padding are provided by generic classes that can easily be composed with user-provided ciphers.  More generally, the library promotes a "Lego"-like style of constructing and composing transformations over character streams.
 
-This library is distributed under the conditions of the GNU Library General Public license version 2, with the special OCaml exception on linking described in file LICENSE.
+This library is distributed under the conditions of the GNU Library General Public license version 2 or any later version, with the special OCaml exception on linking described in file LICENSE.
 
 ## Requirements
 
