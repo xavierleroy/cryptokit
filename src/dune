@@ -4,7 +4,10 @@
  (modules CryptokitBignum Cryptokit)
  (foreign_stubs
   (language c)
-  (flags -DCAML_NAME_SPACE (:include flags.sexp))
+  (flags -DCAML_NAME_SPACE
+         -DBLAKE3_NO_SSE2 -DBLAKE3_NO_SSE41 -DBLAKE3_NO_AVX2 -DBLAKE3_NO_AVX512
+         -DBLAKE3_USE_NEON=0
+         (:include flags.sexp))
   (names aesni
          arcfour
          stubs-arcfour
@@ -38,7 +41,11 @@
          poly1305-donna
          stubs-poly1305
          siphash
-         stubs-siphash))
+         stubs-siphash
+         blake3
+         blake3_dispatch
+         blake3_portable
+         stubs-blake3))
   (c_library_flags (:include library_flags.sexp))
   (flags :standard -safe-string -w -7 -w -27 -w -37))
 

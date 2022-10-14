@@ -1,3 +1,5 @@
+- Add BLAKE3 hash and MAC functions.
+
 Release 1.17:
 - Add interfaces for authenticated encryption (AEAD) and two implementations:
   AES-GCM and Chacha20-Poly1305.

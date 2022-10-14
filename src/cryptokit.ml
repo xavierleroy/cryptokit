@@ -120,6 +120,11 @@ external poly1305_final: bytes -> string = "caml_poly1305_final"
 external siphash_init: string -> int -> bytes = "caml_siphash_init"
 external siphash_update: bytes -> bytes -> int -> int -> unit = "caml_siphash_update"
 external siphash_final: bytes -> int -> string = "caml_siphash_final"
+type blake3_context
+external blake3_init: string -> blake3_context = "caml_blake3_init"
+external blake3_update: blake3_context -> bytes -> int -> int -> unit = "caml_blake3_update"
+external blake3_final: blake3_context -> int -> string = "caml_blake3_extract"
+external blake3_wipe: blake3_context -> unit = "caml_blake3_wipe"
 
 (* Abstract transform type *)
 
@@ -1296,6 +1301,31 @@ class blake2s sz key =
 let blake2s sz = new blake2s sz ""
 let blake2s256 () = new blake2s 256 ""
 
+class blake3 key sz =
+  object(self)
+    val context =
+      if sz > 0 && sz mod 8 = 0
+      && (String.length key = 0 || String.length key = 32)
+      then blake3_init key
+      else raise (Error Wrong_key_size)
+    method hash_size = sz / 8
+    method add_substring src ofs len =
+      if ofs < 0 || len < 0 || ofs > Bytes.length src - len
+      then invalid_arg "blake3#add_substring";
+      blake3_update context src ofs len
+    method add_string src =
+      blake3_update context (Bytes.unsafe_of_string src) 0 (String.length src)
+    method add_char c =
+      self#add_string (String.make 1 c)
+    method add_byte b =
+      self#add_char (Char.unsafe_chr b)
+    method result = blake3_final context (sz / 8)
+    method wipe = blake3_wipe context
+  end
+
+let blake3 sz = new blake3 "" sz
+let blake3_256 () = new blake3 "" 256
+
 end
 
 (* High-level entry points for ciphers *)
@@ -1425,6 +1455,9 @@ let blake2b512 key = new Hash.blake2b 512 key
 
 let blake2s sz key = new Hash.blake2s sz key
 let blake2s256 key = new Hash.blake2s 256 key
+
+let blake3 sz key = new Hash.blake3 key sz
+let blake3_256 key = new Hash.blake3 key 256
 
 let aes ?iv ?pad key =
   new Block.mac ?iv ?pad (new Block.aes_encrypt key)

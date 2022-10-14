@@ -7,7 +7,7 @@ The Cryptokit library for OCaml provides a variety of cryptographic primitives t
 * Symmetric-key ciphers: AES, Chacha20, DES, Triple-DES, Blowfish, ARCfour, in ECB, CBC, CFB, OFB and counter modes.
 * Authenticated encryption: AES-GCM, Chacha20-Poly1305.
 * Public-key cryptography: RSA encryption and signature, Diffie-Hellman key agreement.
-* Hash functions and MACs: SHA-3, SHA-2, BLAKE2b, RIPEMD-160; MACs based on AES and DES; SipHash.  (SHA-1 and MD5, despite being broken, are also provided for historical value.)
+* Hash functions and MACs: SHA-3, SHA-2, BLAKE2, BLAKE3, RIPEMD-160; MACs based on AES and DES; SipHash.  (SHA-1 and MD5, despite being broken, are also provided for historical value.)
 * Random number generation.
 * Encodings and compression: base 64, hexadecimal, Zlib compression.
 
@@ -83,6 +83,8 @@ SHA-2 is implemented from scratch based on FIPS publication 180-2.  It passes th
 SHA-3 is based on the "readable" implementation of Keccak written by Markku-Juhani O. Saarinen <mjos@iki.fi>.
 
 BLAKE2b and BLAKE2s are implemented from scratch based on RFC 7693.  The test vectors are taken from https://github.com/BLAKE2/BLAKE2/tree/master/testvectors; others were obtained with the b2sum program.
+
+BLAKE3 uses the portable C implementation from https://github.com/BLAKE3-team/BLAKE3 .  The authors released the code into the public domain with CC0 1.0.  The test vectors come from the same source.
 
 RIPEMD-160 is based on the reference implementation by A.Bosselaers. It passes the test vectors listed at http://www.esat.kuleuven.ac.be/~bosselae/ripemd160.html
 

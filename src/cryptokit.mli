@@ -762,6 +762,16 @@ module Hash : sig
   val blake2s256: unit -> hash
     (** BLAKE2s256 is BLAKE2s specialized to 256 bit hashes (32 bytes). *)
 
+  val blake3: int -> hash
+    (** The BLAKE3 hash function produces hashes of arbitrary length.
+        The recommended length is 32 bytes (256 bits).
+        Shorter hashes are less secure, but longer hashes are not more secure.
+        The parameter is the desired size of the hash, in bits.
+        It must be positive and a multiple of 8. *)
+
+  val blake3_256: unit -> hash
+    (** The BLAKE3 hash function, specialized to 256 bit hashes (32 bytes). *)
+
   val ripemd160: unit -> hash
     (** RIPEMD-160 produces 160-bit hashes (20 bytes).  *)
 
@@ -849,7 +859,7 @@ module MAC: sig
 
   val blake2b512: string -> hash
     (** [blake2b512 key] is the BLAKE2b keyed hash function specialized
-        to 512 byte hashes (64 bytes).
+        to 512 bit hashes (64 bytes).
         The [key] argument is the MAC key.  It must have length 64 at most.
         A length of 64 bytes is recommended. *)
 
@@ -863,9 +873,21 @@ module MAC: sig
 
   val blake2s256: string -> hash
     (** [blake2s256 key] is the BLAKE2s keyed hash function specialized
-        to 256 byte hashes (32 bytes).
+        to 256 bit hashes (32 bytes).
         The [key] argument is the MAC key.  It must have length 32 at most.
         A length of 32 bytes is recommended. *)
+
+  val blake3: int -> string -> hash
+    (** [blake3 sz key] is the BLAKE3 keyed hash function.
+        [key] is the MAC key.  It must have length 32.
+        [sz] is the desired size of the hash, in bits.
+        The recommended length is 256 bits (32 bytes).
+        Shorter hashes are less secure, but longer hashes are not more secure. *)
+
+  val blake3_256: string -> hash
+    (** [blake3_256 key] is the BLAKE3 keyed hash function specialized
+        to 256 bit hashes (32 bytes). 
+        [key] is the MAC key.  It must have length 32. *)
 
   val aes_cmac: ?iv:string -> string -> hash
     (** [aes_cmac key] returns a MAC based on AES encryption in CMAC mode,
