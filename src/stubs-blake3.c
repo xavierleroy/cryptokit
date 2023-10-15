@@ -40,6 +40,7 @@ static struct custom_operations blake3_context_ops = {
 
 CAMLprim value caml_blake3_init(value optkey)
 {
+  CAMLparam1(optkey);
   blake3_hasher * ctx = caml_stat_alloc(sizeof(blake3_hasher));
   value res =
     caml_alloc_custom(&blake3_context_ops,
@@ -51,7 +52,7 @@ CAMLprim value caml_blake3_init(value optkey)
     blake3_hasher_init(ctx);
   }
   Context_val(res) = ctx;
-  return res;
+  CAMLreturn(res);
 }
 
 CAMLprim value caml_blake3_update(value ctx,

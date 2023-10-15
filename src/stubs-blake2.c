@@ -22,11 +22,12 @@
 
 CAMLprim value caml_blake2b_init(value hashlen, value key)
 {
+  CAMLparam1(key);
   value ctx = caml_alloc_string(sizeof(struct blake2b));
   blake2b_init(blake2b_val(ctx),
                Int_val(hashlen),
                caml_string_length(key), &Byte_u(key, 0));
-  return ctx;
+  CAMLreturn(ctx);
 }
 
 CAMLprim value caml_blake2b_update(value ctx, value src, value ofs, value len)
@@ -50,11 +51,12 @@ CAMLprim value caml_blake2b_final(value ctx, value hashlen)
 
 CAMLprim value caml_blake2s_init(value hashlen, value key)
 {
+  CAMLparam1(key);
   value ctx = caml_alloc_string(sizeof(struct blake2s));
   blake2s_init(blake2s_val(ctx),
                Int_val(hashlen),
                caml_string_length(key), &Byte_u(key, 0));
-  return ctx;
+  CAMLreturn(ctx);
 }
 
 CAMLprim value caml_blake2s_update(value ctx, value src, value ofs, value len)
