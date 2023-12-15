@@ -1,3 +1,7 @@
+Release 1.19:
+- Fix missing root registration in some Chacha20, Blake2, and
+  Blake3 functions (#34)
+
 Release 1.18:
 - Add BLAKE3 hash and MAC functions.
 - Fix compile-time error "SSE4.1 instruction set not enabled" (#32, #33).
