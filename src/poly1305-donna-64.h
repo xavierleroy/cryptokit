@@ -60,7 +60,7 @@ U64TO8(unsigned char *p, uint64_t v) {
 }
 
 void
-poly1305_init(poly1305_context *ctx, const unsigned char key[32]) {
+cryptokit_poly1305_init(poly1305_context *ctx, const unsigned char key[32]) {
 	poly1305_state_internal_t *st = (poly1305_state_internal_t *)ctx;
 	uint64_t t0,t1;
 
@@ -139,7 +139,7 @@ poly1305_blocks(poly1305_state_internal_t *st, const unsigned char *m, size_t by
 
 
 void
-poly1305_finish(poly1305_context *ctx, unsigned char mac[16]) {
+cryptokit_poly1305_finish(poly1305_context *ctx, unsigned char mac[16]) {
 	poly1305_state_internal_t *st = (poly1305_state_internal_t *)ctx;
 	uint64_t h0,h1,h2,c;
 	uint64_t g0,g1,g2;
