@@ -46,7 +46,7 @@ CAMLprim value caml_sha3_init(value vsize)
     caml_alloc_custom(&SHA3_context_ops,
                       sizeof(struct SHA3Context *),
                       0, 1);
-  SHA3_init(ctx, Int_val(vsize));
+  cryptokit_SHA3_init(ctx, Int_val(vsize));
   Context_val(res) = ctx;
   return res;
 }
@@ -54,7 +54,7 @@ CAMLprim value caml_sha3_init(value vsize)
 CAMLprim value caml_sha3_absorb(value ctx,
                                 value src, value ofs, value len)
 {
-  SHA3_absorb(Context_val(ctx), &Byte_u(src, Long_val(ofs)), Long_val(len));
+  cryptokit_SHA3_absorb(Context_val(ctx), &Byte_u(src, Long_val(ofs)), Long_val(len));
   return Val_unit;
 }
 
@@ -74,7 +74,7 @@ CAMLprim value caml_sha3_extract(value official, value ctx)
   CAMLlocal1(res);
 
   res = caml_alloc_string(Context_val(ctx)->hsiz);
-  SHA3_extract(Bool_val(official) ? sha3_padding : keccak_padding, Context_val(ctx), &Byte_u(res, 0));
+  cryptokit_SHA3_extract(Bool_val(official) ? sha3_padding : keccak_padding, Context_val(ctx), &Byte_u(res, 0));
   CAMLreturn(res);
 }
 
