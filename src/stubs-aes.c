@@ -11,12 +11,11 @@
 /*                                                                     */
 /***********************************************************************/
 
-/* $Id$ */
-
 /* Stub code for AES */
 
-#include "rijndael-alg-fst.h"
-#include "aesni.h"
+#include "rijndael-alg-fst.c"
+#include "aesni.c"
+
 #include <caml/mlvalues.h>
 #include <caml/alloc.h>
 #include <caml/memory.h>

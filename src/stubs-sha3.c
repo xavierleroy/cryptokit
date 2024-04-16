@@ -11,10 +11,8 @@
 /*                                                                     */
 /***********************************************************************/
 
-/* $Id: stubs-sha1.c 53 2010-08-30 10:53:00Z gildor-admin $ */
-
 #include <string.h>
-#include "keccak.h"
+#include "keccak.c"
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/alloc.h>

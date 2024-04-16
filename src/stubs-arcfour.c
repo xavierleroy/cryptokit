@@ -11,11 +11,9 @@
 /*                                                                     */
 /***********************************************************************/
 
-/* $Id$ */
-
 /* Stub code for ARC4 */
 
-#include "arcfour.h"
+#include "arcfour.c"
 #include <caml/mlvalues.h>
 #include <caml/alloc.h>
 #include <caml/memory.h>

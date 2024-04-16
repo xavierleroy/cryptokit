@@ -116,7 +116,7 @@ static void blake2b_compress(struct blake2b * s, unsigned char * data,
   s->h[6] ^= v6 ^ v14;  s->h[7] ^= v7 ^ v15;
 }
 
-void blake2b_init(struct blake2b * s,
+EXPORT void blake2b_init(struct blake2b * s,
                   int hashlen, int keylen, unsigned char * key)
 {
   int i;
@@ -134,7 +134,7 @@ void blake2b_init(struct blake2b * s,
   }
 }
 
-void blake2b_add_data(struct blake2b * s,
+EXPORT void blake2b_add_data(struct blake2b * s,
                       unsigned char * data, size_t len)
 {
   int n;
@@ -161,7 +161,7 @@ void blake2b_add_data(struct blake2b * s,
   s->numbytes = len;
 }
 
-void blake2b_final(struct blake2b * s, int hashlen, unsigned char * hash)
+EXPORT void blake2b_final(struct blake2b * s, int hashlen, unsigned char * hash)
 {
   unsigned int i;
   assert (0 < hashlen && hashlen <= 64);
@@ -255,7 +255,7 @@ static void blake2s_compress(struct blake2s * s, unsigned char * data,
   s->h[6] ^= v6 ^ v14;  s->h[7] ^= v7 ^ v15;
 }
 
-void blake2s_init(struct blake2s * s,
+EXPORT void blake2s_init(struct blake2s * s,
                   int hashlen, int keylen, unsigned char * key)
 {
   int i;
@@ -273,7 +273,7 @@ void blake2s_init(struct blake2s * s,
   }
 }
 
-void blake2s_add_data(struct blake2s * s,
+EXPORT void blake2s_add_data(struct blake2s * s,
                       unsigned char * data, size_t len)
 {
   int n;
@@ -300,7 +300,7 @@ void blake2s_add_data(struct blake2s * s,
   s->numbytes = len;
 }
 
-void blake2s_final(struct blake2s * s, int hashlen, unsigned char * hash)
+EXPORT void blake2s_final(struct blake2s * s, int hashlen, unsigned char * hash)
 {
   unsigned int i;
   assert (0 < hashlen && hashlen <= 32);

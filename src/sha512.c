@@ -11,8 +11,6 @@
 /*                                                                     */
 /***********************************************************************/
 
-/* $Id: sha256.c 53 2010-08-30 10:53:00Z gildor-admin $ */
-
 /* SHA-512 hashing */
 
 #include <string.h>
@@ -199,7 +197,7 @@ static void SHA512_transform(struct SHA512Context * ctx)
   ctx->state[7] += h;
 }
 
-void SHA512_init(struct SHA512Context * ctx, int bitsize)
+EXPORT void SHA512_init(struct SHA512Context * ctx, int bitsize)
 {
   switch (bitsize) {
   case 512:
@@ -233,7 +231,7 @@ void SHA512_init(struct SHA512Context * ctx, int bitsize)
   ctx->length[1] = 0;
 }
 
-void SHA512_add_data(struct SHA512Context * ctx, unsigned char * data,
+EXPORT void SHA512_add_data(struct SHA512Context * ctx, unsigned char * data,
                      unsigned long len)
 {
   u64 t;
@@ -269,7 +267,7 @@ void SHA512_add_data(struct SHA512Context * ctx, unsigned char * data,
   ctx->numbytes = len;
 }
 
-void SHA512_finish(struct SHA512Context * ctx, int bitsize,
+EXPORT void SHA512_finish(struct SHA512Context * ctx, int bitsize,
                    unsigned char * output)
 {
   int i = ctx->numbytes;

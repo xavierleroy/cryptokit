@@ -49,7 +49,7 @@ static inline void U64TO8_LE(unsigned char *p, uint64_t v) {
   p[7] = (v >> 56) & 0xff;
 }
 
-void siphash_init(struct siphash * st, const unsigned char * key, int outlen)
+EXPORT void siphash_init(struct siphash * st, const unsigned char * key, int outlen)
 {
   uint64_t k0 = U8TO64_LE(key);
   uint64_t k1 = U8TO64_LE(key + 8);
@@ -92,7 +92,7 @@ static void siphash_mix(struct siphash * st, uint64_t x)
   st->v0 ^= x;
 }
 
-void siphash_add(struct siphash * st, const unsigned char * p, size_t len)
+EXPORT void siphash_add(struct siphash * st, const unsigned char * p, size_t len)
 {
   int used = st->used;
   int free = SIPHASH_BUFLEN - used;
@@ -126,7 +126,7 @@ static uint64_t siphash_final_rounds(struct siphash * st)
   return st->v0 ^ st->v1 ^ st->v2 ^ st->v3;
 }
 
-void siphash_final(struct siphash * st, int outlen, unsigned char * out)
+EXPORT void siphash_final(struct siphash * st, int outlen, unsigned char * out)
 {
   uint64_t w;
   /* Finish with the remaining bytes (up to 7 bytes).

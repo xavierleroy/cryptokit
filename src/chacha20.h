@@ -12,13 +12,13 @@ typedef struct {
   int iv_length;                /* 8 or 12 */
 } chacha20_ctx;
 
-void chacha20_init(chacha20_ctx * ctx,
-                   const uint8_t * key, size_t key_length,
-                   const uint8_t * iv, size_t iv_length,
-                   uint64_t ctr);
+EXPORT void chacha20_init(chacha20_ctx * ctx,
+                          const uint8_t * key, size_t key_length,
+                          const uint8_t * iv, size_t iv_length,
+                          uint64_t ctr);
 
-void chacha20_extract(chacha20_ctx * ctx,
-                      uint8_t * out, size_t len);
+EXPORT void chacha20_extract(chacha20_ctx * ctx,
+                             uint8_t * out, size_t len);
 
-void chacha20_transform(chacha20_ctx * ctx,
-                        const uint8_t * in, uint8_t * out, size_t len);
+EXPORT void chacha20_transform(chacha20_ctx * ctx,
+                               const uint8_t * in, uint8_t * out, size_t len);

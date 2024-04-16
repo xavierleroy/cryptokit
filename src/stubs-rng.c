@@ -11,8 +11,6 @@
 /*                                                                     */
 /***********************************************************************/
 
-/* $Id$ */
-
 /* Stub code for the system-provided RNG and for hardware RNG */
 
 #include <caml/mlvalues.h>

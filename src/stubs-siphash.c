@@ -13,10 +13,11 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "siphash.c"
+
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/alloc.h>
-#include "siphash.h"
 
 #define siphash_val(v) ((struct siphash *) String_val(v))
 

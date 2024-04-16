@@ -363,7 +363,7 @@ static u32 F(BLOWFISH_CTX *ctx, u32 x) {
 
 #endif
 
-void Blowfish_Encrypt(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr){
+EXPORT void Blowfish_Encrypt(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr){
   u32  Xl;
   u32  Xr;
 
@@ -415,7 +415,7 @@ void Blowfish_Encrypt(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr){
 #endif
 }
 
-void Blowfish_Decrypt(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr){
+EXPORT void Blowfish_Decrypt(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr){
   u32  Xl;
   u32  Xr;
 
@@ -470,7 +470,7 @@ void Blowfish_Decrypt(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr){
 }
 
 
-void Blowfish_Init(BLOWFISH_CTX *ctx, unsigned char *key, int keyLen) {
+EXPORT void Blowfish_Init(BLOWFISH_CTX *ctx, unsigned char *key, int keyLen) {
   int i, j, k;
   u32 data, datal, datar;
 

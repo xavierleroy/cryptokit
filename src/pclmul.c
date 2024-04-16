@@ -23,9 +23,9 @@
 #include <emmintrin.h>
 #include <cpuid.h>
 
-int pclmul_available = -1;
+EXPORT int pclmul_available = -1;
 
-int pclmul_check_available(void)
+EXPORT int pclmul_check_available(void)
 {
   unsigned int eax, ebx, ecx, edx;
   if(__get_cpuid(1, &eax, &ebx, &ecx, &edx)) {
@@ -46,7 +46,7 @@ static void copy_reverse_16(void * dst, const void * src)
 #undef COPY
 }
 
-void pclmul_mult(uint8_t res[16],
+EXPORT void pclmul_mult(uint8_t res[16],
                  const uint8_t arg1[16], const uint8_t arg2[16])
 {
   __m128i tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7, tmp8, tmp9;
@@ -104,9 +104,9 @@ void pclmul_mult(uint8_t res[16],
 
 int pclmul_available = -1;
 
-int pclmul_check_available(void) { return 0; }
+EXPORT int pclmul_check_available(void) { return 0; }
 
-void pclmul_mult(uint8_t res[16],
+EXPORT void pclmul_mult(uint8_t res[16],
                  const uint8_t arg1[16], const uint8_t arg2[16])
 { abort(); }
 

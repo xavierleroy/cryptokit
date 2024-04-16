@@ -11,9 +11,7 @@
 /*                                                                     */
 /***********************************************************************/
 
-/* $Id$ */
-
-#include "sha256.h"
+#include "sha256.c"
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/alloc.h>

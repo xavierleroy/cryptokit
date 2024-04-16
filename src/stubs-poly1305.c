@@ -11,7 +11,7 @@
 /*                                                                     */
 /***********************************************************************/
 
-#include "poly1305-donna.h"
+#include "poly1305-donna.c"
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/alloc.h>

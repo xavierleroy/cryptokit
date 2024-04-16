@@ -29,9 +29,9 @@ struct SHA256Context {
   unsigned char buffer[64];
 };
 
-extern void SHA256_init(struct SHA256Context * ctx, int bitsize);
-extern void SHA256_add_data(struct SHA256Context * ctx, unsigned char * data,
+EXPORT void SHA256_init(struct SHA256Context * ctx, int bitsize);
+EXPORT void SHA256_add_data(struct SHA256Context * ctx, unsigned char * data,
                             unsigned long len);
-extern void SHA256_finish(struct SHA256Context * ctx, 
+EXPORT void SHA256_finish(struct SHA256Context * ctx, 
                           int bitsize,
                           unsigned char * output);

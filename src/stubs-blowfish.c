@@ -11,11 +11,9 @@
 /*                                                                     */
 /***********************************************************************/
 
-/* $Id$ */
-
 /* Stub code for Blowfish */
 
-#include "blowfish.h"
+#include "blowfish.c"
 #include <caml/mlvalues.h>
 #include <caml/alloc.h>
 #include <caml/memory.h>

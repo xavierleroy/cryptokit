@@ -11,9 +11,7 @@
 /*                                                                     */
 /***********************************************************************/
 
-/* $Id$ */
-
-#include "ripemd160.h"
+#include "ripemd160.c"
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/alloc.h>

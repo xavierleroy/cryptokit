@@ -13,7 +13,7 @@
 #endif
 
 void
-poly1305_update(poly1305_context *ctx, const unsigned char *m, size_t bytes) {
+EXPORT poly1305_update(poly1305_context *ctx, const unsigned char *m, size_t bytes) {
 	poly1305_state_internal_t *st = (poly1305_state_internal_t *)ctx;
 	size_t i;
 

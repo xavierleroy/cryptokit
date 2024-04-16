@@ -26,9 +26,9 @@ typedef struct {
   u32 S[4][256];
 } BLOWFISH_CTX;
 
-void Blowfish_Init(BLOWFISH_CTX *ctx, unsigned char *key, int keyLen);
-void Blowfish_Encrypt(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr);
-void Blowfish_Decrypt(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr);
+EXPORT void Blowfish_Init(BLOWFISH_CTX *ctx, unsigned char *key, int keyLen);
+EXPORT void Blowfish_Encrypt(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr);
+EXPORT void Blowfish_Decrypt(BLOWFISH_CTX *ctx, u32 *xl, u32 *xr);
 
 
 

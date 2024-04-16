@@ -11,8 +11,6 @@
 /*                                                                     */
 /***********************************************************************/
 
-/* $Id$ */
-
 /* SHA-256 hashing */
 
 #include <string.h>
@@ -129,7 +127,7 @@ static void SHA256_transform(struct SHA256Context * ctx)
   ctx->state[7] += h;
 }
 
-void SHA256_init(struct SHA256Context * ctx, int bitsize)
+EXPORT void SHA256_init(struct SHA256Context * ctx, int bitsize)
 {
   switch (bitsize) {
   case 224:
@@ -163,7 +161,7 @@ void SHA256_init(struct SHA256Context * ctx, int bitsize)
   ctx->length[1] = 0;
 }
 
-void SHA256_add_data(struct SHA256Context * ctx, unsigned char * data,
+EXPORT void SHA256_add_data(struct SHA256Context * ctx, unsigned char * data,
                    unsigned long len)
 {
   u32 t;
@@ -199,7 +197,7 @@ void SHA256_add_data(struct SHA256Context * ctx, unsigned char * data,
   ctx->numbytes = len;
 }
 
-void SHA256_finish(struct SHA256Context * ctx, int bitsize,
+EXPORT void SHA256_finish(struct SHA256Context * ctx, int bitsize,
                    unsigned char * output)
 {
   int i = ctx->numbytes;

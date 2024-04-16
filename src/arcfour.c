@@ -11,11 +11,9 @@
 /*                                                                     */
 /***********************************************************************/
 
-/* $Id$ */
-
 #include "arcfour.h"
 
-void arcfour_cook_key(struct arcfour_key * key,
+EXPORT void arcfour_cook_key(struct arcfour_key * key,
                       unsigned char * key_data,
                       int key_data_len)
 {
@@ -37,7 +35,7 @@ void arcfour_cook_key(struct arcfour_key * key,
   }
 }
 
-void arcfour_encrypt(struct arcfour_key * key,
+EXPORT void arcfour_encrypt(struct arcfour_key * key,
                      char * src, char * dst, long len)
 {
   int x, y, kx, ky;

@@ -11,8 +11,6 @@
 /*                                                                     */
 /***********************************************************************/
 
-/* $Id$ */
-
 /* SHA-1 hashing */
 
 #include <string.h>
@@ -100,7 +98,7 @@ static void SHA1_transform(struct SHA1Context * ctx)
   ctx->state[4] += e;
 }
 
-void SHA1_init(struct SHA1Context * ctx)
+EXPORT void SHA1_init(struct SHA1Context * ctx)
 {
   ctx->state[0] = 0x67452301U;
   ctx->state[1] = 0xEFCDAB89U;
@@ -112,7 +110,7 @@ void SHA1_init(struct SHA1Context * ctx)
   ctx->length[1] = 0;
 }
 
-void SHA1_add_data(struct SHA1Context * ctx, unsigned char * data,
+EXPORT void SHA1_add_data(struct SHA1Context * ctx, unsigned char * data,
                    unsigned long len)
 {
   u32 t;
@@ -148,7 +146,7 @@ void SHA1_add_data(struct SHA1Context * ctx, unsigned char * data,
   ctx->numbytes = len;
 }
 
-void SHA1_finish(struct SHA1Context * ctx, unsigned char output[20])
+EXPORT void SHA1_finish(struct SHA1Context * ctx, unsigned char output[20])
 {
   int i = ctx->numbytes;
 

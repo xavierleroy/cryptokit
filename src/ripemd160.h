@@ -24,9 +24,9 @@ struct RIPEMD160Context {
   unsigned char buffer[64];
 };
 
-extern void RIPEMD160_init(struct RIPEMD160Context * ctx);
-extern void RIPEMD160_add_data(struct RIPEMD160Context * ctx, 
+EXPORT void RIPEMD160_init(struct RIPEMD160Context * ctx);
+EXPORT void RIPEMD160_add_data(struct RIPEMD160Context * ctx, 
                                unsigned char * data,
                                unsigned long len);
-extern void RIPEMD160_finish(struct RIPEMD160Context * ctx, 
+EXPORT void RIPEMD160_finish(struct RIPEMD160Context * ctx, 
                              unsigned char output[20]);

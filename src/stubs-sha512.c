@@ -11,9 +11,7 @@
 /*                                                                     */
 /***********************************************************************/
 
-/* $Id: stubs-sha256.c 53 2010-08-30 10:53:00Z gildor-admin $ */
-
-#include "sha512.h"
+#include "sha512.c"
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/alloc.h>

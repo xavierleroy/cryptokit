@@ -13,7 +13,7 @@
 
 /* Stub code for Chacha20 */
 
-#include "chacha20.h"
+#include "chacha20.c"
 #include <caml/mlvalues.h>
 #include <caml/alloc.h>
 #include <caml/memory.h>
