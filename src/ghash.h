@@ -18,9 +18,9 @@ struct ghash_context {
     uint64_t HH[16];        // precalculated hi-half HTable
 };
 
-extern void ghash_init(struct ghash_context * ctx,
+EXPORT void ghash_init(struct ghash_context * ctx,
                        const uint8_t h[16]);
 
-extern void ghash_mult(const struct ghash_context * ctx,
+EXPORT void ghash_mult(const struct ghash_context * ctx,
                        const uint8_t input[16],
                        uint8_t output[16]);

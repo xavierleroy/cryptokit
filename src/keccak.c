@@ -114,7 +114,7 @@ static void KeccakAbsorb(u64 st[25], unsigned char * p, int rsiz)
 
 /* Exported interface */
 
-void SHA3_init(struct SHA3Context * ctx, int hsiz)
+EXPORT void SHA3_init(struct SHA3Context * ctx, int hsiz)
 {
   assert (hsiz == 224 || hsiz == 256 || hsiz == 384 || hsiz == 512);
   ctx->hsiz = hsiz / 8;
@@ -123,7 +123,7 @@ void SHA3_init(struct SHA3Context * ctx, int hsiz)
   memset(ctx->state, 0, sizeof(ctx->state));
 }
 
-void SHA3_absorb(struct SHA3Context * ctx, 
+EXPORT void SHA3_absorb(struct SHA3Context * ctx, 
                  unsigned char * data,
                  unsigned long len)
 {
@@ -153,7 +153,7 @@ void SHA3_absorb(struct SHA3Context * ctx,
   ctx->numbytes = len;
 }
 
-void SHA3_extract(unsigned char padding,
+EXPORT void SHA3_extract(unsigned char padding,
                   struct SHA3Context * ctx,
                   unsigned char * output)
 {

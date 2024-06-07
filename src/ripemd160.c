@@ -11,8 +11,6 @@
 /*                                                                     */
 /***********************************************************************/
 
-/* $Id$ */
-
 /* RIPEMD160 hashing */
 
 #include <string.h>
@@ -320,7 +318,7 @@ static void RIPEMD160_compress(struct RIPEMD160Context * ctx)
   ctx->state[0] = d;
 }
 
-void RIPEMD160_init(struct RIPEMD160Context * ctx)
+EXPORT void RIPEMD160_init(struct RIPEMD160Context * ctx)
 {
   ctx->state[0] = 0x67452301U;
   ctx->state[1] = 0xEFCDAB89U;
@@ -332,7 +330,7 @@ void RIPEMD160_init(struct RIPEMD160Context * ctx)
   ctx->length[1] = 0;
 }
 
-void RIPEMD160_add_data(struct RIPEMD160Context * ctx, unsigned char * data,
+EXPORT void RIPEMD160_add_data(struct RIPEMD160Context * ctx, unsigned char * data,
                         unsigned long len)
 {
   u32 t;
@@ -368,7 +366,7 @@ void RIPEMD160_add_data(struct RIPEMD160Context * ctx, unsigned char * data,
   ctx->numbytes = len;
 }
 
-void RIPEMD160_finish(struct RIPEMD160Context * ctx, unsigned char output[20])
+EXPORT void RIPEMD160_finish(struct RIPEMD160Context * ctx, unsigned char output[20])
 {
   int i = ctx->numbytes;
 

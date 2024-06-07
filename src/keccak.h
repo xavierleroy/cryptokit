@@ -10,12 +10,12 @@ struct SHA3Context {
   int hsiz;           /* size of hash in bytes */
 };
 
-extern void SHA3_init(struct SHA3Context * ctx, int hsiz);
+EXPORT void SHA3_init(struct SHA3Context * ctx, int hsiz);
 
-extern void SHA3_absorb(struct SHA3Context * ctx, 
+EXPORT void SHA3_absorb(struct SHA3Context * ctx, 
                         unsigned char * data,
                         unsigned long len);
 
-extern void SHA3_extract(unsigned char padding,
+EXPORT void SHA3_extract(unsigned char padding,
                          struct SHA3Context * ctx,
                          unsigned char * output);

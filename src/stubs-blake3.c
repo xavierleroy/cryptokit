@@ -13,11 +13,14 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "blake3.c"
+#include "blake3_portable.c"
+#include "blake3_dispatch.c"
+
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/alloc.h>
 #include <caml/custom.h>
-#include "blake3.h"
 
 #define Context_val(v) (*((blake3_hasher **) Data_custom_val(v)))
 

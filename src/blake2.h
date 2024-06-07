@@ -22,11 +22,11 @@ struct blake2b {
   unsigned char buffer[BLAKE2b_BLOCKSIZE];
 };
 
-extern void blake2b_init(struct blake2b * s,
+EXPORT void blake2b_init(struct blake2b * s,
                          int hashlen, int keylen, unsigned char * key);
-extern void blake2b_add_data(struct blake2b * s,
+EXPORT void blake2b_add_data(struct blake2b * s,
                              unsigned char * data, size_t len);
-extern void blake2b_final(struct blake2b * s,
+EXPORT void blake2b_final(struct blake2b * s,
                           int hashlen, unsigned char * hash);
 
 #define BLAKE2s_BLOCKSIZE 64
@@ -38,10 +38,10 @@ struct blake2s {
   unsigned char buffer[BLAKE2s_BLOCKSIZE];
 };
 
-extern void blake2s_init(struct blake2s * s,
+EXPORT void blake2s_init(struct blake2s * s,
                          int hashlen, int keylen, unsigned char * key);
-extern void blake2s_add_data(struct blake2s * s,
+EXPORT void blake2s_add_data(struct blake2s * s,
                              unsigned char * data, size_t len);
-extern void blake2s_final(struct blake2s * s,
+EXPORT void blake2s_final(struct blake2s * s,
                           int hashlen, unsigned char * hash);
 

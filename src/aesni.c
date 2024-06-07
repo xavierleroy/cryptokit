@@ -21,9 +21,9 @@
 #include <cpuid.h>
 #include <stdint.h>
 
-int aesni_available = -1;
+EXPORT int aesni_available = -1;
 
-int aesni_check_available(void)
+EXPORT int aesni_check_available(void)
 {
   unsigned int eax, ebx, ecx, edx;
   if(__get_cpuid(1, &eax, &ebx, &ecx, &edx)) {
@@ -224,7 +224,7 @@ static void * align16(void * p)
   return (void *) n;
 }
 
-int aesniKeySetupEnc(unsigned char * ckey,
+EXPORT int aesniKeySetupEnc(unsigned char * ckey,
                      const unsigned char * key,
                      int keylength)
 {
@@ -239,7 +239,7 @@ int aesniKeySetupEnc(unsigned char * ckey,
   return nrounds;
 }
 
-int aesniKeySetupDec(unsigned char * ckey,
+EXPORT int aesniKeySetupDec(unsigned char * ckey,
                      const unsigned char * key,
                      int keylength)
 {
@@ -257,7 +257,7 @@ int aesniKeySetupDec(unsigned char * ckey,
   return nrounds;
 }
                      
-void aesniEncrypt(const unsigned char * key, int nrounds,
+EXPORT void aesniEncrypt(const unsigned char * key, int nrounds,
                   const unsigned char * in,
                   unsigned char * out)
 {
@@ -278,7 +278,7 @@ void aesniEncrypt(const unsigned char * key, int nrounds,
   _mm_storeu_si128 ((__m128i*) out, t);
 }
   
-void aesniDecrypt(const unsigned char * key, int nrounds,
+EXPORT void aesniDecrypt(const unsigned char * key, int nrounds,
                   const unsigned char * in,
                   unsigned char * out)
 {
@@ -303,24 +303,24 @@ void aesniDecrypt(const unsigned char * key, int nrounds,
 
 int aesni_available = 0;
 
-int aesni_check_available(void) { return 0; }
+EXPORT int aesni_check_available(void) { return 0; }
 
-int aesniKeySetupEnc(unsigned char * ckey,
+EXPORT int aesniKeySetupEnc(unsigned char * ckey,
                      const unsigned char * key,
                      int keylength)
 { abort(); }
 
-int aesniKeySetupDec(unsigned char * ckey,
+EXPORT int aesniKeySetupDec(unsigned char * ckey,
                      const unsigned char * key,
                      int keylength)
 { abort(); }
 
-void aesniEncrypt(const unsigned char * key, int nrounds,
+EXPORT void aesniEncrypt(const unsigned char * key, int nrounds,
                   const unsigned char * in,
                   unsigned char * out)
 { abort(); }
 
-void aesniDecrypt(const unsigned char * key, int nrounds,
+EXPORT void aesniDecrypt(const unsigned char * key, int nrounds,
                   const unsigned char * in,
                   unsigned char * out)
 { abort(); }

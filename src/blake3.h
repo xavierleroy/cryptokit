@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #ifdef __cplusplus
-extern "C" {
+EXPORT "C" {
 #endif
 
 #define BLAKE3_VERSION_STRING "1.3.1"
@@ -38,20 +38,20 @@ typedef struct {
   uint8_t cv_stack[(BLAKE3_MAX_DEPTH + 1) * BLAKE3_OUT_LEN];
 } blake3_hasher;
 
-const char *blake3_version(void);
-void blake3_hasher_init(blake3_hasher *self);
-void blake3_hasher_init_keyed(blake3_hasher *self,
-                              const uint8_t key[BLAKE3_KEY_LEN]);
-void blake3_hasher_init_derive_key(blake3_hasher *self, const char *context);
-void blake3_hasher_init_derive_key_raw(blake3_hasher *self, const void *context,
-                                       size_t context_len);
-void blake3_hasher_update(blake3_hasher *self, const void *input,
-                          size_t input_len);
-void blake3_hasher_finalize(const blake3_hasher *self, uint8_t *out,
-                            size_t out_len);
-void blake3_hasher_finalize_seek(const blake3_hasher *self, uint64_t seek,
-                                 uint8_t *out, size_t out_len);
-void blake3_hasher_reset(blake3_hasher *self);
+EXPORT const char *blake3_version(void);
+EXPORT void blake3_hasher_init(blake3_hasher *self);
+EXPORT void blake3_hasher_init_keyed(blake3_hasher *self,
+                                     const uint8_t key[BLAKE3_KEY_LEN]);
+EXPORT void blake3_hasher_init_derive_key(blake3_hasher *self, const char *context);
+EXPORT void blake3_hasher_init_derive_key_raw(blake3_hasher *self, const void *context,
+                                              size_t context_len);
+EXPORT void blake3_hasher_update(blake3_hasher *self, const void *input,
+                                 size_t input_len);
+EXPORT void blake3_hasher_finalize(const blake3_hasher *self, uint8_t *out,
+                                   size_t out_len);
+EXPORT void blake3_hasher_finalize_seek(const blake3_hasher *self, uint64_t seek,
+                                        uint8_t *out, size_t out_len);
+EXPORT void blake3_hasher_reset(blake3_hasher *self);
 
 #ifdef __cplusplus
 }

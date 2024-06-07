@@ -11,11 +11,9 @@
 /*                                                                     */
 /***********************************************************************/
 
-/* $Id$ */
-
 /* Stub code for DES */
 
-#include "d3des.h"
+#include "d3des.c"
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/alloc.h>

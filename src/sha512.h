@@ -30,8 +30,8 @@ struct SHA512Context {
   unsigned char buffer[128];
 };
 
-extern void SHA512_init(struct SHA512Context * ctx, int bitsize);
-extern void SHA512_add_data(struct SHA512Context * ctx, unsigned char * data,
+EXPORT void SHA512_init(struct SHA512Context * ctx, int bitsize);
+EXPORT void SHA512_add_data(struct SHA512Context * ctx, unsigned char * data,
                             unsigned long len);
-extern void SHA512_finish(struct SHA512Context * ctx, int bitsize,
+EXPORT void SHA512_finish(struct SHA512Context * ctx, int bitsize,
                           unsigned char * output);

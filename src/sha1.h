@@ -24,7 +24,7 @@ struct SHA1Context {
   unsigned char buffer[64];
 };
 
-extern void SHA1_init(struct SHA1Context * ctx);
-extern void SHA1_add_data(struct SHA1Context * ctx, unsigned char * data,
+EXPORT void SHA1_init(struct SHA1Context * ctx);
+EXPORT void SHA1_add_data(struct SHA1Context * ctx, unsigned char * data,
                           unsigned long len);
-extern void SHA1_finish(struct SHA1Context * ctx, unsigned char output[20]);
+EXPORT void SHA1_finish(struct SHA1Context * ctx, unsigned char output[20]);

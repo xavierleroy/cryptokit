@@ -20,10 +20,10 @@ struct siphash {
   uint8_t len8;    /* 8 low bits of total data length */
 };
 
-extern void siphash_init(struct siphash * st,
+EXPORT void siphash_init(struct siphash * st,
                          const unsigned char * key, int outlen);
-extern void siphash_add(struct siphash * st,
+EXPORT void siphash_add(struct siphash * st,
                         const unsigned char * p, size_t len);
-extern void siphash_final(struct siphash * st,
+EXPORT void siphash_final(struct siphash * st,
                           int outlen, unsigned char * out);
 

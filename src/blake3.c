@@ -5,7 +5,7 @@
 #include "blake3.h"
 #include "blake3_impl.h"
 
-const char *blake3_version(void) { return BLAKE3_VERSION_STRING; }
+EXPORT const char *blake3_version(void) { return BLAKE3_VERSION_STRING; }
 
 INLINE void chunk_state_init(blake3_chunk_state *self, const uint32_t key[8],
                              uint8_t flags) {
@@ -366,16 +366,16 @@ INLINE void hasher_init_base(blake3_hasher *self, const uint32_t key[8],
   self->cv_stack_len = 0;
 }
 
-void blake3_hasher_init(blake3_hasher *self) { hasher_init_base(self, IV, 0); }
+EXPORT void blake3_hasher_init(blake3_hasher *self) { hasher_init_base(self, IV, 0); }
 
-void blake3_hasher_init_keyed(blake3_hasher *self,
+EXPORT void blake3_hasher_init_keyed(blake3_hasher *self,
                               const uint8_t key[BLAKE3_KEY_LEN]) {
   uint32_t key_words[8];
   load_key_words(key, key_words);
   hasher_init_base(self, key_words, KEYED_HASH);
 }
 
-void blake3_hasher_init_derive_key_raw(blake3_hasher *self, const void *context,
+EXPORT void blake3_hasher_init_derive_key_raw(blake3_hasher *self, const void *context,
                                        size_t context_len) {
   blake3_hasher context_hasher;
   hasher_init_base(&context_hasher, IV, DERIVE_KEY_CONTEXT);
@@ -387,7 +387,7 @@ void blake3_hasher_init_derive_key_raw(blake3_hasher *self, const void *context,
   hasher_init_base(self, context_key_words, DERIVE_KEY_MATERIAL);
 }
 
-void blake3_hasher_init_derive_key(blake3_hasher *self, const char *context) {
+EXPORT void blake3_hasher_init_derive_key(blake3_hasher *self, const char *context) {
   blake3_hasher_init_derive_key_raw(self, context, strlen(context));
 }
 
@@ -452,7 +452,7 @@ INLINE void hasher_push_cv(blake3_hasher *self, uint8_t new_cv[BLAKE3_OUT_LEN],
   self->cv_stack_len += 1;
 }
 
-void blake3_hasher_update(blake3_hasher *self, const void *input,
+EXPORT void blake3_hasher_update(blake3_hasher *self, const void *input,
                           size_t input_len) {
   // Explicitly checking for zero avoids causing UB by passing a null pointer
   // to memcpy. This comes up in practice with things like:
@@ -561,12 +561,12 @@ void blake3_hasher_update(blake3_hasher *self, const void *input,
   }
 }
 
-void blake3_hasher_finalize(const blake3_hasher *self, uint8_t *out,
+EXPORT void blake3_hasher_finalize(const blake3_hasher *self, uint8_t *out,
                             size_t out_len) {
   blake3_hasher_finalize_seek(self, 0, out, out_len);
 }
 
-void blake3_hasher_finalize_seek(const blake3_hasher *self, uint64_t seek,
+EXPORT void blake3_hasher_finalize_seek(const blake3_hasher *self, uint64_t seek,
                                  uint8_t *out, size_t out_len) {
   // Explicitly checking for zero avoids causing UB by passing a null pointer
   // to memcpy. This comes up in practice with things like:
@@ -610,7 +610,7 @@ void blake3_hasher_finalize_seek(const blake3_hasher *self, uint64_t seek,
   output_root_bytes(&output, seek, out, out_len);
 }
 
-void blake3_hasher_reset(blake3_hasher *self) {
+EXPORT void blake3_hasher_reset(blake3_hasher *self) {
   chunk_state_reset(&self->chunk, self->key, 0);
   self->cv_stack_len = 0;
 }

@@ -46,7 +46,7 @@ static inline void put_uint64_be(uint64_t n, uint8_t * b, int i)
     b[i + 7] = n;
 }
 
-void ghash_mult(const struct ghash_context * ctx,
+EXPORT void ghash_mult(const struct ghash_context * ctx,
                 const uint8_t input[16],
                 uint8_t output[16])
 {
@@ -86,7 +86,7 @@ void ghash_mult(const struct ghash_context * ctx,
     put_uint64_be(zl, output, 8 );
 }
 
-void ghash_init(struct ghash_context * ctx,
+EXPORT void ghash_init(struct ghash_context * ctx,
                 const uint8_t h[16])
 {
     int ret, i, j;

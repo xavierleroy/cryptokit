@@ -49,7 +49,7 @@ static u8 pc2[48] = {
 	40, 51, 30, 36, 46, 54,	29, 39, 50, 44, 32, 47,
 	43, 48, 38, 55, 33, 52,	45, 41, 49, 35, 28, 31 };
 
-void d3des_cook_key(u8 key[8], int edf, u32 res[32])
+EXPORT void d3des_cook_key(u8 key[8], int edf, u32 res[32])
 	/* Thanks to James Gillogly & Phil Karn! */
 {
   register int i, j, l, m, n;
@@ -104,7 +104,7 @@ static void cookey(u32 * raw1, u32 * cook)
   return;
 }
 
-void d3des_transform(u32 key[32], u8 inblock[8], u8 outblock[8])
+EXPORT void d3des_transform(u32 key[32], u8 inblock[8], u8 outblock[8])
 {
   u32 work[2];
 

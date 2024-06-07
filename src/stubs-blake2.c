@@ -13,10 +13,11 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "blake2.c"
+
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/alloc.h>
-#include "blake2.h"
 
 #define blake2b_val(v) ((struct blake2b *) String_val(v))
 

@@ -19,10 +19,10 @@ struct arcfour_key
   unsigned char x, y;
 };
 
-extern void arcfour_cook_key(struct arcfour_key * key,
+EXPORT void arcfour_cook_key(struct arcfour_key * key,
                              unsigned char * key_data,
                              int key_data_len);
 
-extern void arcfour_encrypt(struct arcfour_key * key,
+EXPORT void arcfour_encrypt(struct arcfour_key * key,
                             char * src, char * dst, long len);
 

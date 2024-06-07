@@ -13,8 +13,8 @@
 
 #include <stdint.h>
 #include <string.h>
-#include "ghash.h"
-#include "pclmul.h"
+#include "ghash.c"
+#include "pclmul.c"
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/custom.h>
