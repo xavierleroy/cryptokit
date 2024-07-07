@@ -26,7 +26,27 @@
          stubs-ghash
          stubs-poly1305
          stubs-siphash
-         stubs-blake3))
+         stubs-blake3)
+  (extra_deps
+    aesni.c
+    arcfour.c
+    blowfish.c
+    d3des.c
+    rijndael-alg-fst.c
+    ripemd160.c
+    sha1.c
+    sha256.c
+    sha512.c
+    keccak.c
+    chacha20.c
+    blake2.c
+    ghash.c
+    pclmul.c
+    poly1305-donna.c
+    siphash.c
+    blake3.c
+    blake3_dispatch.c
+    blake3_portable.c))
   (c_library_flags (:include library_flags.sexp))
   (flags :standard -safe-string -w -7 -w -27 -w -37))
 
