@@ -1,4 +1,4 @@
-Working version:
+Release 1.20:
 - Name space depollution: make C implementations of ciphers local to the
   OCaml/C stub code, so that they do not conflict with other C libraries
   implementing crypto functions with the same names (#35, #36)
