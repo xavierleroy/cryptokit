@@ -102,7 +102,7 @@ EXPORT void pclmul_mult(uint8_t res[16],
 
 #else
 
-EXPORT int pclmul_available = -1;
+EXPORT int pclmul_available = 0;
 
 EXPORT int pclmul_check_available(void) { return 0; }
 
