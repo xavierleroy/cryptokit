@@ -301,7 +301,7 @@ EXPORT void aesniDecrypt(const unsigned char * key, int nrounds,
   
 #else
 
-int aesni_available = 0;
+EXPORT int aesni_available = 0;
 
 EXPORT int aesni_check_available(void) { return 0; }
 
