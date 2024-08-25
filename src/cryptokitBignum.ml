@@ -27,7 +27,11 @@ let compare = Z.compare
 let add = Z.add
 let sub = Z.sub
 let mult = Z.mul
+
+let div = Z.div
 let mod_ = Z.rem
+
+let lcm = Z.lcm
 
 let relative_prime a b =
   Z.equal (Z.gcd a b) Z.one

@@ -25,6 +25,8 @@ val compare : t -> t -> int
 val add : t -> t -> t
 val sub : t -> t -> t
 val mult : t -> t -> t
+val div : t -> t -> t
+val lcm : t -> t -> t
 val mod_ : t -> t -> t
 
 val relative_prime : t -> t -> bool

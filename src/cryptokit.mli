@@ -1055,6 +1055,30 @@ module RSA: sig
         {!Cryptokit.RSA.encrypt}. *)
 end
 
+module Paillier: sig
+  type key =
+  { size:int;
+    n: string;
+    n2: string;
+    g: string;
+    p: string;
+    q: string;
+    lambda: string;
+    mu:string;
+  }
+
+  val wipe_key: key -> unit
+
+  val new_key: ?rng: Random.rng -> int -> key
+
+  val encrypt: ?rng: Random.rng -> key -> string -> string
+
+  val decrypt: key -> string -> string
+
+  val add: key -> string -> string -> string
+
+end
+
 (** The [DH] module implements Diffie-Hellman key agreement.
   Key agreement is a protocol by which two parties can establish
   a shared secret (typically a key for a symmetric cipher or MAC)

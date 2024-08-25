@@ -11,6 +11,8 @@
 (*                                                                     *)
 (***********************************************************************)
 
+module Bn = CryptokitBignum
+
 (* Utilities *)
 
 let seq_equal (len: 'a -> int) (get: 'a -> int -> char) (s1: 'a) (s2: 'a) =
@@ -37,6 +39,14 @@ let shl1_bytes src soff dst doff len =
       shl1 (n lsr 7) (i - 1)
     end
   in shl1 0 (len - 1)
+
+  let mod_power a b c =
+    Bn.to_bytes ~numbits:(String.length c * 8)
+      (Bn.mod_power (Bn.of_bytes a) (Bn.of_bytes b) (Bn.of_bytes c))
+  let mod_mult a b c =
+    Bn.to_bytes ~numbits:(String.length c * 8)
+      (Bn.mod_ (Bn.mult (Bn.of_bytes a) (Bn.of_bytes b))
+                (Bn.of_bytes c))
 
 (* Error reporting *)
 
@@ -1942,8 +1952,6 @@ end
 
 (* RSA operations *)
 
-module Bn = CryptokitBignum
-
 module RSA = struct
 
 type key =
@@ -2072,6 +2080,91 @@ let new_key ?(rng = Random.secure_rng) ?e numbits =
 
 end
 
+module Paillier = struct
+
+  type key =
+    { size: int;
+      n: string;
+      n2: string;
+      g: string;
+      p: string;
+      q: string;
+      lambda: string;
+      mu: string}
+  let wipe_key k =
+    wipe_string k.n;
+    wipe_string k.n2;
+    wipe_string k.g;
+    wipe_string k.p;
+    wipe_string k.q;
+    wipe_string k.lambda;
+    wipe_string k.mu
+
+  let encrypt ?(rng = Random.secure_rng) key msg =
+    let rec get_r () =
+      let r = Bn.random ~rng:(rng#random_bytes) (key.size-1) in
+      if (Bn.(relative_prime r (Bn.of_bytes key.n)) && r<(Bn.of_bytes key.n)) then Bn.to_bytes r else get_r () in
+    let r = get_r () in
+    let gm = mod_power key.g msg key.n2 in
+    let rn = mod_power r key.n key.n2 in
+    let c = mod_mult gm rn key.n2 in
+    c
+
+  let decrypt key c =
+    let c = Bn.of_bytes c in
+    let n = Bn.of_bytes key.n in
+    let n2 = Bn.of_bytes key.n2 in
+    let lambda = Bn.of_bytes key.lambda in
+    let mu = Bn.of_bytes key.mu in
+    let cn = Bn.mod_power c lambda n2 in
+    let lx = Bn.(div (sub cn one) n) in
+    let m = Bn.(mod_ (mult lx mu) n) in
+    let msg = Bn.to_bytes m in
+    Bn.wipe c; Bn.wipe n; Bn.wipe n2; Bn.wipe lambda;
+    Bn.wipe mu; Bn.wipe cn; Bn.wipe lx; Bn.wipe m;
+    msg
+
+  let add key c1 c2 =
+    mod_mult c1 c2 key.n2
+
+  let new_key ?(rng = Random.secure_rng) numbits =
+    if numbits < 32 || numbits land 1 > 0 then raise(Error Wrong_key_size);
+    let numbits2 = numbits / 2 in
+    (* Make sure p > q *)
+    let rec gen_factors nbits =
+      let p = Bn.random_prime ~rng:(rng#random_bytes) nbits
+      and q = Bn.random_prime ~rng:(rng#random_bytes) nbits in
+      let p1 = Bn.(sub p one)
+      and q1 = Bn.(sub q one) in
+      let cmp = Bn.compare p q in
+      if cmp = 0 then gen_factors nbits else
+      if Bn.(relative_prime (mult p q) (mult p1 q1)) then (p, q, p1, q1) else
+      (* Recursively generate factors *)
+      gen_factors nbits in
+    let (p, q, p1, q1) = gen_factors numbits2 in
+    (* n = pq *)
+    let n = Bn.mult p q in
+    let n2 = Bn.mult n n in
+    let g = Bn.(add n one) in
+    let lambda = Bn.mul p1 q1 in
+    let mu = Bn.mod_inv lambda n in
+
+    (* Build key *)
+    let res =
+      { size = numbits;
+        n = Bn.to_bytes ~numbits:numbits n;
+        n2 = Bn.to_bytes n2;
+        g = Bn.to_bytes g;
+        p = Bn.to_bytes ~numbits:numbits2 p;
+        q = Bn.to_bytes ~numbits:numbits2 q;
+        lambda = Bn.to_bytes lambda;
+        mu = Bn.to_bytes mu} in
+    Bn.wipe n; Bn.wipe n2; Bn.wipe g;
+    Bn.wipe p; Bn.wipe q; Bn.wipe p1; Bn.wipe q1;
+    Bn.wipe lambda; Bn.wipe mu;
+    res
+
+  end
 (* Diffie-Hellman key agreement *)
 
 module DH = struct
@@ -2525,11 +2618,4 @@ let xor_string src src_ofs dst dst_ofs len =
   || dst_ofs < 0 || dst_ofs > Bytes.length dst - len
   then invalid_arg "xor_string";
   xor_string src src_ofs dst dst_ofs len
-  
-let mod_power a b c =
-  Bn.to_bytes ~numbits:(String.length c * 8)
-    (Bn.mod_power (Bn.of_bytes a) (Bn.of_bytes b) (Bn.of_bytes c))
-let mod_mult a b c =
-  Bn.to_bytes ~numbits:(String.length c * 8)
-    (Bn.mod_ (Bn.mult (Bn.of_bytes a) (Bn.of_bytes b))
-             (Bn.of_bytes c))
+ 
