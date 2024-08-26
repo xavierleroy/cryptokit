@@ -1337,6 +1337,22 @@ let _ =
   test_same_message 12 some_msg
     (RSA.decrypt_CRT key (RSA.encrypt key some_msg))
 
+(* Paillier *)
+
+let prng =
+  Random.pseudo_rng (hex "5b5e50dc5b6eaf5346eba8244e5666ac4dcd5409")
+let paillier_key = Paillier.new_key ~rng:prng 512
+
+let some_msg = "Supercalifragilistusexpialidolcius"
+
+let _ =
+  testing_function "Paillier";
+  (* Encryption *)
+  test_same_message  1 some_msg
+    (Paillier.(decrypt paillier_key (encrypt paillier_key some_msg)));
+  test_same_message  2 (CryptokitBignum.(to_bytes (add (of_bytes some_msg) (of_bytes some_msg)))) 
+    (Paillier.(decrypt paillier_key (add paillier_key (encrypt paillier_key some_msg) (encrypt paillier_key some_msg))))
+
 (* Diffie-Hellman *)
 
 let _ =
