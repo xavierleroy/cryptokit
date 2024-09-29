@@ -1057,26 +1057,42 @@ end
 
 module Paillier: sig
   type key =
-  { size:int;
-    n: string;
-    n2: string;
-    g: string;
-    p: string;
-    q: string;
-    lambda: string;
-    mu:string;
+  { size:int; (**  Size of the modulus [n], in bits *)
+    n: string; (** Modulus [n = p.q] *)
+    n2: string; (** Square of modulus, since its used often*)
+    g: string; (** Public Key [g] *)
+    p: string; (** Prime factor [p] of [n] *)
+    q: string; (** The other prime factor [q] of [n] *)
+    lambda: string; (** LCM of [p-1] and [q-1]*)
+    mu:string; (** [mu] is a multiplicative inverse of [lambda] modulo [n] *)
   }
 
   val wipe_key: key -> unit
+    (** Erase all components of a Paillier key. *)
 
   val new_key: ?rng: Random.rng -> int -> key
+    (** Generate a new, random Paillier key.  The non-optional [int]
+        argument is the desired size for the modulus, in bits
+        (e.g. 2048).  The optional [rng] argument specifies a random
+        number generator to use for generating the key; it defaults to
+        {!Cryptokit.Random.secure_rng}.
+        The result of [new_key] is a complete Paillier key with all
+        components defined: public, private. *)
 
   val encrypt: ?rng: Random.rng -> key -> string -> string
+    (** Encrypts the string [msg] with the public part
+        of key [k] (components [n] and [g]).
+        [msg] must be smaller than [key.n] when both strings
+        are viewed as natural numbers in big-endian notation. *)
 
   val decrypt: key -> string -> string
+    (** [decrypt k msg] decrypts the ciphertext string [msg] with the
+        private part of key [k] (components [lambda], [n] and [mu]).  The size of
+        [msg] is limited as described for {!Cryptokit.RSA.encrypt}. *)
 
   val add: key -> string -> string -> string
-
+    (** [add k msg1 msg2] computes the ciphertext string corresponding to the
+        sum of underlying plaintext strings of the given ciphertexts. *)
 end
 
 (** The [DH] module implements Diffie-Hellman key agreement.
