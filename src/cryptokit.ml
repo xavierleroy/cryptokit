@@ -2146,7 +2146,7 @@ module Paillier = struct
     let n = Bn.mult p q in
     let n2 = Bn.mult n n in
     let g = Bn.(add n one) in
-    let lambda = Bn.mul p1 q1 in
+    let lambda = Bn.lcm p1 q1 in
     let mu = Bn.mod_inv lambda n in
 
     (* Build key *)
