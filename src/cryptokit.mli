@@ -1055,11 +1055,18 @@ module RSA: sig
         {!Cryptokit.RSA.encrypt}. *)
 end
 
+(** The [Paillier] module implements Paillier's cryptosystem for
+    homomorphic, asymmetric encryption.  As with RSA, two distinct keys
+    are used: a public key for encryption and a private key for decryption.
+    Moreover, encryption is homomorphic for addition: it is possible
+    to compute the encrypted sum of two encrypted messages without knowing
+    the private key, and therefore without decrypting the two messages.
+    This property is very useful for applications such as electronic voting. *)
 module Paillier: sig
 
   type public_key =
-  { size: int;  (**  Size of the modulus [n], in bits *)
-    n: string;  (** Modulus [n = p.q] *)
+  { size: int;  (** Size of the modulus [n], in bits *)
+    n: string;  (** Modulus [n] *)
     n2: string; (** Square of modulus [n2 = n.n] *)
     g: string   (** Public key [g] *)
   }
@@ -1088,7 +1095,7 @@ module Paillier: sig
         The result of [new_key] is a pair of a private key and a public key. *)
 
   val encrypt: ?rng: Random.rng -> public_key -> string -> string
-    (** [encrypt k msg] encrypt the string [msg] with the public key [k].
+    (** [encrypt k msg] encrypts the string [msg] with the public key [k].
         The optional [rng] argument specifies a random number
         generator to use for blinding the message; it defaults to
         {!Cryptokit.Random.secure_rng}.
