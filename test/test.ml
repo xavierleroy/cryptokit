@@ -1346,20 +1346,20 @@ let _ =
   testing_function "Paillier";
   let prng =
     Random.pseudo_rng (hex "5b5e50dc5b6eaf5346eba8244e5666ac4dcd5409") in
-  let key = Paillier.new_key ~rng:prng 512 in
+  let (priv_key, pub_key) = Paillier.new_key ~rng:prng 512 in
   (* Encryption *)
   test_same_message 1 some_msg
-    (Paillier.(decrypt key (encrypt key some_msg)));
+    (Paillier.(decrypt priv_key (encrypt pub_key some_msg)));
   (* Homomorphic addition of plaintexts *)
   test_same_message 2 some_msg_plus_one
-    Paillier.(decrypt key
-                (add key (encrypt ~rng:prng key some_msg)
-                         (encrypt ~rng:prng key "\001")));
+    Paillier.(decrypt priv_key
+                (add pub_key (encrypt ~rng:prng pub_key some_msg)
+                             (encrypt ~rng:prng pub_key "\001")));
   test_same_message 3
     (CryptokitBignum.(to_bytes (add (of_bytes some_msg) (of_bytes some_msg)))) 
-    (Paillier.(decrypt key
-                 (add key (encrypt ~rng:prng key some_msg)
-                          (encrypt ~rng:prng key some_msg))))
+    (Paillier.(decrypt priv_key
+                 (add pub_key (encrypt ~rng:prng pub_key some_msg)
+                              (encrypt ~rng:prng pub_key some_msg))))
 
 (* Diffie-Hellman *)
 

@@ -2082,25 +2082,32 @@ end
 
 module Paillier = struct
 
-  type key =
-    { size: int;
-      n: string;
-      n2: string;
-      g: string;
-      p: string;
-      q: string;
-      lambda: string;
-      mu: string}
-  let wipe_key k =
+  type public_key =
+  { size: int;
+    n: string;
+    n2: string;
+    g: string
+  }
+
+  type private_key =
+  { size: int;
+    n: string;
+    n2: string;
+    p: string;
+    q: string;
+    lambda: string;
+    mu: string
+  }
+
+  let wipe_key (k: private_key) =
     wipe_string k.n;
     wipe_string k.n2;
-    wipe_string k.g;
     wipe_string k.p;
     wipe_string k.q;
     wipe_string k.lambda;
     wipe_string k.mu
 
-  let encrypt ?(rng = Random.secure_rng) key msg =
+  let encrypt ?(rng = Random.secure_rng) (key: public_key) msg =
     let rec get_r () =
       let r = Bn.random ~rng:(rng#random_bytes) (key.size-1) in
       if (Bn.(relative_prime r (Bn.of_bytes key.n)) && r<(Bn.of_bytes key.n)) then Bn.to_bytes r else get_r () in
@@ -2110,7 +2117,7 @@ module Paillier = struct
     let c = mod_mult gm rn key.n2 in
     c
 
-  let decrypt key c =
+  let decrypt (key: private_key) c =
     let c = Bn.of_bytes c in
     let n = Bn.of_bytes key.n in
     let n2 = Bn.of_bytes key.n2 in
@@ -2124,7 +2131,7 @@ module Paillier = struct
     Bn.wipe mu; Bn.wipe cn; Bn.wipe lx; Bn.wipe m;
     msg
 
-  let add key c1 c2 =
+  let add (key: public_key) c1 c2 =
     mod_mult c1 c2 key.n2
 
   let new_key ?(rng = Random.secure_rng) numbits =
@@ -2150,19 +2157,23 @@ module Paillier = struct
     let mu = Bn.mod_inv lambda n in
 
     (* Build key *)
-    let res =
+    let priv =
       { size = numbits;
         n = Bn.to_bytes ~numbits:numbits n;
         n2 = Bn.to_bytes n2;
-        g = Bn.to_bytes g;
         p = Bn.to_bytes ~numbits:numbits2 p;
         q = Bn.to_bytes ~numbits:numbits2 q;
         lambda = Bn.to_bytes lambda;
-        mu = Bn.to_bytes mu} in
+        mu = Bn.to_bytes mu}
+    and pub =
+      { size = numbits;
+        n = Bn.to_bytes ~numbits:numbits n;
+        n2 = Bn.to_bytes n2;
+        g = Bn.to_bytes g } in
     Bn.wipe n; Bn.wipe n2; Bn.wipe g;
     Bn.wipe p; Bn.wipe q; Bn.wipe p1; Bn.wipe q1;
     Bn.wipe lambda; Bn.wipe mu;
-    res
+    (priv, pub)
 
   end
 (* Diffie-Hellman key agreement *)
