@@ -970,10 +970,16 @@ end
     the signature with the public key). *)
 module RSA: sig
 
-  type key =
+  type public_key =
+    { size: int;     (** Size of the modulus [n], in bits *)
+      n: string;     (** Modulus [n] *)
+      e: string      (** Public exponent [e] *)
+    }
+  (** The type of RSA public keys. *)
+
+  type private_key =
     { size: int;     (** Size of the modulus [n], in bits *)
       n: string;     (** Modulus [n = p.q] *)
-      e: string;     (** Public exponent [e] *)
       d: string;     (** Private exponent [d] *)
       p: string;     (** Prime factor [p] of [n] *)
       q: string;     (** The other prime factor [q] of [n] *)
@@ -981,18 +987,16 @@ module RSA: sig
       dq: string;    (** [dq] is [d mod (q-1)] *)
       qinv: string   (** [qinv] is a multiplicative inverse of [q] modulo [p] *)
     }
-    (** The type of RSA keys.  Components [size], [n] and [e] define
-        the public part of the key.  Components [size], [n] and [d]
-        define the private part of the key.  To speed up private key operations
+    (** The type of RSA private keys.  The main components are
+        [size], [n] and [d].  To speed up private key operations
         through the use of the Chinese remainder theorem (CRT), additional
-        components [p], [q], [dp], [dq] and [qinv] are provided.  These
-        are part of the private key. *)
+        components [p], [q], [dp], [dq] and [qinv] can be provided.  *)
 
-  val wipe_key: key -> unit
-    (** Erase all components of a RSA key. *)
+  val wipe_key: private_key -> unit
+    (** Erase all components of a RSA private key. *)
 
-  val new_key: ?rng: Random.rng -> ?e: int -> int -> key
-    (** Generate a new, random RSA key.  The non-optional [int]
+  val new_key: ?rng: Random.rng -> ?e: int -> int -> private_key * public_key
+    (** Generate a new, random RSA key pair.  The non-optional [int]
         argument is the desired size for the modulus, in bits
         (e.g. 2048).  The optional [rng] argument specifies a random
         number generator to use for generating the key; it defaults to
@@ -1003,13 +1007,10 @@ module RSA: sig
         signature checking compared with a random [e].
         Very small values of [e] such as [e = 3] can weaken security
         and are best avoided.
-        The result of [new_key] is a complete RSA key with all
-        components defined: public, private, and private for use with
-        the CRT. *)
+        The result of [new_key] is a pair of a private key and a public key. *)
 
-  val encrypt: key -> string -> string
-    (** [encrypt k msg] encrypts the string [msg] with the public part
-        of key [k] (components [n] and [e]).
+  val encrypt: public_key -> string -> string
+    (** [encrypt k msg] encrypts the string [msg] with the public key [k].
         [msg] must be smaller than [key.n] when both strings
         are viewed as natural numbers in big-endian notation.
         In practice, [msg] should be of length [key.size / 8 - 1],
@@ -1017,42 +1018,44 @@ module RSA: sig
         using RSA, encrypt them with a symmetric cipher, using a
         randomly-generated key, and encrypt only that key with RSA. *)
 
-  val decrypt: key -> string -> string
+  val decrypt: private_key -> string -> string
     (** [decrypt k msg] decrypts the ciphertext string [msg] with the
-        private part of key [k] (components [n] and [d]).  The size of
-        [msg] is limited as described for {!Cryptokit.RSA.encrypt}. *)
+        private key [k], using only the [n] and [d] components of [k].
+        The size of [msg] is limited as described for
+        {!Cryptokit.RSA.encrypt}. *)
 
-  val decrypt_CRT: key -> string -> string
+  val decrypt_CRT: private_key -> string -> string
     (** [decrypt_CRT k msg] decrypts the ciphertext string [msg] with
-        the CRT private part of key [k] (components [n], [p], [q],
-        [dp], [dq] and [qinv]).  The use of the Chinese remainder
-        theorem (CRT) allows significantly faster decryption than
-        {!Cryptokit.RSA.decrypt}, at no loss in security.  The size of
-        [msg] is limited as described for {!Cryptokit.RSA.encrypt}. *)
+        the private key [k], using the CRT part of [k]
+        (components [n], [p], [q], [dp], [dq] and [qinv]).
+        The use of the Chinese remainder theorem (CRT) allows
+        significantly faster decryption than {!Cryptokit.RSA.decrypt},
+        at no loss in security.  The size of [msg] is limited as
+        described for {!Cryptokit.RSA.encrypt}. *)
 
-  val sign: key -> string -> string
+  val sign: private_key -> string -> string
     (** [sign k msg] encrypts the plaintext string [msg] with the
-        private part of key [k] (components [n] and [d]), thus
-        performing a digital signature on [msg].
+        private key [k], using only the [n] and [d] components of [k].
+        This produces a digital signature on [msg].
         The size of [msg] is limited as described for {!Cryptokit.RSA.encrypt}.
         If you need to sign longer messages, compute a cryptographic
         hash of the message and sign only the hash with RSA. *)
 
-  val sign_CRT: key -> string -> string
+  val sign_CRT: private_key -> string -> string
     (** [sign_CRT k msg] encrypts the plaintext string [msg] with the
-        CRT private part of key [k] (components [n], [p], [q], [dp],
-        [dq] and [qinv]), thus performing a digital signature on
-        [msg].  The use of the Chinese remainder theorem (CRT) allows
+        private key [k], using the CRT part of [k]
+        (components [n], [p], [q], [dp], [dq] and [qinv]).
+        This produces a digital signature on [msg].
+        The use of the Chinese remainder theorem (CRT) allows
         significantly faster signature than {!Cryptokit.RSA.sign}, at
         no loss in security.  The size of [msg] is limited as
         described for {!Cryptokit.RSA.encrypt}. *)
 
-  val unwrap_signature: key -> string -> string
+  val unwrap_signature: public_key -> string -> string
     (** [unwrap_signature k msg] decrypts the ciphertext string [msg]
-        with the public part of key [k] (components [n] and [d]),
-        thus extracting the plaintext that was signed by the sender.
-        The size of [msg] is limited as described for
-        {!Cryptokit.RSA.encrypt}. *)
+        with the public key [k], thus extracting the plaintext that
+        was signed by the sender.  The size of [msg] is limited as
+        described for {!Cryptokit.RSA.encrypt}. *)
 end
 
 (** The [DH] module implements Diffie-Hellman key agreement.

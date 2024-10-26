@@ -135,17 +135,17 @@ let _ =
   time_fn "SipHash 128, 64_000_000 bytes, 16-byte chunks"
     (hash (MAC.siphash128 "0123456789ABCDEF") 4000000 16);
   let prng = Random.pseudo_rng "supercalifragilistusexpialidolcius" in
-  let key =
+  let (priv_key, pub_key) =
   time_fn "RSA key generation (2048 bits) x 10"
     (repeat 10 (fun () -> RSA.new_key ~rng:prng ~e:65537 2048)) in
   let plaintext = "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" in
   let ciphertext =
   time_fn "RSA public-key operation (2048 bits, exponent 65537) x 1000"
-    (repeat 1000 (fun () -> RSA.encrypt key plaintext)) in
+    (repeat 1000 (fun () -> RSA.encrypt pub_key plaintext)) in
   time_fn "RSA private-key operation (2048 bits) x 100"
-    (repeat 100 (fun () -> ignore(RSA.decrypt key ciphertext)));
+    (repeat 100 (fun () -> ignore(RSA.decrypt priv_key ciphertext)));
   time_fn "RSA private-key operation with CRT (2048 bits) x 100"
-    (repeat 100 (fun () -> ignore(RSA.decrypt_CRT key ciphertext)));
+    (repeat 100 (fun () -> ignore(RSA.decrypt_CRT priv_key ciphertext)));
   time_fn "PRNG, 64_000_000 bytes"
     (rng prng 1000000 64);
   time_fn "PRNG AES CTR, 64_000_000 bytes"
