@@ -14,7 +14,7 @@
 #include <string.h>
 #include <caml/mlvalues.h>
 
-#define ALIGNMENT_OF(x) ((long)(x) & (sizeof(long) - 1))
+#define ALIGNMENT_OF(x) ((uintnat)(x) & (sizeof(uintnat) - 1))
 
 CAMLprim value caml_xor_string(value src, value src_ofs,
                                value dst, value dst_ofs,
@@ -31,11 +31,11 @@ CAMLprim value caml_xor_string(value src, value src_ofs,
       d += 1;
       l -= 1;
     }
-    while (l >= sizeof(long)) {
-      *((long *) d) ^= *((long *) s);
-      s += sizeof(long);
-      d += sizeof(long);
-      l -= sizeof(long);
+    while (l >= sizeof(uintnat)) {
+      *((uintnat *) d) ^= *((uintnat *) s);
+      s += sizeof(uintnat);
+      d += sizeof(uintnat);
+      l -= sizeof(uintnat);
     }
   }
   while (l > 0) {
