@@ -1282,16 +1282,20 @@ let _ =
 
 (* RSA *)
 
-let some_rsa_key = {
+let some_private_key : RSA.private_key = {
   RSA.size = 512;
   RSA.n = hex "c0764797b8bec8972a0ed8c90a8c334dd049add0222c09d20be0a79e338910bcae422060906ae0221de3f3fc747ccf98aecc85d6edc52d93d5b7396776160525";
-  RSA.e = hex "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010001";
   RSA.d = hex "1ae36b7522f66487d9f4610d1550290ac202c929bedc7032cc3e02acf37e3ebc1f866ee7ef7a0868d23ae2b184c1abd6d4db8ea9bec046bd82803727f2888701";
   RSA.p = hex "df02b615fe15928f41b02b586b51c2c02260ca396818ca4cba60bb892465be35";
   RSA.q = hex "dceeb60d543518b4ac74834a0546c507f2e91e389a87e2f2becc6f8c67d1c931";
   RSA.dp = hex "59487e99e375c38d732112d97d6de8687fdafc5b6b5fb16e7297d3bd1e435599";
   RSA.dq = hex "61b550de6437774db0577718ed6c770724eee466b43114b5b69c43591d313281";
   RSA.qinv = hex "744c79c4b9bea97c25e563c9407a2d09b57358afe09af67d71f8198cb7c956b8"
+}
+let some_public_key : RSA.public_key = {
+  RSA.size = 512;
+  RSA.n = hex "c0764797b8bec8972a0ed8c90a8c334dd049add0222c09d20be0a79e338910bcae422060906ae0221de3f3fc747ccf98aecc85d6edc52d93d5b7396776160525";
+  RSA.e = hex "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010001"
 }
 
 let some_msg = "Supercalifragilistusexpialidolcius"
@@ -1304,38 +1308,38 @@ let _ =
   testing_function "RSA";
   (* Signature, no CRT *)
   test_same_message 1 some_msg 
-    (RSA.unwrap_signature some_rsa_key (RSA.sign some_rsa_key some_msg));
+    (RSA.unwrap_signature some_public_key (RSA.sign some_private_key some_msg));
   (* Signature, CRT *)
   test_same_message 2 some_msg
-    (RSA.unwrap_signature some_rsa_key (RSA.sign_CRT some_rsa_key some_msg));
+    (RSA.unwrap_signature some_public_key (RSA.sign_CRT some_private_key some_msg));
   (* Encryption, no CRT *)
   test_same_message 3 some_msg
-    (RSA.decrypt some_rsa_key (RSA.encrypt some_rsa_key some_msg));
+    (RSA.decrypt some_private_key (RSA.encrypt some_public_key some_msg));
   (* Encryption, CRT *)
   test_same_message 4 some_msg
-    (RSA.decrypt_CRT some_rsa_key (RSA.encrypt some_rsa_key some_msg));
+    (RSA.decrypt_CRT some_private_key (RSA.encrypt some_public_key some_msg));
   (* Same, with a home-made key *)
   let prng =
     Random.pseudo_rng (hex "5b5e50dc5b6eaf5346eba8244e5666ac4dcd5409") in
-  let key = RSA.new_key ~rng:prng 1024 in
+  let (priv_key, pub_key) = RSA.new_key ~rng:prng 1024 in
   test_same_message 5 some_msg
-    (RSA.unwrap_signature key (RSA.sign key some_msg));
+    (RSA.unwrap_signature pub_key (RSA.sign priv_key some_msg));
   test_same_message 6 some_msg
-    (RSA.unwrap_signature key (RSA.sign_CRT key some_msg));
+    (RSA.unwrap_signature pub_key (RSA.sign_CRT priv_key some_msg));
   test_same_message 7 some_msg
-    (RSA.decrypt key (RSA.encrypt key some_msg));
+    (RSA.decrypt priv_key (RSA.encrypt pub_key some_msg));
   test_same_message 8 some_msg
-    (RSA.decrypt_CRT key (RSA.encrypt key some_msg));
+    (RSA.decrypt_CRT priv_key (RSA.encrypt pub_key some_msg));
   (* Same, with a home-made key of fixed public exponent *)
-  let key = RSA.new_key ~rng:prng ~e:65537 1024 in
+  let (priv_key, pub_key) = RSA.new_key ~rng:prng ~e:65537 1024 in
   test_same_message 9 some_msg
-    (RSA.unwrap_signature key (RSA.sign key some_msg));
+    (RSA.unwrap_signature pub_key (RSA.sign priv_key some_msg));
   test_same_message 10 some_msg
-    (RSA.unwrap_signature key (RSA.sign_CRT key some_msg));
+    (RSA.unwrap_signature pub_key (RSA.sign_CRT priv_key some_msg));
   test_same_message 11 some_msg
-    (RSA.decrypt key (RSA.encrypt key some_msg));
+    (RSA.decrypt priv_key (RSA.encrypt pub_key some_msg));
   test_same_message 12 some_msg
-    (RSA.decrypt_CRT key (RSA.encrypt key some_msg))
+    (RSA.decrypt_CRT priv_key (RSA.encrypt pub_key some_msg))
 
 (* Diffie-Hellman *)
 

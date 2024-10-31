@@ -1946,20 +1946,25 @@ module Bn = CryptokitBignum
 
 module RSA = struct
 
-type key =
+type public_key =
   { size: int;
     n: string;
-    e: string;
+    e: string
+  }
+
+type private_key =
+  { size: int;
+    n: string;
     d: string;
     p: string;
     q: string;
     dp: string;
     dq: string;
-    qinv: string }
+    qinv: string
+  }
 
-let wipe_key k =
+let wipe_key (k: private_key) =
   wipe_string k.n;
-  wipe_string k.e;
   wipe_string k.d;
   wipe_string k.p;
   wipe_string k.q;
@@ -1967,7 +1972,7 @@ let wipe_key k =
   wipe_string k.dq;
   wipe_string k.qinv
 
-let encrypt key msg =
+let encrypt (key: public_key) msg =
   let msg = Bn.of_bytes msg in
   let n = Bn.of_bytes key.n in
   let e = Bn.of_bytes key.e in
@@ -1979,7 +1984,7 @@ let encrypt key msg =
 
 let unwrap_signature = encrypt
 
-let decrypt key msg =
+let decrypt (key: private_key) msg =
   let msg = Bn.of_bytes msg in
   let n = Bn.of_bytes key.n in
   let d = Bn.of_bytes key.d in
@@ -1991,7 +1996,7 @@ let decrypt key msg =
 
 let sign = decrypt
 
-let decrypt_CRT key msg =
+let decrypt_CRT (key: private_key) msg =
   let msg = Bn.of_bytes msg in
   let n = Bn.of_bytes key.n in
   let p = Bn.of_bytes key.p in
@@ -2054,21 +2059,24 @@ let new_key ?(rng = Random.secure_rng) ?e numbits =
   (* qinv = q^-1 mod p *)
   let qinv = Bn.mod_inv q p in
   (* Build key *)
-  let res =
+  let priv : private_key =
     { size = numbits;
       n = Bn.to_bytes ~numbits:numbits n;
-      e = Bn.to_bytes ~numbits:numbits e;
       d = Bn.to_bytes ~numbits:numbits d;
       p = Bn.to_bytes ~numbits:numbits2 p;
       q = Bn.to_bytes ~numbits:numbits2 q;
       dp = Bn.to_bytes ~numbits:numbits2 dp;
       dq = Bn.to_bytes ~numbits:numbits2 dq;
-      qinv = Bn.to_bytes ~numbits:numbits2 qinv } in
+      qinv = Bn.to_bytes ~numbits:numbits2 qinv }
+  and pub : public_key =
+    { size = numbits;
+      n = Bn.to_bytes ~numbits:numbits n;
+      e = Bn.to_bytes ~numbits:numbits e } in
   Bn.wipe n; Bn.wipe e; Bn.wipe d;
   Bn.wipe p; Bn.wipe q;
   Bn.wipe p1; Bn.wipe q1;
   Bn.wipe dp; Bn.wipe dq; Bn.wipe qinv;
-  res
+  (priv, pub)
 
 end
 
