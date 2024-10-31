@@ -1058,6 +1058,64 @@ module RSA: sig
         described for {!Cryptokit.RSA.encrypt}. *)
 end
 
+(** The [Paillier] module implements Paillier's cryptosystem for
+    homomorphic, asymmetric encryption.  As with RSA, two distinct keys
+    are used: a public key for encryption and a private key for decryption.
+    Moreover, encryption is homomorphic for addition: it is possible
+    to compute the encrypted sum of two encrypted messages without knowing
+    the private key, and therefore without decrypting the two messages.
+    This property is very useful for applications such as electronic voting. *)
+module Paillier: sig
+
+  type public_key =
+  { size: int;  (** Size of the modulus [n], in bits *)
+    n: string;  (** Modulus [n] *)
+    n2: string; (** Square of modulus [n2 = n.n] *)
+    g: string   (** Public key [g] *)
+  }
+  (** The type of Paillier public keys. *)
+
+  type private_key =
+  { size: int;  (**  Size of the modulus [n], in bits *)
+    n: string;  (** Modulus [n = p.q] *)
+    n2: string; (** Square of modulus [n2 = n.n] *)
+    p: string;  (** Prime factor [p] of [n] *)
+    q: string;  (** The other prime factor [q] of [n] *)
+    lambda: string; (** LCM of [p-1] and [q-1]*)
+    mu: string  (** [mu] is a multiplicative inverse of [lambda] modulo [n] *)
+  }
+  (** The type of Paillier private keys. *)
+
+  val wipe_key: private_key -> unit
+    (** Erase all components of a Paillier private key. *)
+
+  val new_key: ?rng: Random.rng -> int -> private_key * public_key
+    (** Generate a new, random Paillier key.  The non-optional [int]
+        argument is the desired size for the modulus, in bits
+        (e.g. 2048).  The optional [rng] argument specifies a random
+        number generator to use for generating the key; it defaults to
+        {!Cryptokit.Random.secure_rng}.
+        The result of [new_key] is a pair of a private key and a public key. *)
+
+  val encrypt: ?rng: Random.rng -> public_key -> string -> string
+    (** [encrypt k msg] encrypts the string [msg] with the public key [k].
+        The optional [rng] argument specifies a random number
+        generator to use for blinding the message; it defaults to
+        {!Cryptokit.Random.secure_rng}.
+        [msg] must be smaller than [key.n] when both strings
+        are viewed as natural numbers in big-endian notation. *)
+
+  val decrypt: private_key -> string -> string
+    (** [decrypt k msg] decrypts the ciphertext string [msg] with the
+        private key [k]. The size of [msg] is limited as described for
+        {!Cryptokit.Paillier.encrypt}. *)
+
+  val add: public_key -> string -> string -> string
+    (** Homomorphic addition.  
+        [add k msg1 msg2] computes the ciphertext string corresponding to the
+        sum of underlying plaintext strings of the given ciphertexts. *)
+end
+
 (** The [DH] module implements Diffie-Hellman key agreement.
   Key agreement is a protocol by which two parties can establish
   a shared secret (typically a key for a symmetric cipher or MAC)
