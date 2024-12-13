@@ -323,10 +323,10 @@ EXPORT void SHA512_finish(struct SHA512Context * ctx, int bitsize,
 #ifdef ARCH_BIG_ENDIAN
     memcpy(&ctx->state[24], &output[24], 4);
 #else
-  output[24] = (ctx->state[3] >> (8*7)) & 0xff;
-  output[25] = (ctx->state[3] >> (8*6)) & 0xff;
-  output[26] = (ctx->state[3] >> (8*5)) & 0xff;
-  output[27] = (ctx->state[3] >> (8*4)) & 0xff;
+    output[24] = (ctx->state[3] >> (8*7)) & 0xff;
+    output[25] = (ctx->state[3] >> (8*6)) & 0xff;
+    output[26] = (ctx->state[3] >> (8*5)) & 0xff;
+    output[27] = (ctx->state[3] >> (8*4)) & 0xff;
 #endif
     break;
   /* default: The bit size is wrong.  Produce no output. */
