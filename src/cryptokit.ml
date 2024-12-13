@@ -101,9 +101,13 @@ external sha256_final: bytes -> string = "caml_sha256_final"
 external sha224_final: bytes -> string = "caml_sha224_final"
 external sha512_init: unit -> bytes = "caml_sha512_init"
 external sha384_init: unit -> bytes = "caml_sha384_init"
+external sha512_256_init: unit -> bytes = "caml_sha512_256_init"
+external sha512_224_init: unit -> bytes = "caml_sha512_224_init"
 external sha512_update: bytes -> bytes -> int -> int -> unit = "caml_sha512_update"
 external sha512_final: bytes -> string = "caml_sha512_final"
 external sha384_final: bytes -> string = "caml_sha384_final"
+external sha512_256_final: bytes -> string = "caml_sha512_256_final"
+external sha512_224_final: bytes -> string = "caml_sha512_224_final"
 type sha3_context
 external sha3_init: int -> sha3_context = "caml_sha3_init"
 external sha3_absorb: sha3_context -> bytes -> int -> int -> unit = "caml_sha3_absorb"
@@ -1182,6 +1186,50 @@ class sha512 =
   end
 
 let sha512 () = new sha512
+
+class sha512_256 =
+  object(self)
+    val context = sha512_256_init()
+    method hash_size = 32
+    method add_substring src ofs len =
+      if ofs < 0 || len < 0 || ofs > Bytes.length src - len
+      then invalid_arg "sha512_256#add_substring";
+      sha512_update context src ofs len
+    method add_string src =
+      sha512_update context (Bytes.unsafe_of_string src) 0 (String.length src)
+    method add_char c =
+      self#add_string (String.make 1 c)
+    method add_byte b =
+      self#add_char (Char.unsafe_chr b)
+    method result =
+      sha512_256_final context
+    method wipe =
+      wipe_bytes context
+  end
+
+let sha512_256 () = new sha512_256
+
+class sha512_224 =
+  object(self)
+    val context = sha512_224_init()
+    method hash_size = 28
+    method add_substring src ofs len =
+      if ofs < 0 || len < 0 || ofs > Bytes.length src - len
+      then invalid_arg "sha512_224#add_substring";
+      sha512_update context src ofs len
+    method add_string src =
+      sha512_update context (Bytes.unsafe_of_string src) 0 (String.length src)
+    method add_char c =
+      self#add_string (String.make 1 c)
+    method add_byte b =
+      self#add_char (Char.unsafe_chr b)
+    method result =
+      sha512_224_final context
+    method wipe =
+      wipe_bytes context
+  end
+
+let sha512_224 () = new sha512_224
 
 let sha2 sz =
   match sz with

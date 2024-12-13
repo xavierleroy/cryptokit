@@ -532,6 +532,42 @@ let _ =
   test 99 (hash_extremely_long (Hash.sha2 512))
          (hex "b47c933421ea2db1 49ad6e10fce6c7f9 3d0752380180ffd7 f4629a712134831d 77be6091b819ed35 2c2967a2e2d4fa50 50723c9630691f1a 05a7281dbe6c1086")
 
+(* SHA-512/256 *)
+let _ =
+  testing_function "SHA-2 512/256";
+  let hash s = hash_string (Hash.sha512_256 ()) s in
+  test 1 (hash "abc")
+    (hex "53048e2681941ef9 9b2e29b76b4c7dab e4c2d0c634fc6d46 e0e2f13107e7af23");
+  test 2 (hash "")
+    (hex "c672b8d1ef56ed28 ab87c3622c511406 9bdd3ad7b8f97374 98d0c01ecef0967a");
+  test 3 (hash "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")
+    (hex "bde8e1f9f19bb9fd 3406c90ec6bc47bd 36d8ada9f11880db c8a22a7078b6a461");
+  test 4 (hash "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu")
+    (hex "3928e184fb8690f8 40da3988121d31be 65cb9d3ef83ee614 6feac861e19b563a");
+  test 5 (hash_million_a (Hash.sha512_256 ()))
+    (hex "9a59a052930187a9 7038cae692f30708 aa6491923ef51943 94dc68d56c74fb21");
+  if !long_tests then
+  test 99 (hash_extremely_long (Hash.sha512_256 ()))
+         (hex "b5855a6179802ce 567cbf43888284c6 ac7c3f6c48b08c5b c1e8ad75d12782c9e")
+
+(* SHA-512/224 *)
+let _ =
+  testing_function "SHA-2 512/224";
+  let hash s = hash_string (Hash.sha512_224 ()) s in
+  test 1 (hash "abc")
+    (hex "4634270f707b6a54 daae7530460842e2 0e37ed265ceee9a4 3e8924aa");
+  test 2 (hash "")
+    (hex "6ed0dd02806fa89e 25de060c19d3ac86 cabb87d6a0ddd05c 333b84f4");
+  test 3 (hash "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")
+    (hex "e5302d6d54bb2422 75d1e7622d68df6e b02dedd13f564c13 dbda2174");
+  test 4 (hash "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu")
+    (hex "23fec5bb94d60b23 308192640b0c4533 35d664734fe40e72 68674af9");
+  test 5 (hash_million_a (Hash.sha512_224 ()))
+    (hex "37ab331d76f0d36d e422bd0edeb22a28 accd487b7a8453ae 965dd287");
+  if !long_tests then
+  test 99 (hash_extremely_long (Hash.sha512_224 ()))
+         (hex "9a7f86727c3be140 3d6702617646b155 89b8c5a92c70f170 3cd25b52")
+
 (* SHA-3 *)
 let _ =
   testing_function "SHA-3";
