@@ -110,6 +110,10 @@ let _ =
     (hash (Hash.sha256()) 4000000 16);
   time_fn "SHA-512, 64_000_000 bytes, 16-byte chunks"
     (hash (Hash.sha512()) 4000000 16);
+  time_fn "SHA-512/256, 64_000_000 bytes, 16-byte chunks"
+    (hash (Hash.sha512_256()) 4000000 16);
+  time_fn "SHA-512/224, 64_000_000 bytes, 16-byte chunks"
+    (hash (Hash.sha512_224()) 4000000 16);
   time_fn "SHA-3 256, 64_000_000 bytes, 16-byte chunks"
     (hash (Hash.sha3 256) 4000000 16);
   time_fn "SHA-3 512, 64_000_000 bytes, 16-byte chunks"

@@ -746,6 +746,12 @@ module Hash : sig
   val sha512: unit -> hash
     (** SHA-512 is SHA-2 specialized to 512 bit hashes (64 bytes). *)
 
+  val sha512_256: unit -> hash
+    (** SHA-512/256 is a truncated version of SHA-512 (32 bytes) with a different IV. *)
+
+  val sha512_224: unit -> hash
+    (** SHA-512/224 is a truncated version of SHA-512 (24 bytes) with a different IV. *)
+
   val blake2b: int -> hash
     (** The BLAKE2b hash function produces hashes of length 1 to 64 bytes.
         The parameter is the desired size of the hash, in bits.

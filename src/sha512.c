@@ -220,6 +220,26 @@ EXPORT void SHA512_init(struct SHA512Context * ctx, int bitsize)
     ctx->state[6] = UINT64_C(0xdb0c2e0d64f98fa7);
     ctx->state[7] = UINT64_C(0x47b5481dbefa4fa4);
     break;
+  case 256:
+    ctx->state[0] = UINT64_C(0x22312194fc2bf72c);
+    ctx->state[1] = UINT64_C(0x9f555fa3c84c64c2);
+    ctx->state[2] = UINT64_C(0x2393b86b6f53b151);
+    ctx->state[3] = UINT64_C(0x963877195940eabd );
+    ctx->state[4] = UINT64_C(0x96283ee2a88effe3);
+    ctx->state[5] = UINT64_C(0xbe5e1e2553863992);
+    ctx->state[6] = UINT64_C(0x2b0199fc2c85b8aa);
+    ctx->state[7] = UINT64_C(0x0eb72ddC81c52ca2);
+    break;
+  case 224:
+    ctx->state[0] = UINT64_C(0x8c3d37c819544da2);
+    ctx->state[1] = UINT64_C(0x73e1996689dcd4d6);
+    ctx->state[2] = UINT64_C(0x1dfab7ae32ff9c82);
+    ctx->state[3] = UINT64_C(0x679dd514582f9fcf );
+    ctx->state[4] = UINT64_C(0x0f6d2b697bd44da8);
+    ctx->state[5] = UINT64_C(0x77e36f7304C48942);
+    ctx->state[6] = UINT64_C(0x3f9d85a86a1d36C8);
+    ctx->state[7] = UINT64_C(0x1112e6ad91d692a1);
+    break;
   default:
     /* The bit size is wrong.  Just zero the state to produce 
        incorrect hashes. */
@@ -294,6 +314,20 @@ EXPORT void SHA512_finish(struct SHA512Context * ctx, int bitsize,
     break;
   case 384:
     SHA512_copy_and_swap(ctx->state, output, 6);
+    break;
+  case 256:
+    SHA512_copy_and_swap(ctx->state, output, 4);
+    break;
+  case 224:
+    SHA512_copy_and_swap(ctx->state, output, 3);
+#ifdef ARCH_BIG_ENDIAN
+    memcpy(&ctx->state[24], &output[24], 4);
+#else
+    output[24] = (ctx->state[3] >> (8*7)) & 0xff;
+    output[25] = (ctx->state[3] >> (8*6)) & 0xff;
+    output[26] = (ctx->state[3] >> (8*5)) & 0xff;
+    output[27] = (ctx->state[3] >> (8*4)) & 0xff;
+#endif
     break;
   /* default: The bit size is wrong.  Produce no output. */
   }
