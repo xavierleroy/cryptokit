@@ -139,6 +139,8 @@ external blake3_init: string -> blake3_context = "caml_blake3_init"
 external blake3_update: blake3_context -> bytes -> int -> int -> unit = "caml_blake3_update"
 external blake3_final: blake3_context -> int -> string = "caml_blake3_extract"
 external blake3_wipe: blake3_context -> unit = "caml_blake3_wipe"
+external curve25519_basepoint: unit -> string = "caml_curve25519_basepoint"
+external curve25519_mult: string -> string -> string = "caml_curve25519_mult"
 
 (* Abstract transform type *)
 
@@ -1996,6 +1998,20 @@ class pseudo_rng_aes_ctr seed =
 
 let pseudo_rng_aes_ctr seed = new pseudo_rng_aes_ctr seed
 
+end
+
+(* Elliptic curves *)
+
+module Curve25519 = struct
+  type point = string
+  let base = curve25519_basepoint()
+  let mult n pt =
+    if not (String.length n = 32 && String.length pt = 32)
+    then raise (Error Wrong_key_size);
+    curve25519_mult n pt
+  let mult_base n =
+    if String.length n <> 32 then raise (Error Wrong_key_size);
+    curve25519_mult n base
 end
 
 (* RSA operations *)

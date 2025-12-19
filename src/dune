@@ -48,6 +48,7 @@
     blake3.c
     blake3_dispatch.c
     blake3_portable.c
+    curve25519-ref.c
     curve25519-donna.c))
   (c_library_flags (:include library_flags.sexp))
   (flags :standard -safe-string -w -7 -w -27 -w -37))

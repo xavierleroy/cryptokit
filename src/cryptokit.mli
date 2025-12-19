@@ -1531,6 +1531,15 @@ exception Error of error
   (** Exception raised by functions in this library
       to report error conditions. *)
 
+(** {1 Elliptic curves} *)
+
+module Curve25519: sig
+  type point = string
+  val base: point
+  val mult: string -> point -> point
+  val mult_base: string -> point
+end
+
 (** {1 Miscellaneous utilities} *)
 
 val wipe_bytes : bytes -> unit

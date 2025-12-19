@@ -11,12 +11,16 @@
 /*                                                                     */
 /***********************************************************************/
 
+#if defined(__GNUC__) && defined(__SIZEOF_INT128__)
 #include "curve25519-donna.c"
+#else
+#include "curve25519-ref.c"
+#endif
 #include <caml/mlvalues.h>
 #include <caml/memory.h>
 #include <caml/alloc.h>
 
-CAMLprim value caml_curve25519_mult(value pt, value n)
+CAMLprim value caml_curve25519_mult(value n, value pt)
 {
   value res = caml_alloc_string(CRYPTO_BYTES);
   crypto_scalarmult(&Byte_u(res, 0), &Byte_u(n, 0), &Byte_u(pt, 0));

@@ -1316,6 +1316,27 @@ let _ =
                  msg)
     (hex "51f0bebf 7e3b9d92 fc497417 79363cfe")
 
+(* Elliptic curves *)
+
+let _ =
+  testing_function "Curve 25519";
+  (* RFC 7748 section 6.1 *)
+  let a = hex "77076d0a7318a57d3c16c17251b26645df4c2f87ebc0992ab177fba51db92c2a"
+  and b = hex "5dab087e624a8a4b79e17f8b83800ee66f3bb1292618b6fd1c2f8b27ff88e0eb" in
+  let pa = Curve25519.mult_base a
+  and pb = Curve25519.mult_base b in
+  test 1 pa (hex "8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a");
+  test 2 pb (hex "de9edb7d7b7dc1b4d35b61c2ece435373f8343c85b78674dadfc7e146f882b4f");
+  test 3 (Curve25519.mult a pb)
+         (hex "4a5d9d5ba4ce2de1728e3bf480350f25e07e21c947d19e3376f09b3c1e161742");
+  test 4 (Curve25519.mult b pa)
+         (hex "4a5d9d5ba4ce2de1728e3bf480350f25e07e21c947d19e3376f09b3c1e161742");
+  (* Some more tests *)
+  test 5 (Curve25519.mult_base (hex "a8abababababababababababababababababababababababababababababab6b"))
+         (hex "e3712d851a0e5d79b831c5e34ab22b41a198171de209b8b8faca23a11c624859");
+  test 6 (Curve25519.mult_base (hex "c8cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd4d"))
+         (hex "b5bea823d9c9ff576091c54b7c596c0ae296884f0e150290e88455d7fba6126f")
+
 (* RSA *)
 
 let some_private_key : RSA.private_key = {
