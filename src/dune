@@ -26,7 +26,8 @@
          stubs-ghash
          stubs-poly1305
          stubs-siphash
-         stubs-blake3)
+         stubs-blake3
+         stubs-curve25519)
   (extra_deps
     aesni.c
     arcfour.c
@@ -46,7 +47,8 @@
     siphash.c
     blake3.c
     blake3_dispatch.c
-    blake3_portable.c))
+    blake3_portable.c
+    curve25519-donna.c))
   (c_library_flags (:include library_flags.sexp))
   (flags :standard -safe-string -w -7 -w -27 -w -37))
 
