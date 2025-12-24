@@ -157,3 +157,6 @@ let rec random_prime ~rng numbits =
   (* Make sure it has the right number of bits *)
   if Z.numbits p = numbits then p else random_prime ~rng numbits
 
+let rec random_upto ~rng bound =
+  let n = Z.random_int_gen ~fill:rng bound in
+  if n = Z.zero then random_upto ~rng bound else n

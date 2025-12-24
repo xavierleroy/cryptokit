@@ -2890,3 +2890,43 @@ module P521 = EC(struct
   let generator = (Z.of_string "0x00c6858e06b70404e9cd9e3ecb662395b4429c648139053fb521f828af606b4d3dbaa14b5e77efe75928fe1dc127a2ffa8de3348b3c1856a429bf97e7e31c2e5bd66", Z.of_string "0x011839296a789a3bc0045c8a5fb42c7d1bd998f54449579b446817afbd17273e662c97ee72995ef42640c550b9013fad0761353c7086a272c24088be94769fd16650")
   let order = Z.of_string "0x01fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa51868783bf2f966b7fcc0148f709a5d03bb5c9b8899c47aebb6fb71e91386409"
 end)
+
+module ECDSA (C: ELLIPTIC_CURVE) = struct
+
+let n = C.Params.order
+
+type private_key = Z.t
+
+type public_key = C.point
+
+let wipe_key = CryptokitBignum.wipe
+
+let new_key ?(rng = Random.secure_rng) () =
+  let priv = Bn.random_upto ~rng: rng#random_bytes n in
+  let pub = C.mul priv C.generator in
+  (priv, pub)
+
+let rec sign ?(rng = Random.secure_rng) (s: private_key) msg =
+  if String.length msg * 8 > C.Params.size then raise (Error Message_too_long);
+  let h = Bn.of_bytes msg in
+  let k = Bn.random_upto ~rng: rng#random_bytes n in
+  let pt = C.mul k C.generator in
+  let i = C.x pt in
+  let x = Z.erem i n in
+  if x = Z.zero then sign ~rng s msg else begin
+    let y = Bn.(divm (addm h (mulm s x n) n) k n) in
+    if y = Z.zero then sign ~rng s msg else (x, y)
+  end
+
+let verify (q: public_key) (x, y) msg =
+  if String.length msg * 8 > C.Params.size then raise (Error Message_too_long);
+  let h = Bn.of_bytes msg in
+  q <> C.zero && C.mul n q = C.zero &&
+  Z.lt Z.zero x && Z.lt x n && Z.lt Z.zero y && Z.lt y n &&
+  begin
+    let p = C.add (C.mul (Bn.divm h y n) C.generator)
+                  (C.mul (Bn.divm x y n) q) in
+    x = Z.erem (C.x p) n
+  end
+
+end

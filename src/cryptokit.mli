@@ -1203,7 +1203,7 @@ module DH: sig
       counter until [numbytes] bytes have been obtained. *)
 end
 
-(** {1 Elliptic curves} *)
+(** {1 Elliptic curve cryptography} *)
 
 module type CURVE_PARAMETERS = sig
 
@@ -1295,6 +1295,24 @@ module P384: ELLIPTIC_CURVE
 
 module P521: ELLIPTIC_CURVE
   (** NIST elliptic curve P-521 *)
+
+module ECDSA (C: ELLIPTIC_CURVE) : sig
+
+  type private_key = Z.t
+
+  type public_key = C.point
+
+  val wipe_key: private_key -> unit
+
+  val new_key: ?rng:Random.rng -> unit -> private_key * public_key
+
+  val sign: ?rng:Random.rng -> private_key -> string -> Z.t * Z.t
+
+  val verify: public_key -> Z.t * Z.t -> string -> bool
+
+end
+  (** The ECDSA signature scheme.
+      The [C] parameter is the elliptic curve used. *)
 
 (** {1 Advanced, compositional interface to block ciphers 
        and stream ciphers} *)

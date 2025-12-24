@@ -1468,6 +1468,24 @@ let _ =
   test 16 (E.encode_point ~compressed:true q2) q2_enc_comp;
   test 17 (E.decode_point q2_enc_comp) q2
 
+let _ =
+  testing_function "ECDSA";
+  let module E = ECDSA(P256) in
+  let priv = Z.of_string "0xC9AFA9D845BA75166B5C215767B1D6934E50C3DB36E89B127B8A622B120F6721" in
+  let pub = P256.make_point
+      (Z.of_string "0x60FED4BA255A9D31C961EB74C6356D68C049B8923B61FA6CE669622E60F29FB6",
+       Z.of_string "0x7903FE1008B8BC99A41AE9E95628BC64F2F1B20C2D7E9F5177A3C294D4462299") in
+  let do_test testno msg r s =
+    let h = hash_string (Hash.sha256()) msg in
+    test testno (E.verify pub (r, s) h) true;
+    test (testno + 1) (E.verify pub (E.sign priv h) h) true in
+  do_test 1 "sample"
+    (Z.of_string "0xEFD48B2AACB6A8FD1140DD9CD45E81D69D2C877B56AAF991C34D0EA84EAF3716")
+    (Z.of_string "0xF7CB1C942D657C41D436C7A1B6E29F65F3E900DBB9AFF4064DC4AB2F843ACDA8");
+  do_test 3 "test"
+    (Z.of_string "0xF1ABB023518351CD71D881567B1EA663ED3EFCF6C5132B354F28D3B0B7D38367")
+    (Z.of_string "0x019F4113742A2B14BD25926B49C649155F267E60D3814B4C0CC84250E46F0083")
+
 (* Base64 encoding *)
 
 let _ =
