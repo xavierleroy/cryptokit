@@ -101,7 +101,7 @@ let sqrtm n p =
     loop s (powm z q p) (powm n q p) (powm n Z.(succ q asr 1) p)
   end
 
-(* Conversions *)
+(* Conversions to big-endian byte strings *)
 
 let wipe_bytes s = Bytes.fill s 0 (Bytes.length s) '\000'
   

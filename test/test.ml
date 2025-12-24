@@ -1416,6 +1416,58 @@ let _ =
   and ss2 = DH.shared_secret param ps2 msg1 in
   test 1 ss1 ss2
 
+(* Elliptic curves *)
+
+module E = EC(struct
+  let name = "secp256k1"
+  let size = 256
+  let p = Z.of_string "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f"
+  let a = Z.zero
+  let b = Z.of_int 7
+  let order = Z.of_string "0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141"
+   let generator =
+   (Z.of_string "0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798",
+    Z.of_string "0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8")
+end)
+
+let _ =
+  testing_function "Elliptic curves";
+  let p = E.make_point
+    (Z.of_string "0x6fb13b7e8ab1c7d191d16197c1bf7f8dc7992412e1266155b3fb3ac8b30f3ed8",
+     Z.of_string "0x2e1eb77bd89505113819600b395e0475d102c4788a3280a583d9d82625ed8533") in
+  let q = E.make_point
+    (Z.of_string "0x07cd9ee748a0b26773d9d29361f75594964106d13e1cad67cfe2df503ee3e90e",
+     Z.of_string "0xd209f7c16cdb6d3559bea88c7d920f8ff077406c615da8adfecdeef604cb40a6") in
+  let pq = E.make_point
+    (Z.of_string "0xc4a20cbc2dc27c70fbc1335292c109a1ccd106981b5698feafe702bcb0fb2fca",
+     Z.of_string "0x7e1ad514051b87b7ce815c7defcd4fcc01e88842b3135e10a342be49bf5cad09")
+  and q2 = E.make_point
+    (Z.of_string "0xb4f211b11166e6b3a3561e5978f47855787943dbeccd2014706c941a5890c913",
+     Z.of_string "0xe0122dc6f3ce097eb73865e66a1ced02a518afdec02596d7d152f121391e2d63") in
+  test 1 (E.add p q) pq;
+  test 2 (E.add q p) pq;
+  test 3 (E.add q q) q2;
+  test 4 (E.dbl q) q2;
+  let k = Z.of_string "0x2976F786AE6333E125C0DFFD6C16D37E8CED5ABEDB491BCCA21C75B307D0B318" in
+  let kp = E.make_point
+    (Z.of_string "0x1de93c28f8c58db95f30be1704394f6f5d4602291c4933a1126cc61f9ed70b88",
+     Z.of_string "0x6f66df7bb6b37609cacded3052e1d127b47684949dff366020f824d517d66f34") in
+  test 5 (E.mul k p) kp;
+  test 6 (E.mul E.Params.order E.generator) E.zero;
+  (* Encodings *)
+  let q_enc = "\x04\x07\xcd\x9e\xe7\x48\xa0\xb2\x67\x73\xd9\xd2\x93\x61\xf7\x55\x94\x96\x41\x06\xd1\x3e\x1c\xad\x67\xcf\xe2\xdf\x50\x3e\xe3\xe9\x0e\xd2\x09\xf7\xc1\x6c\xdb\x6d\x35\x59\xbe\xa8\x8c\x7d\x92\x0f\x8f\xf0\x77\x40\x6c\x61\x5d\xa8\xad\xfe\xcd\xee\xf6\x04\xcb\x40\xa6"
+  and q2_enc = "\x04\xb4\xf2\x11\xb1\x11\x66\xe6\xb3\xa3\x56\x1e\x59\x78\xf4\x78\x55\x78\x79\x43\xdb\xec\xcd\x20\x14\x70\x6c\x94\x1a\x58\x90\xc9\x13\xe0\x12\x2d\xc6\xf3\xce\x09\x7e\xb7\x38\x65\xe6\x6a\x1c\xed\x02\xa5\x18\xaf\xde\xc0\x25\x96\xd7\xd1\x52\xf1\x21\x39\x1e\x2d\x63"
+  and q_enc_comp = "\x02\x07\xcd\x9e\xe7\x48\xa0\xb2\x67\x73\xd9\xd2\x93\x61\xf7\x55\x94\x96\x41\x06\xd1\x3e\x1c\xad\x67\xcf\xe2\xdf\x50\x3e\xe3\xe9\x0e"
+  and q2_enc_comp = "\x03\xb4\xf2\x11\xb1\x11\x66\xe6\xb3\xa3\x56\x1e\x59\x78\xf4\x78\x55\x78\x79\x43\xdb\xec\xcd\x20\x14\x70\x6c\x94\x1a\x58\x90\xc9\x13" in
+  test 10 (E.encode_point q) q_enc;
+  test 11 (E.decode_point q_enc) q;
+  test 12 (E.encode_point q2) q2_enc;
+  test 13 (E.decode_point q2_enc) q2;
+  test 14 (E.encode_point ~compressed:true q) q_enc_comp;
+  test 15 (E.decode_point q_enc_comp) q;
+  test 16 (E.encode_point ~compressed:true q2) q2_enc_comp;
+  test 17 (E.decode_point q2_enc_comp) q2
+
 (* Base64 encoding *)
 
 let _ =
