@@ -2717,6 +2717,7 @@ module type ELLIPTIC_CURVE = sig
   val neg: point -> point
   val dbl: point -> point
   val mul: Z.t -> point -> point
+  val muladd: Z.t -> point -> Z.t -> point -> point
 end
 
 module EC (C: CURVE_PARAMETERS): ELLIPTIC_CURVE = struct
@@ -2824,8 +2825,8 @@ let dbl p =
   if p = zero then zero else jac2aff (dbl_jac (aff2jac p))
 
 let mul n p =
-  let nb = Z.numbits n in 
-   if p = zero || nb = 0 then zero else begin
+  assert (Z.sign n >= 0);
+  if p = zero || n = Z.zero then zero else begin
     let x = aff2jac p in
     let rec mul i r =
       if i < 0 then r else
@@ -2833,7 +2834,35 @@ let mul n p =
             (if Z.testbit n i
              then add_jac (dbl_jac r) x
              else dbl_jac r) in
-    jac2aff (mul (nb - 2) x)
+    jac2aff (mul (Z.numbits n - 2) x)
+  end
+
+let muladd n p m q =
+  assert (Z.sign n >= 0 && Z.sign m >= 0);
+  if p = zero || n = Z.zero then mul m q else
+  if q = zero || m = Z.zero then mul n p else begin
+    let x = aff2jac p
+    and y = aff2jac q in
+    let xy = add_jac x y in
+    let rec mul i r =
+      if i < 0 then r else begin
+        let r = dbl_jac r in
+        let r =
+          match Z.testbit n i, Z.testbit m i with
+          | false, false -> r
+          | true, false  -> add_jac r x
+          | false, true  -> add_jac r y
+          | true, true   -> add_jac r xy in
+        mul (i - 1) r
+      end in
+    let i = Int.max (Z.numbits n) (Z.numbits m) - 1 in
+    let r =
+      match Z.testbit n i, Z.testbit m i with
+      | false, false -> assert false
+      | true, false  -> x
+      | false, true  -> y
+      | true, true   -> xy in
+    jac2aff (mul (i - 1) r)
   end
 
 let x (x, y) = x
@@ -2890,3 +2919,43 @@ module P521 = EC(struct
   let generator = (Z.of_string "0x00c6858e06b70404e9cd9e3ecb662395b4429c648139053fb521f828af606b4d3dbaa14b5e77efe75928fe1dc127a2ffa8de3348b3c1856a429bf97e7e31c2e5bd66", Z.of_string "0x011839296a789a3bc0045c8a5fb42c7d1bd998f54449579b446817afbd17273e662c97ee72995ef42640c550b9013fad0761353c7086a272c24088be94769fd16650")
   let order = Z.of_string "0x01fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa51868783bf2f966b7fcc0148f709a5d03bb5c9b8899c47aebb6fb71e91386409"
 end)
+
+module ECDSA (C: ELLIPTIC_CURVE) = struct
+
+let n = C.Params.order
+
+type private_key = Z.t
+
+type public_key = C.point
+
+let wipe_key = CryptokitBignum.wipe
+
+let new_key ?(rng = Random.secure_rng) () =
+  let priv = Bn.random_upto ~rng: rng#random_bytes n in
+  let pub = C.mul priv C.generator in
+  (priv, pub)
+
+let rec sign ?(rng = Random.secure_rng) (s: private_key) msg =
+  if String.length msg * 8 > C.Params.size then raise (Error Message_too_long);
+  let h = Bn.of_bytes msg in
+  let k = Bn.random_upto ~rng: rng#random_bytes n in
+  let pt = C.mul k C.generator in
+  let i = C.x pt in
+  let x = Z.erem i n in
+  if x = Z.zero then sign ~rng s msg else begin
+    let y = Bn.(divm (addm h (mulm s x n) n) k n) in
+    if y = Z.zero then sign ~rng s msg else (x, y)
+  end
+
+let verify (q: public_key) (x, y) msg =
+  if String.length msg * 8 > C.Params.size then raise (Error Message_too_long);
+  let h = Bn.of_bytes msg in
+  q <> C.zero && C.mul n q = C.zero &&
+  Z.lt Z.zero x && Z.lt x n && Z.lt Z.zero y && Z.lt y n &&
+  begin
+    let p = C.muladd (Bn.divm h y n) C.generator
+                     (Bn.divm x y n) q in
+    x = Z.erem (C.x p) n
+  end
+
+end

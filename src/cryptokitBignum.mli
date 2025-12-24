@@ -34,7 +34,7 @@ val to_bytes : ?numbits:int -> t -> string
 
 val random : rng:(bytes -> int -> int -> unit) -> ?odd:bool -> int -> t
 val random_prime : rng:(bytes -> int -> int -> unit) -> int -> t
-
+val random_upto : rng:(bytes -> int -> int -> unit) -> t -> t
 val wipe : t -> unit
 
 
