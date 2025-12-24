@@ -17,30 +17,38 @@ type t = Z.t
 
 external wipe: t -> unit = "caml_wipe_z"
 
+(* This is no longer used in Cryptokit.  Kept for backward compatibility. *)
+
 let zero = Z.zero
 let one = Z.one
-
 let of_int = Z.of_int
-
 let compare = Z.compare
-
 let add = Z.add
 let sub = Z.sub
 let mult = Z.mul
-
 let div = Z.div
 let mod_ = Z.rem
-
 let lcm = Z.lcm
+let mod_power = Z.powm_sec
+let sub_mod a b p =
+  let d = Z.sub a b in
+  if Z.sign d < 0 then Z.add d p else d
+let mod_inv = Z.invert
+
+(* This is still used. *)
 
 let relative_prime a b =
   Z.equal (Z.gcd a b) Z.one
 
-let mod_power = Z.powm_sec
+(* Modular arithmetic *)
 
-let sub_mod a b p =
-  let d = Z.sub a b in
-  if Z.sign d < 0 then Z.add d p else d
+let addm a b q = Z.(erem (a + b) q)
+let subm a b q = Z.(erem (a - b) q)
+let mulm a b q = Z.(erem (a * b) q)
+let sqrm a q = Z.(erem (a * a) q)
+let invm = Z.invert
+let divm a b q = mulm a (Z.invert b q) q
+let powm = Z.powm
 
 (* Modular exponentiation via the Chinese Remainder Theorem.
    Compute a ^ d mod pq, where d is defined by
@@ -65,7 +73,35 @@ let mod_power_CRT a p q dp dq qinv =
      besides amodp and amodq. *)
   res
 
-let mod_inv = Z.invert
+(* Modular square root.  Tonnelli-Shanks algorithm. *)
+
+let sqrtm n p =
+  let p12 = Z.(pred p asr 1) in
+  let is_quadratic_residue x =
+    (* Euler's criterion *)
+    powm x p12 p = Z.one in
+  let rec find_nonquadratic_residue z =
+    if is_quadratic_residue z
+    then find_nonquadratic_residue (Z.succ z)
+    else z in
+  let rec repsquare i t =
+    if t = Z.one then i else repsquare (i + 1) (mulm t t p) in
+  let rec loop m c t r =
+    if t = Z.one then Some r else begin
+      let i = repsquare 1 (sqrm t p) in
+      let b = powm c (Z.shift_left Z.one (m - i - 1)) p in
+      let bb = sqrm b p in
+      loop i bb (mulm t bb p) (mulm r b p)
+    end in
+  if n = Z.zero then Some Z.zero else
+  if not (is_quadratic_residue n) then None else begin
+    let s = Z.trailing_zeros (Z.pred p) in
+    let q = Z.shift_right (Z.pred p) s in
+    let z = find_nonquadratic_residue (Z.of_int 2) in
+    loop s (powm z q p) (powm n q p) (powm n Z.(succ q asr 1) p)
+  end
+
+(* Conversions *)
 
 let wipe_bytes s = Bytes.fill s 0 (Bytes.length s) '\000'
   
@@ -89,6 +125,8 @@ let to_bytes ?numbits n =
   done;
   wipe_bytes (Bytes.unsafe_of_string s);
   Bytes.unsafe_to_string t
+
+(* Random number generation *)
 
 let change_byte s i f =
   Bytes.set s i (Char.chr (f (Char.code (Bytes.get s i))))

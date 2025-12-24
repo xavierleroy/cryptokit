@@ -42,11 +42,10 @@ let shl1_bytes src soff dst doff len =
 
   let mod_power a b c =
     Bn.to_bytes ~numbits:(String.length c * 8)
-      (Bn.mod_power (Bn.of_bytes a) (Bn.of_bytes b) (Bn.of_bytes c))
+      (Z.powm_sec (Bn.of_bytes a) (Bn.of_bytes b) (Bn.of_bytes c))
   let mod_mult a b c =
     Bn.to_bytes ~numbits:(String.length c * 8)
-      (Bn.mod_ (Bn.mult (Bn.of_bytes a) (Bn.of_bytes b))
-                (Bn.of_bytes c))
+      (Bn.mulm (Bn.of_bytes a) (Bn.of_bytes b) (Bn.of_bytes c))
 
 (* Error reporting *)
 
@@ -2032,8 +2031,8 @@ let encrypt (key: public_key) msg =
   let msg = Bn.of_bytes msg in
   let n = Bn.of_bytes key.n in
   let e = Bn.of_bytes key.e in
-  if Bn.compare msg n >= 0 then raise (Error Message_too_long);
-  let r = Bn.mod_power msg e n in
+  if Z.compare msg n >= 0 then raise (Error Message_too_long);
+  let r = Z.powm_sec msg e n in
   let s = Bn.to_bytes ~numbits:key.size r in
   Bn.wipe msg; Bn.wipe n; Bn.wipe e; Bn.wipe r;
   s
@@ -2044,8 +2043,8 @@ let decrypt (key: private_key) msg =
   let msg = Bn.of_bytes msg in
   let n = Bn.of_bytes key.n in
   let d = Bn.of_bytes key.d in
-  if Bn.compare msg n >= 0 then raise (Error Message_too_long);
-  let r = Bn.mod_power msg d n in
+  if Z.compare msg n >= 0 then raise (Error Message_too_long);
+  let r = Z.powm_sec msg d n in
   let s = Bn.to_bytes ~numbits:key.size r in
   Bn.wipe msg; Bn.wipe n; Bn.wipe d; Bn.wipe r;
   s
@@ -2060,7 +2059,7 @@ let decrypt_CRT (key: private_key) msg =
   let dp = Bn.of_bytes key.dp in
   let dq = Bn.of_bytes key.dq in
   let qinv = Bn.of_bytes key.qinv in
-  if Bn.compare msg n >= 0 then raise (Error Message_too_long);
+  if Z.compare msg n >= 0 then raise (Error Message_too_long);
   let r = Bn.mod_power_CRT msg p q dp dq qinv in
   let s = Bn.to_bytes ~numbits:key.size r in
   Bn.wipe msg; Bn.wipe n; Bn.wipe p; Bn.wipe q;
@@ -2080,25 +2079,25 @@ let new_key ?(rng = Random.secure_rng) ?e numbits =
     match e with
       None -> n
     | Some e ->
-        if Bn.relative_prime (Bn.sub n Bn.one) (Bn.of_int e)
+        if Bn.relative_prime (Z.sub n Z.one) (Z.of_int e)
         then n
         else gen_factor nbits in
   (* Make sure p > q *)
   let rec gen_factors nbits =
     let p = gen_factor nbits
     and q = gen_factor nbits in
-    let cmp = Bn.compare p q in
+    let cmp = Z.compare p q in
     if cmp = 0 then gen_factors nbits else
     if cmp < 0 then (q, p) else (p, q) in
   let (p, q) = gen_factors numbits2 in
   (* p1 = p - 1 and q1 = q - 1 *)
-  let p1 = Bn.sub p Bn.one
-  and q1 = Bn.sub q Bn.one in
+  let p1 = Z.sub p Z.one
+  and q1 = Z.sub q Z.one in
   (* If no fixed exponent specified, generate random exponent e such that
      gcd(p-1,e) = 1 and gcd(q-1,e) = 1 *)
   let e =
     match e with
-      Some e -> Bn.of_int e
+      Some e -> Z.of_int e
     | None ->
         let rec gen_exponent () =
           let n = Bn.random ~rng:(rng#random_bytes) numbits in
@@ -2107,13 +2106,13 @@ let new_key ?(rng = Random.secure_rng) ?e numbits =
           else gen_exponent () in
         gen_exponent () in
   (* n = pq *)
-  let n = Bn.mult p q in
+  let n = Z.mul p q in
   (* d = e^-1 mod (p-1)(q-1) *)
-  let d = Bn.mod_inv e (Bn.mult p1 q1) in
+  let d = Z.invert e (Z.mul p1 q1) in
   (* dp = d mod p-1 and dq = d mod q-1 *)
-  let dp = Bn.mod_ d p1 and dq = Bn.mod_ d q1 in
+  let dp = Z.erem d p1 and dq = Z.erem d q1 in
   (* qinv = q^-1 mod p *)
-  let qinv = Bn.mod_inv q p in
+  let qinv = Z.invert q p in
   (* Build key *)
   let priv : private_key =
     { size = numbits;
@@ -2166,7 +2165,10 @@ module Paillier = struct
   let encrypt ?(rng = Random.secure_rng) (key: public_key) msg =
     let rec get_r () =
       let r = Bn.random ~rng:(rng#random_bytes) (key.size-1) in
-      if (Bn.(relative_prime r (Bn.of_bytes key.n)) && r<(Bn.of_bytes key.n)) then Bn.to_bytes r else get_r () in
+      if Bn.(relative_prime r (Bn.of_bytes key.n))
+      && r < Bn.of_bytes key.n
+      then Bn.to_bytes r
+      else get_r () in
     let r = get_r () in
     let gm = mod_power key.g msg key.n2 in
     let rn = mod_power r key.n key.n2 in
@@ -2180,8 +2182,8 @@ module Paillier = struct
     let lambda = Bn.of_bytes key.lambda in
     let mu = Bn.of_bytes key.mu in
     let cn = Bn.mod_power c lambda n2 in
-    let lx = Bn.(div (sub cn one) n) in
-    let m = Bn.(mod_ (mult lx mu) n) in
+    let lx = Z.((cn - one) / n) in
+    let m = Bn.mulm lx mu n in
     let msg = Bn.to_bytes m in
     Bn.wipe c; Bn.wipe n; Bn.wipe n2; Bn.wipe lambda;
     Bn.wipe mu; Bn.wipe cn; Bn.wipe lx; Bn.wipe m;
@@ -2197,20 +2199,20 @@ module Paillier = struct
     let rec gen_factors nbits =
       let p = Bn.random_prime ~rng:(rng#random_bytes) nbits
       and q = Bn.random_prime ~rng:(rng#random_bytes) nbits in
-      let p1 = Bn.(sub p one)
-      and q1 = Bn.(sub q one) in
-      let cmp = Bn.compare p q in
+      let p1 = Z.(sub p one)
+      and q1 = Z.(sub q one) in
+      let cmp = Z.compare p q in
       if cmp = 0 then gen_factors nbits else
-      if Bn.(relative_prime (mult p q) (mult p1 q1)) then (p, q, p1, q1) else
-      (* Recursively generate factors *)
-      gen_factors nbits in
+      if Bn.(relative_prime Z.(p * q) Z.(p1 * q1))
+      then (p, q, p1, q1)
+      else gen_factors nbits in
     let (p, q, p1, q1) = gen_factors numbits2 in
     (* n = pq *)
-    let n = Bn.mult p q in
-    let n2 = Bn.mult n n in
-    let g = Bn.(add n one) in
-    let lambda = Bn.lcm p1 q1 in
-    let mu = Bn.mod_inv lambda n in
+    let n = Z.mul p q in
+    let n2 = Z.mul n n in
+    let g = Z.(add n one) in
+    let lambda = Z.lcm p1 q1 in
+    let mu = Z.invert lambda n in
 
     (* Build key *)
     let priv =
@@ -2232,6 +2234,7 @@ module Paillier = struct
     (priv, pub)
 
   end
+
 (* Diffie-Hellman key agreement *)
 
 module DH = struct
@@ -2246,7 +2249,7 @@ let new_parameters ?(rng = Random.secure_rng) ?(privlen = 160) numbits =
   let np = Bn.random_prime ~rng:(rng#random_bytes) numbits in
   let rec find_generator () =
     let g = Bn.random ~rng:(rng#random_bytes) (numbits - 1) in
-    if Bn.compare g Bn.one <= 0 then find_generator() else g in
+    if Z.compare g Z.one <= 0 then find_generator() else g in
   let ng = find_generator () in
   { p = Bn.to_bytes ~numbits np;
     g = Bn.to_bytes ~numbits ng;
@@ -2259,12 +2262,12 @@ let private_secret ?(rng = Random.secure_rng) params =
 
 let message params privsec =
   Bn.to_bytes ~numbits:(String.length params.p * 8)
-    (Bn.mod_power (Bn.of_bytes params.g) privsec (Bn.of_bytes params.p))
+    (Z.powm_sec (Bn.of_bytes params.g) privsec (Bn.of_bytes params.p))
 
 let shared_secret params privsec othermsg =
   let res =
     Bn.to_bytes ~numbits:(String.length params.p * 8)
-      (Bn.mod_power (Bn.of_bytes othermsg) privsec (Bn.of_bytes params.p))
+      (Z.powm_sec (Bn.of_bytes othermsg) privsec (Bn.of_bytes params.p))
   in Bn.wipe privsec; res
 
 let derive_key ?(diversification = "") sharedsec numbytes =
