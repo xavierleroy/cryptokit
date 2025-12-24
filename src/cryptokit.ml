@@ -64,6 +64,7 @@ type error =
   | No_entropy_source
   | Entropy_source_closed
   | Compression_not_supported
+  | Invalid_point
 
 exception Error of error
 
@@ -2689,3 +2690,203 @@ let xor_string src src_ofs dst dst_ofs len =
   then invalid_arg "xor_string";
   xor_string src src_ofs dst dst_ofs len
  
+(* Elliptic curves *)
+
+module type CURVE_PARAMETERS = sig
+  (* Weierstrass form  y^2 = x^3 + a x + b *)
+  val name: string                       (* curve name *)
+  val size: int                          (* bit size *)
+  val a: Z.t                             (* curve parameter a *)
+  val b: Z.t                             (* curve parameter b *)
+  val p: Z.t                             (* curve field (modulus) *)
+  val order: Z.t                         (* curve order *)
+  val generator: Z.t * Z.t               (* curve generator *)
+end
+
+module type ELLIPTIC_CURVE = sig
+  module Params: CURVE_PARAMETERS
+  type point
+  val x: point -> Z.t
+  val y: point -> Z.t
+  val zero: point
+  val generator: point
+  val make_point: Z.t * Z.t -> point
+  val encode_point: ?compressed:bool -> point -> string
+  val decode_point: string -> point
+  val add: point -> point -> point
+  val neg: point -> point
+  val dbl: point -> point
+  val mul: Z.t -> point -> point
+end
+
+module EC (C: CURVE_PARAMETERS): ELLIPTIC_CURVE = struct
+
+module Params = C
+
+let ( +^ ) a b = Z.(erem (a + b) C.p)
+let ( -^ ) a b = Z.(erem (a - b) C.p)
+let ( *^ ) a b = Z.(erem (a * b) C.p)
+let sqrm a = Z.(erem (a * a) C.p)
+let invm a = Z.invert a C.p
+
+type point = Z.t * Z.t
+
+let is_on_curve (x, y) =
+  y *^ y = (x *^ x +^ C.a) *^ x +^ C.b
+
+let zero = (Z.zero, Z.zero)   (* Point at infinity *)
+
+let make_point p =
+  if p = zero || is_on_curve p then p else raise (Error Invalid_point)
+
+let generator = make_point C.generator
+
+let y_recover ~x ~sign =
+  let y2 = (x *^ x +^ C.a) *^ x +^ C.b in
+  match Bn.sqrtm y2 C.p with
+  | None -> raise (Error Invalid_point)
+  | Some y -> if Z.testbit y 0 = sign then y else C.p -^ y
+
+let encode_point ?(compressed = false) (x, y) =
+  if not compressed then
+    "\004" ^ Bn.to_bytes ~numbits:C.size x ^ Bn.to_bytes ~numbits:C.size y
+  else
+    (if Z.testbit y 0 then "\003" else "\002") ^ Bn.to_bytes ~numbits:C.size x
+
+let decode_point p =
+  let nbytes = (C.size + 7) / 8 in
+  let l = String.length p in
+  if l = 0 then raise (Error Bad_encoding);
+  match p.[0] with
+  | '\002' | '\003' ->
+      if l <> 1 + nbytes then raise (Error Bad_encoding);
+      let x = Bn.of_bytes (String.sub p 1 nbytes) in
+      let y = y_recover ~x ~sign:(p.[0] = '\003') in
+      make_point (x, y)
+  | '\004' ->
+      if l <> 1 + 2 * nbytes then raise (Error Bad_encoding);
+      let x = Bn.of_bytes (String.sub p 1 nbytes)
+      and y = Bn.of_bytes (String.sub p (1 + nbytes) nbytes) in
+      make_point (x, y)
+  | _ ->
+      raise (Error Bad_encoding)
+
+let aff2jac (x, y) = (x, y, Z.one)
+
+let jac2aff (x, y, z) =
+  if z = Z.zero then zero else begin
+    let z_inv = invm z in
+    let z_inv2 = z_inv *^ z_inv in
+    let z_inv3 = z_inv2 *^ z_inv in
+    (x *^ z_inv2, y *^ z_inv3)
+  end
+
+let dbl_jac (x, y, z) =
+  let xx = x *^ x
+  and yy = y *^ y
+  and zz = z *^ z in
+  let yyyy = yy *^ yy in
+  let s = Z.(erem (~$2 * ((x + yy) * (x + yy) - xx - yyyy)) C.p) in
+  let m = Z.(erem (~$3 * xx + C.a * zz * zz) C.p) in
+  let t = Z.(erem (m * m - ~$2 * s) C.p) in
+  let x' = t in
+  let y' = Z.(erem (m * (s - t) - ~$8 * yyyy) C.p) in
+  let z' = Z.(erem ((y + z) * (y + z) - yy - zz) C.p) in
+  (x', y', z')
+
+let add_jac (x1, y1, z1) (x2, y2, z2) =
+  let z1z1 = z1 *^ z1
+  and z2z2 = z2 *^ z2 in
+  let u1 = x1 *^ z2z2
+  and u2 = x2 *^ z1z1
+  and s1 = y1 *^ z2 *^ z2z2
+  and s2 = y2 *^ z1 *^ z1z1 in
+  let h = u2 -^ u1 in
+  let i = sqrm Z.(~$2 * h) in
+  let j = h *^ i in
+  let r = Z.(erem (~$2 * (s2 - s1)) C.p) in
+  let v = u1 *^ i in
+  let x3 = Z.(erem (r * r - j - ~$2 * v) C.p) in
+  let y3 = Z.(erem (r * (v - x3) - ~$2 * s1 * j) C.p) in
+  let z3 = Z.(erem (sqrm (z1 + z2) - z1z1 - z2z2) C.p) *^ h in
+  (x3, y3, z3)
+
+let neg (x, y) = (x, C.p -^ y)
+
+let add p q =
+  if p = zero then q else
+  if q = zero then p else
+  if p = q
+  then jac2aff (dbl_jac (aff2jac p))
+  else jac2aff (add_jac (aff2jac p) (aff2jac q))
+  
+let dbl p =
+  if p = zero then zero else jac2aff (dbl_jac (aff2jac p))
+
+let mul n p =
+  let nb = Z.numbits n in 
+   if p = zero || nb = 0 then zero else begin
+    let x = aff2jac p in
+    let rec mul i r =
+      if i < 0 then r else
+        mul (i - 1)
+            (if Z.testbit n i
+             then add_jac (dbl_jac r) x
+             else dbl_jac r) in
+    jac2aff (mul (nb - 2) x)
+  end
+
+let x (x, y) = x
+let y (x, y) = y
+
+end
+
+module P192 = EC(struct
+  let name = "secp192r1"
+  let size = 192
+  let p = Z.of_string "0xfffffffffffffffffffffffffffffffeffffffffffffffff"
+  let a = Z.of_string "0xfffffffffffffffffffffffffffffffefffffffffffffffc"
+  let b = Z.of_string "0x64210519e59c80e70fa7e9ab72243049feb8deecc146b9b1"
+  let generator = (Z.of_string "0x188da80eb03090f67cbf20eb43a18800f4ff0afd82ff1012", Z.of_string "0x07192b95ffc8da78631011ed6b24cdd573f977a11e794811")
+  let order = Z.of_string "0xffffffffffffffffffffffff99def836146bc9b1b4d22831"
+end)
+
+module P224 = EC(struct
+  let name = "secp224r1"
+  let size = 224
+  let p = Z.of_string "0xffffffffffffffffffffffffffffffff000000000000000000000001"
+  let a = Z.of_string "0xfffffffffffffffffffffffffffffffefffffffffffffffffffffffe"
+  let b = Z.of_string "0xb4050a850c04b3abf54132565044b0b7d7bfd8ba270b39432355ffb4"
+  let generator = (Z.of_string "0xb70e0cbd6bb4bf7f321390b94a03c1d356c21122343280d6115c1d21", Z.of_string "0xbd376388b5f723fb4c22dfe6cd4375a05a07476444d5819985007e34")
+  let order = Z.of_string "0xffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d"
+end)
+
+module P256 = EC(struct
+  let name = "secp256r1"
+  let size = 256
+  let p = Z.of_string "0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff"
+  let a = Z.of_string "0xffffffff00000001000000000000000000000000fffffffffffffffffffffffc"
+  let b = Z.of_string "0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b"
+  let generator = (Z.of_string "0x6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296", Z.of_string "0x4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5")
+  let order = Z.of_string "0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551"
+end)
+
+module P384 = EC(struct
+  let name = "secp384r1"
+  let size = 384
+  let p = Z.of_string "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000ffffffff"
+  let a = Z.of_string "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffff0000000000000000fffffffc"
+  let b = Z.of_string "0xb3312fa7e23ee7e4988e056be3f82d19181d9c6efe8141120314088f5013875ac656398d8a2ed19d2a85c8edd3ec2aef"
+  let generator = (Z.of_string "0xaa87ca22be8b05378eb1c71ef320ad746e1d3b628ba79b9859f741e082542a385502f25dbf55296c3a545e3872760ab7", Z.of_string "0x3617de4a96262c6f5d9e98bf9292dc29f8f41dbd289a147ce9da3113b5f0b8c00a60b1ce1d7e819d7a431d7c90ea0e5f")
+  let order = Z.of_string "0xffffffffffffffffffffffffffffffffffffffffffffffffc7634d81f4372ddf581a0db248b0a77aecec196accc52973"
+end)
+
+module P521 = EC(struct
+  let name = "secp521r1"
+  let size = 521
+  let p = Z.of_string "0x01ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  let a = Z.of_string "0x01fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc"
+  let b = Z.of_string "0x0051953eb9618e1c9a1f929a21a0b68540eea2da725b99b315f3b8b489918ef109e156193951ec7e937b1652c0bd3bb1bf073573df883d2c34f1ef451fd46b503f00"
+  let generator = (Z.of_string "0x00c6858e06b70404e9cd9e3ecb662395b4429c648139053fb521f828af606b4d3dbaa14b5e77efe75928fe1dc127a2ffa8de3348b3c1856a429bf97e7e31c2e5bd66", Z.of_string "0x011839296a789a3bc0045c8a5fb42c7d1bd998f54449579b446817afbd17273e662c97ee72995ef42640c550b9013fad0761353c7086a272c24088be94769fd16650")
+  let order = Z.of_string "0x01fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffa51868783bf2f966b7fcc0148f709a5d03bb5c9b8899c47aebb6fb71e91386409"
+end)

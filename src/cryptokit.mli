@@ -1203,6 +1203,99 @@ module DH: sig
       counter until [numbytes] bytes have been obtained. *)
 end
 
+(** {1 Elliptic curves} *)
+
+module type CURVE_PARAMETERS = sig
+
+  val name: string                       (** curve name *)
+
+  val size: int                          (** bit size *)
+
+  val a: Z.t                             (** curve parameter a *)
+
+  val b: Z.t                             (** curve parameter b *)
+
+  val p: Z.t                             (** curve field order *)
+
+  val order: Z.t                         (** curve order *)
+
+  val generator: Z.t * Z.t               (** curve generator *)
+end
+  (** The parameters of an elliptic curve, in short Weierstrass form
+      [y{^2} = x{^3} + a x + b]. *)
+
+module type ELLIPTIC_CURVE = sig
+
+  module Params: CURVE_PARAMETERS
+    (** Parameters of the curve *)
+
+  type point
+    (** The type of points on the curve. *)
+
+  val x: point -> Z.t
+    (** X coordinate of a point. *)
+
+  val y: point -> Z.t
+    (** Y coordinate of a point. *)
+
+  val zero: point
+    (** The point at infinity.  It is the neutral element of the group. *)
+
+  val generator: point
+    (** The generator for the group. *)
+
+  val make_point: Z.t * Z.t -> point
+    (** Construct a point with the given [(x, y)] coordinates.
+        @raise Invalid_point if the point is not on the curve. *)
+
+  val encode_point: ?compressed:bool -> point -> string
+    (** Encode a point as a string according to P1363-2000.
+        If [compressed] is false, the encoding contains the [x] and
+        [y] coordinates. If [compressed] is true, the encoding only
+        contains the [x] coordinate and the sign of [y]. *)
+
+  val decode_point: string -> point
+    (** Decode a P1363-2000 encoding (as produced by [encode_point])
+        into a point of the curve.
+        @raise Bad_encoding if the encoding is ill-formed.
+        @raise Invalid_point if the point is not on the curve. *)
+
+  val add: point -> point -> point
+    (** Sum of two points.  This is the group operation. *)
+
+  val neg: point -> point
+    (** Opposite of a point.  This is the group inverse. *)
+
+  val dbl: point -> point
+    (** Doubling of a point: [dbl x] = [add x x], but a bit faster. *)
+
+  val mul: Z.t -> point -> point
+    (** Multiplication of a point by a scalar.
+        [mul n p] is [p] added to itself [n] times.
+        [n] must be non-negative. *)
+end
+  (** The signature of an elliptic curve.
+      It defines a type for the points of the curve and the associated
+      group operations over points. *)
+
+module EC (P: CURVE_PARAMETERS): ELLIPTIC_CURVE
+  (** Construct an elliptic curve with the given parameters. *)
+
+module P192: ELLIPTIC_CURVE
+  (** NIST elliptic curve P-192 *)
+
+module P224: ELLIPTIC_CURVE
+  (** NIST elliptic curve P-224 *)
+
+module P256: ELLIPTIC_CURVE
+  (** NIST elliptic curve P-256 *)
+
+module P384: ELLIPTIC_CURVE
+  (** NIST elliptic curve P-384 *)
+
+module P521: ELLIPTIC_CURVE
+  (** NIST elliptic curve P-521 *)
+
 (** {1 Advanced, compositional interface to block ciphers 
        and stream ciphers} *)
 
@@ -1526,6 +1619,9 @@ type error =
       (** End of file on a device or EGD entropy source. *)
   | Compression_not_supported
       (** The data compression functions are not available. *)
+  | Invalid_point
+      (** An elliptic curve operation received a point
+          that is not on the curve. *)
 
 exception Error of error
   (** Exception raised by functions in this library
