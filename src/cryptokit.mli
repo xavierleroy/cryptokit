@@ -1369,6 +1369,33 @@ module DH: sig
       to use one of the functions from module {!Cryptokit.KD} instead. *)
 end
 
+(** The [ECDH] module implements Diffie-Hellman key agreement using
+    elliptic-curve cryptography.  It is parameterized by the elliptic
+    curve to use.  See {!Cryptokit.DH} for a description of the
+    Diffie-Hellman protocol. *)
+module ECDH (C: ELLIPTIC_CURVE): sig
+
+  type private_secret
+    (** The abstract type of private secrets generated during key agreement. *)
+
+  val private_secret: ?rng: Random.rng -> unit -> private_secret
+    (** Generate a random private secret.  
+      The optional [rng] argument specifies a random number generator
+      to use; it defaults to {!Cryptokit.Random.secure_rng}. *)
+
+  val message: private_secret -> string
+    (** Compute the message to be sent to the other party. *)
+
+  val shared_secret: private_secret -> string -> string
+    (** Recover the shared secret from the private secret of the
+      present party and the message received from the other party.
+      The shared secret returned is a string that encodes a point
+      on the curive [C].  Use one of the functions from the {!Cryptokit.KD}
+      module to derive secret keys from this shared secret.
+      The private secret is destroyed and can no longer be used
+      afterwards. *)
+end
+
 (** {1 Advanced, compositional interface to block ciphers 
        and stream ciphers} *)
 
@@ -1699,6 +1726,9 @@ type error =
 exception Error of error
   (** Exception raised by functions in this library
       to report error conditions. *)
+
+val describe_error : error -> string
+  (** Convert an error code to a readable explanation. *)
 
 (** {1 Miscellaneous utilities} *)
 

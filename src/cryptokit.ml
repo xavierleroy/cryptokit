@@ -66,9 +66,31 @@ type error =
   | Compression_not_supported
   | Invalid_point
 
+let describe_error = function
+  | Wrong_key_size -> "wrong key size"
+  | Wrong_IV_size -> "wrong IV size"
+  | Wrong_data_length -> "wrong data length"
+  | Bad_padding -> "bad padding"
+  | Output_buffer_overflow -> "output buffer overflow"
+  | Incompatible_block_size -> "incompatible block size"
+  | Number_too_long -> "number too long"
+  | Seed_too_short -> "seed too short"
+  | Message_too_long -> "message too long"
+  | Bad_encoding -> "bad encoding"
+  | Compression_error(a, b) ->
+      Printf.sprintf "compression error %s:%s" a b
+  | No_entropy_source -> "no entropy source"
+  | Entropy_source_closed -> "entropy source closed"
+  | Compression_not_supported -> "compression not supported"
+  | Invalid_point -> "point is not on elliptic curve"
+
 exception Error of error
 
 let _ = Callback.register_exception "Cryptokit.Error" (Error Wrong_key_size)
+
+let _ = Printexc.register_printer (function
+            | Error e -> Some(describe_error e)
+            | _ -> None)
 
 (* Interface with C *)
 
@@ -3001,5 +3023,22 @@ let verify (q: public_key) (x, y) msg =
                      (Bn.divm x y n) q in
     x = Z.erem (C.x p) n
   end
+
+end
+
+module ECDH (C: ELLIPTIC_CURVE) = struct
+
+type private_secret = Z.t
+
+let private_secret ?(rng = Random.secure_rng) () =
+  Bn.random ~rng:(rng#random_bytes) C.Params.size
+
+let message privsec =
+  C.encode_point (C.mul privsec C.generator)
+
+let shared_secret privsec othermsg =
+  let res =
+    C.encode_point (C.mul privsec (C.decode_point othermsg)) in
+  Bn.wipe privsec; res
 
 end
