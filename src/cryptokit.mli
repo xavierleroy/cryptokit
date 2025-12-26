@@ -974,8 +974,9 @@ module KD : sig
         from the given secret.  The optional [otherinfo] parameter defaults
         to the empty string but can be given other values to derive multiple
         keys from the same secret.  [hash] is the hash function used for
-        derivation.  [Hash.sha1] or [Hash.sha256] are popular choices.
-        The derivation algorithm used is [KDF1] from ISO-18033-2. *)
+        derivation.  {!Cryptokit.Hash.sha1} and
+        {!Cryptokit.Hash.sha256} are popular choices.  The derivation
+        algorithm used is [KDF1] from ISO-18033-2. *)
 
   val kdf2: (unit -> hash) -> ?otherinfo: string -> string -> int -> string
     (** Like [kdf1], but uses algorithm [KDF2] from ISO-18033-2. *)
@@ -985,8 +986,17 @@ module KD : sig
         which is algorithm [KDF3] from ISO-18033-2 with the [pAmt]
         parameter equal to 4. *)
 
+  val pbkdf2: (string -> hash) -> string -> string -> int -> int -> string
+    (** [pbkdf2 hash password salt count len] derives a key of length [len]
+        bytes for the given password and the given salt.
+        [hash] is a MAC / keyed hash function such as
+        {!Cryptokit.MAC.hmac_sha1}.
+        The password is used as the key to the [hash] function.
+        The hash function is iterated [count] times in order to increase
+        the running time of [pbkdf2].
+        For example, WPA2 uses [pbkdf2 MAC.hacm_sha1 passphrase ssid 4096 256].
+    *)
 end
-
 
 (** {1 Elliptic curves} *)
 

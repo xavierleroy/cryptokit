@@ -2029,32 +2029,45 @@ let int2bytes i =
   Bytes.set_int32_be b 0 i;
   Bytes.unsafe_to_string b
 
-let kdf_secret_first first_counter
-      (h: unit -> hash) ?(otherinfo = "") secret len =
-  let rec derive accu ctr l =
+let derive fn len ctr =
+  let rec deriv accu ctr l =
     if l <= 0 then
       String.sub (String.concat "" (List.rev accu)) 0 len
     else begin
-      let s = hash_string (h ()) (secret ^ int2bytes ctr ^ otherinfo) in
-      derive (s :: accu) (Int32.succ ctr) (l - String.length s)
-    end in
-  derive [] first_counter len
+      let s = fn ctr in
+      deriv (s :: accu) (Int32.succ ctr) (l - String.length s)
+    end
+  in deriv [] ctr len
 
-let kdf_counter_first first_counter
-      (h: unit -> hash) ?(otherinfo = "") secret len =
-  let rec derive accu ctr l =
-    if l <= 0 then
-      String.sub (String.concat "" (List.rev accu)) 0 len
-    else begin
-      let s =
-        hash_string (h ()) (int2bytes ctr ^ secret ^ otherinfo) in
-      derive (s :: accu) (Int32.succ ctr) (l - String.length s)
-    end in
-  derive [] first_counter len
+let kdf1 (h: unit -> hash) ?(otherinfo = "") secret len =
+  let fn ctr =
+    hash_string (h ()) (secret ^ int2bytes ctr ^ otherinfo) in
+  derive fn len 0l
 
-let kdf1 = kdf_secret_first 0l
-let kdf2 = kdf_secret_first 1l
-let kdf3 = kdf_counter_first 0l
+let kdf2 (h: unit -> hash) ?(otherinfo = "") secret len =
+  let fn ctr =
+    hash_string (h ()) (secret ^ int2bytes ctr ^ otherinfo) in
+  derive fn len 1l
+
+let kdf3 (h: unit -> hash) ?(otherinfo = "") secret len =
+  let fn ctr =
+    hash_string (h ()) (int2bytes ctr ^ secret ^ otherinfo) in
+  derive fn len 0l
+
+let pbkdf2 (keyed_hash: string -> hash) pwd salt count len =
+  let prf s =
+    hash_string (keyed_hash pwd) s in
+  let rec iterate u r n =
+    if n <= 0 then Bytes.to_string r else begin
+      let u = prf u in
+      xor_string u 0 r 0 (String.length u);
+      iterate u r (n - 1)
+    end in
+  let fn ctr =
+    let u = prf (salt ^ int2bytes ctr) in
+    let r = Bytes.of_string u in
+    iterate u r (count - 1) in
+  derive fn len 1l
 
 end
 
