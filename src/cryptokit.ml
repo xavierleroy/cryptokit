@@ -1998,6 +1998,45 @@ let pseudo_rng_aes_ctr seed = new pseudo_rng_aes_ctr seed
 
 end
 
+(* Key derivation functions *)
+
+module KD = struct
+
+let int2bytes i =
+  let b = Bytes.create 4 in
+  Bytes.set_int32_be b 0 i;
+  Bytes.unsafe_to_string b
+
+let kdf_secret_first first_counter
+      (h: unit -> hash) ?(otherinfo = "") secret len =
+  let rec derive accu ctr l =
+    if l <= 0 then
+      String.sub (String.concat "" (List.rev accu)) 0 len
+    else begin
+      let s = hash_string (h ()) (secret ^ int2bytes ctr ^ otherinfo) in
+      derive (s :: accu) (Int32.succ ctr) (l - String.length s)
+    end in
+  derive [] first_counter len
+
+let kdf_counter_first first_counter
+      (h: unit -> hash) ?(otherinfo = "") secret len =
+  let rec derive accu ctr l =
+    if l <= 0 then
+      String.sub (String.concat "" (List.rev accu)) 0 len
+    else begin
+      let s =
+        hash_string (h ()) (int2bytes ctr ^ secret ^ otherinfo) in
+      derive (s :: accu) (Int32.succ ctr) (l - String.length s)
+    end in
+  derive [] first_counter len
+
+let kdf1 = kdf_secret_first 0l
+let kdf2 = kdf_secret_first 1l
+let kdf3 = kdf_counter_first 0l
+
+end
+
+
 (* RSA operations *)
 
 module RSA = struct
