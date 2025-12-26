@@ -6,10 +6,11 @@ The Cryptokit library for OCaml provides a variety of cryptographic primitives t
 
 * Symmetric-key ciphers: AES, Chacha20, DES, Triple-DES, Blowfish, ARCfour, in ECB, CBC, CFB, OFB and counter modes.
 * Authenticated encryption: AES-GCM, Chacha20-Poly1305.
-* Public-key cryptography: RSA encryption and signature, Diffie-Hellman key agreement.
+* Public-key cryptography: RSA encryption and signature, ECDSA signature, Diffie-Hellman key agreement.
 * Hash functions and MACs: SHA-3, SHA-2, BLAKE2, BLAKE3, RIPEMD-160; MACs based on AES and DES; SipHash.  (SHA-1 and MD5, despite being broken, are also provided for historical value.)
 * Random number generation.
 * Encodings and compression: base 64, hexadecimal, Zlib compression.
+* Elliptic curves (only in Weierstrass form at this point).
 
 Additional ciphers and hashes can easily be used in conjunction with the library.  In particular, basic mechanisms such as chaining modes, output buffering, and padding are provided by generic classes that can easily be composed with user-provided ciphers.  More generally, the library promotes a "Lego"-like style of constructing and composing transformations over character streams.
 
@@ -86,7 +87,7 @@ BLAKE2b and BLAKE2s are implemented from scratch based on RFC 7693.  The test ve
 
 BLAKE3 uses the portable C implementation from https://github.com/BLAKE3-team/BLAKE3 .  The authors released the code into the public domain with CC0 1.0.  The test vectors come from the same source.
 
-RIPEMD-160 is based on the reference implementation by A.Bosselaers. It passes the test vectors listed at http://www.esat.kuleuven.ac.be/~bosselae/ripemd160.html
+RIPEMD-160 is based on the reference implementation by A. Bosselaers. It passes the test vectors listed at http://www.esat.kuleuven.ac.be/~bosselae/ripemd160.html
 
 MD5 uses the public-domain implementation by Colin Plumb that is also used in the OCaml runtime system for module Digest.
 
@@ -95,6 +96,10 @@ SipHash is based on the reference implementation by J.-P. Aumasson and D. J. Ber
 RSA encryption and decryption was implemented from scratch, using the Zarith OCaml library for arbitrary-precision arithmetic, which itself uses GMP.  Modular  exponentiation is the constant-time implementation provided by GMP.  The Chinese remainder theorem is exploited when possible, though.  Like all ciphers in this library, the RSA implementation is *not* protected against timing attacks.
 
 RSA key generation uses GMP's `nextprime` function for probabilistic primality testing.
+
+Elliptic curves are implemented in pure OCaml, using Zarith for arbitrary-precision arithmetic.  Only curves in Weiestrass short form are supported at this point.  The implementation follows closely Cedric Mesnil's ECpy Python library  https://github.com/cslashm/ECPy .  The implementation makes zero effort to be constant time and is definitely not protected against timing attacks.
+
+The test vectors for ECDSA signature are taken from RFC 6979.
 
 The hardware RNG uses the RDRAND instruction of recent x86 processors, if supported.  It is not available on other platforms.  A check is included to reject the broken RDRAND on AMD Ryzen 3000 processors (https://arstechnica.com/gadgets/2019/10/how-a-months-old-amd-microcode-bug-destroyed-my-weekend/).
 
