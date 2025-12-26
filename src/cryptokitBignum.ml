@@ -119,12 +119,13 @@ let to_bytes ?numbits n =
     match numbits with
     | None -> String.length s
     | Some nb -> assert (Z.numbits n <= nb); (nb + 7) / 8 in
-  let t = Bytes.make l '\000' in
-  for i = 0 to String.length s - 1 do
-    Bytes.set t (l - 1 - i) s.[i]
-  done;
+  let t =
+    String.init l
+      (fun i ->
+        let j = l - 1 - i in
+        if j < String.length s then s.[j] else '\000') in
   wipe_bytes (Bytes.unsafe_of_string s);
-  Bytes.unsafe_to_string t
+  t
 
 (* Random number generation *)
 
