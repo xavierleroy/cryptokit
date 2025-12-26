@@ -150,6 +150,17 @@ let _ =
     (repeat 100 (fun () -> ignore(RSA.decrypt priv_key ciphertext)));
   time_fn "RSA private-key operation with CRT (2048 bits) x 100"
     (repeat 100 (fun () -> ignore(RSA.decrypt_CRT priv_key ciphertext)));
+  let module E256 = ECDSA(P256) in
+  let hash = hash_string (Hash.sha256()) plaintext in
+  let (priv_key, pub_key) =
+  time_fn "ECDSA key generation (P256) x 100"
+    (repeat 100 (fun () -> E256.new_key ~rng:prng ())) in
+  let sg =
+  time_fn "ECDSA signature (P256) x 100"
+    (repeat 100 (fun () -> E256.sign ~rng:prng priv_key hash)) in
+  let _ =
+  time_fn "ECDSA verification (P256) x 100"
+    (repeat 100 (fun () -> E256.verify pub_key sg hash)) in
   time_fn "PRNG, 64_000_000 bytes"
     (rng prng 1000000 64);
   time_fn "PRNG AES CTR, 64_000_000 bytes"

@@ -1273,6 +1273,11 @@ module type ELLIPTIC_CURVE = sig
     (** Multiplication of a point by a scalar.
         [mul n p] is [p] added to itself [n] times.
         [n] must be non-negative. *)
+
+  val muladd: Z.t -> point -> Z.t -> point -> point
+    (** Multiplication of two points by two scalars, and addition.
+        [mul n p m q] is [add (mul n p) (mul m q)].
+        [n] and [m] must be non-negative. *)
 end
   (** The signature of an elliptic curve.
       It defines a type for the points of the curve and the associated
@@ -1302,13 +1307,30 @@ module ECDSA (C: ELLIPTIC_CURVE) : sig
 
   type public_key = C.point
 
-  val wipe_key: private_key -> unit
-
   val new_key: ?rng:Random.rng -> unit -> private_key * public_key
+      (** Generate a new, random ECDSA key pair.
+          The optional [rng] argument specifies a random number
+          generator to use for generating the key; it defaults to
+          {!Cryptokit.Random.secure_rng}. *)
 
   val sign: ?rng:Random.rng -> private_key -> string -> Z.t * Z.t
+      (** [sign sk msg] produces a signature of the message [msg]
+          using the private key [sk].
+          The message must be no longer than the bit-size of the
+          curve [C].  Usually, the message to be signed is obtained by 
+          hashing the actual message with a hash function whose bit-size
+          matches that of the curve, e.g. [SHA-256] for a 256-bit curve.
+          The optional [rng] argument specifies a random number
+          generator to use for randomizing the signature; it defaults to
+          {!Cryptokit.Random.secure_rng}. *)
 
   val verify: public_key -> Z.t * Z.t -> string -> bool
+      (** [verify pk sg msg] checks whether [sg] is a valid signature
+          for the message [msg], produced using a secret key that matches
+          the given public key [pk]. *)
+
+  val wipe_key: private_key -> unit
+      (** Erase the given private key. *)
 
 end
   (** The ECDSA signature scheme.

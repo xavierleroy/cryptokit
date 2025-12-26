@@ -2717,6 +2717,7 @@ module type ELLIPTIC_CURVE = sig
   val neg: point -> point
   val dbl: point -> point
   val mul: Z.t -> point -> point
+  val muladd: Z.t -> point -> Z.t -> point -> point
 end
 
 module EC (C: CURVE_PARAMETERS): ELLIPTIC_CURVE = struct
@@ -2824,8 +2825,8 @@ let dbl p =
   if p = zero then zero else jac2aff (dbl_jac (aff2jac p))
 
 let mul n p =
-  let nb = Z.numbits n in 
-   if p = zero || nb = 0 then zero else begin
+  assert (Z.sign n >= 0);
+  if p = zero || n = Z.zero then zero else begin
     let x = aff2jac p in
     let rec mul i r =
       if i < 0 then r else
@@ -2833,7 +2834,35 @@ let mul n p =
             (if Z.testbit n i
              then add_jac (dbl_jac r) x
              else dbl_jac r) in
-    jac2aff (mul (nb - 2) x)
+    jac2aff (mul (Z.numbits n - 2) x)
+  end
+
+let muladd n p m q =
+  assert (Z.sign n >= 0 && Z.sign m >= 0);
+  if p = zero || n = Z.zero then mul m q else
+  if q = zero || m = Z.zero then mul n p else begin
+    let x = aff2jac p
+    and y = aff2jac q in
+    let xy = add_jac x y in
+    let rec mul i r =
+      if i < 0 then r else begin
+        let r = dbl_jac r in
+        let r =
+          match Z.testbit n i, Z.testbit m i with
+          | false, false -> r
+          | true, false  -> add_jac r x
+          | false, true  -> add_jac r y
+          | true, true   -> add_jac r xy in
+        mul (i - 1) r
+      end in
+    let i = Int.max (Z.numbits n) (Z.numbits m) - 1 in
+    let r =
+      match Z.testbit n i, Z.testbit m i with
+      | false, false -> assert false
+      | true, false  -> x
+      | false, true  -> y
+      | true, true   -> xy in
+    jac2aff (mul (i - 1) r)
   end
 
 let x (x, y) = x
@@ -2924,8 +2953,8 @@ let verify (q: public_key) (x, y) msg =
   q <> C.zero && C.mul n q = C.zero &&
   Z.lt Z.zero x && Z.lt x n && Z.lt Z.zero y && Z.lt y n &&
   begin
-    let p = C.add (C.mul (Bn.divm h y n) C.generator)
-                  (C.mul (Bn.divm x y n) q) in
+    let p = C.muladd (Bn.divm h y n) C.generator
+                     (Bn.divm x y n) q in
     x = Z.erem (C.x p) n
   end
 
