@@ -1237,9 +1237,11 @@ module ECDSA (C: ELLIPTIC_CURVE) : sig
           generator to use for generating the key; it defaults to
           {!Cryptokit.Random.secure_rng}. *)
 
-  val sign: ?rng:Random.rng -> private_key -> string -> Z.t * Z.t
+  val sign: ?rng:Random.rng -> private_key -> string -> string * string
       (** [sign sk msg] produces a signature of the message [msg]
           using the private key [sk].
+          The signature is composed of two bit-strings of the same
+          length as the bit-size of the curve [C].
           The message must be no longer than the bit-size of the
           curve [C].  Usually, the message to be signed is obtained by 
           hashing the actual message with a hash function whose bit-size
@@ -1248,10 +1250,16 @@ module ECDSA (C: ELLIPTIC_CURVE) : sig
           generator to use for randomizing the signature; it defaults to
           {!Cryptokit.Random.secure_rng}. *)
 
-  val verify: public_key -> Z.t * Z.t -> string -> bool
+  val verify: public_key -> string * string -> string -> bool
       (** [verify pk sg msg] checks whether [sg] is a valid signature
-          for the message [msg], produced using a secret key that matches
-          the given public key [pk]. *)
+          for the message [msg].  The signature must have been produced
+          using a secret key that matches the given public key [pk].
+          The signature is a pair of two bit-strings of the same
+          length as the bit-size of the curve [C].
+          The message must be no longer than the bit-size of the
+          curve [C].  Usually, the message to be signed is obtained by 
+          hashing the actual message with a hash function whose bit-size
+          matches that of the curve, e.g. [SHA-256] for a 256-bit curve. *)
 
   val wipe_key: private_key -> unit
       (** Erase the given private key. *)
