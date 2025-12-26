@@ -450,7 +450,7 @@ module Padding : sig
         by as many [0] bytes as needed to fill the block. *)
 end
 
-(** {1 Symmetric cryptography *)
+(** {1 Symmetric cryptography} *)
 
 (** The [Cipher] module implements the AES, DES, Triple-DES, ARCfour
     and Blowfish symmetric ciphers.  Symmetric ciphers are presented
