@@ -1521,6 +1521,19 @@ let _ =
     (hex "000E871C4A14F993C6C7369501900C4BC1E9C7B0B4BA44E04868B30B41D8071042EB28C4C250411D0CE08CD197E4188EA4876F279F90B3D8D74A3C76E6F1E4656AA8")
     (hex "00CD52DBAA33B063C3A6CD8058A1FB0A46A4754B034FCC644766CA14DA8CA5CA9FDE00E88C1AD60CCBA759025299079D7A427EC3CC5B619BFBC828E7769BCD694E86")
 
+let _ =
+  testing_function "ECDH";
+  let module D = ECDH(P256) in
+  let prng =
+    Random.pseudo_rng (hex "5b5e50dc5b6eaf5346eba8244e5666ac4dcd5409") in
+  let ps1 = D.private_secret ~rng:prng ()
+  and ps2 = D.private_secret ~rng:prng () in
+  let msg1 = D.message ps1
+  and msg2 = D.message ps2 in
+  let ss1 = D.shared_secret ps1 msg2
+  and ss2 = D.shared_secret ps2 msg1 in
+  test 1 ss1 ss2
+
 (* Key derivation functions *)
 
 let _ =
