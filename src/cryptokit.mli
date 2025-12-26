@@ -257,7 +257,7 @@ class type authenticated_transform =
           finalization actions, e.g. add final padding.
           The authentication tag for the transformed data is computed
           and returned.  It's a string of length
-          {!Cryptokit.authenticated_transform.tag_size}.
+          {!Cryptokit.authenticated_transform.method-tag_size}.
           After calling [finish_and_get_tag], the transform can no
           longer accept additional data.  Hence, after calling
           [finish_and_get_tag], do not call any of the [put_*] methods
@@ -450,7 +450,7 @@ module Padding : sig
         by as many [0] bytes as needed to fill the block. *)
 end
 
-(** {1 Cryptographic primitives (simplified interface)} *)
+(** {1 Symmetric cryptography} *)
 
 (** The [Cipher] module implements the AES, DES, Triple-DES, ARCfour
     and Blowfish symmetric ciphers.  Symmetric ciphers are presented
@@ -964,6 +964,106 @@ module MAC: sig
 
 end
 
+(** {1 Elliptic curves} *)
+
+module type CURVE_PARAMETERS = sig
+
+  val name: string                       (** curve name *)
+
+  val size: int                          (** bit size *)
+
+  val a: Z.t                             (** curve parameter a *)
+
+  val b: Z.t                             (** curve parameter b *)
+
+  val p: Z.t                             (** curve field order *)
+
+  val order: Z.t                         (** curve order *)
+
+  val generator: Z.t * Z.t               (** curve generator *)
+end
+  (** The parameters of an elliptic curve, in short Weierstrass form
+      [y{^2} = x{^3} + a x + b]. *)
+
+module type ELLIPTIC_CURVE = sig
+
+  module Params: CURVE_PARAMETERS
+    (** Parameters of the curve *)
+
+  type point
+    (** The type of points on the curve. *)
+
+  val x: point -> Z.t
+    (** X coordinate of a point. *)
+
+  val y: point -> Z.t
+    (** Y coordinate of a point. *)
+
+  val zero: point
+    (** The point at infinity.  It is the neutral element of the group. *)
+
+  val generator: point
+    (** The generator for the group. *)
+
+  val make_point: Z.t * Z.t -> point
+    (** Construct a point with the given [(x, y)] coordinates.
+        @raise Invalid_point if the point is not on the curve. *)
+
+  val encode_point: ?compressed:bool -> point -> string
+    (** Encode a point as a string according to P1363-2000.
+        If [compressed] is false, the encoding contains the [x] and
+        [y] coordinates. If [compressed] is true, the encoding only
+        contains the [x] coordinate and the sign of [y]. *)
+
+  val decode_point: string -> point
+    (** Decode a P1363-2000 encoding (as produced by [encode_point])
+        into a point of the curve.
+        @raise Bad_encoding if the encoding is ill-formed.
+        @raise Invalid_point if the point is not on the curve. *)
+
+  val add: point -> point -> point
+    (** Sum of two points.  This is the group operation. *)
+
+  val neg: point -> point
+    (** Opposite of a point.  This is the group inverse. *)
+
+  val dbl: point -> point
+    (** Doubling of a point: [dbl x] = [add x x], but a bit faster. *)
+
+  val mul: Z.t -> point -> point
+    (** Multiplication of a point by a scalar.
+        [mul n p] is [p] added to itself [n] times.
+        [n] must be non-negative. *)
+
+  val muladd: Z.t -> point -> Z.t -> point -> point
+    (** Multiplication of two points by two scalars, and addition.
+        [mul n p m q] is [add (mul n p) (mul m q)].
+        [n] and [m] must be non-negative. *)
+end
+  (** The signature of an elliptic curve.
+      It defines a type for the points of the curve and the associated
+      group operations over points. *)
+
+module EC (P: CURVE_PARAMETERS): ELLIPTIC_CURVE
+  (** Construct an elliptic curve with the given parameters. *)
+
+module P192: ELLIPTIC_CURVE
+  (** NIST elliptic curve P-192 *)
+
+module P224: ELLIPTIC_CURVE
+  (** NIST elliptic curve P-224 *)
+
+module P256: ELLIPTIC_CURVE
+  (** NIST elliptic curve P-256 *)
+
+module P384: ELLIPTIC_CURVE
+  (** NIST elliptic curve P-384 *)
+
+module P521: ELLIPTIC_CURVE
+  (** NIST elliptic curve P-521 *)
+
+(** {1 Public-key cryptography} *)
+
 (** The [RSA] module implements RSA public-key cryptography.
     Public-key cryptography is asymmetric: two distinct keys are used
     for encrypting a message, then decrypting it.  Moreover, while one of
@@ -1122,6 +1222,42 @@ module Paillier: sig
         sum of underlying plaintext strings of the given ciphertexts. *)
 end
 
+(** The ECDSA functor implements the ECDSA signature scheme.
+    The [C] parameter is the elliptic curve used.
+*)
+module ECDSA (C: ELLIPTIC_CURVE) : sig
+
+  type private_key = Z.t
+
+  type public_key = C.point
+
+  val new_key: ?rng:Random.rng -> unit -> private_key * public_key
+      (** Generate a new, random ECDSA key pair.
+          The optional [rng] argument specifies a random number
+          generator to use for generating the key; it defaults to
+          {!Cryptokit.Random.secure_rng}. *)
+
+  val sign: ?rng:Random.rng -> private_key -> string -> Z.t * Z.t
+      (** [sign sk msg] produces a signature of the message [msg]
+          using the private key [sk].
+          The message must be no longer than the bit-size of the
+          curve [C].  Usually, the message to be signed is obtained by 
+          hashing the actual message with a hash function whose bit-size
+          matches that of the curve, e.g. [SHA-256] for a 256-bit curve.
+          The optional [rng] argument specifies a random number
+          generator to use for randomizing the signature; it defaults to
+          {!Cryptokit.Random.secure_rng}. *)
+
+  val verify: public_key -> Z.t * Z.t -> string -> bool
+      (** [verify pk sg msg] checks whether [sg] is a valid signature
+          for the message [msg], produced using a secret key that matches
+          the given public key [pk]. *)
+
+  val wipe_key: private_key -> unit
+      (** Erase the given private key. *)
+
+end
+
 (** The [DH] module implements Diffie-Hellman key agreement.
   Key agreement is a protocol by which two parties can establish
   a shared secret (typically a key for a symmetric cipher or MAC)
@@ -1138,7 +1274,7 @@ end
     can be generated by calling {!Cryptokit.DH.new_parameters},
     or fixed parameters taken from the literature can be used.
   - Each party computes a random private secret using the function
-    {!Cryptokit.DH.private_secret}.
+    {!Cryptokit.DH.type-private_secret}.
   - From its private secrets and the public parameters, each party
     computes a message (a string) with the function {!Cryptokit.DH.message},
     and sends it to the other party.
@@ -1202,139 +1338,6 @@ module DH: sig
       counter.  The hashing is repeated with increasing values of the
       counter until [numbytes] bytes have been obtained. *)
 end
-
-(** {1 Elliptic curve cryptography} *)
-
-module type CURVE_PARAMETERS = sig
-
-  val name: string                       (** curve name *)
-
-  val size: int                          (** bit size *)
-
-  val a: Z.t                             (** curve parameter a *)
-
-  val b: Z.t                             (** curve parameter b *)
-
-  val p: Z.t                             (** curve field order *)
-
-  val order: Z.t                         (** curve order *)
-
-  val generator: Z.t * Z.t               (** curve generator *)
-end
-  (** The parameters of an elliptic curve, in short Weierstrass form
-      [y{^2} = x{^3} + a x + b]. *)
-
-module type ELLIPTIC_CURVE = sig
-
-  module Params: CURVE_PARAMETERS
-    (** Parameters of the curve *)
-
-  type point
-    (** The type of points on the curve. *)
-
-  val x: point -> Z.t
-    (** X coordinate of a point. *)
-
-  val y: point -> Z.t
-    (** Y coordinate of a point. *)
-
-  val zero: point
-    (** The point at infinity.  It is the neutral element of the group. *)
-
-  val generator: point
-    (** The generator for the group. *)
-
-  val make_point: Z.t * Z.t -> point
-    (** Construct a point with the given [(x, y)] coordinates.
-        @raise Invalid_point if the point is not on the curve. *)
-
-  val encode_point: ?compressed:bool -> point -> string
-    (** Encode a point as a string according to P1363-2000.
-        If [compressed] is false, the encoding contains the [x] and
-        [y] coordinates. If [compressed] is true, the encoding only
-        contains the [x] coordinate and the sign of [y]. *)
-
-  val decode_point: string -> point
-    (** Decode a P1363-2000 encoding (as produced by [encode_point])
-        into a point of the curve.
-        @raise Bad_encoding if the encoding is ill-formed.
-        @raise Invalid_point if the point is not on the curve. *)
-
-  val add: point -> point -> point
-    (** Sum of two points.  This is the group operation. *)
-
-  val neg: point -> point
-    (** Opposite of a point.  This is the group inverse. *)
-
-  val dbl: point -> point
-    (** Doubling of a point: [dbl x] = [add x x], but a bit faster. *)
-
-  val mul: Z.t -> point -> point
-    (** Multiplication of a point by a scalar.
-        [mul n p] is [p] added to itself [n] times.
-        [n] must be non-negative. *)
-
-  val muladd: Z.t -> point -> Z.t -> point -> point
-    (** Multiplication of two points by two scalars, and addition.
-        [mul n p m q] is [add (mul n p) (mul m q)].
-        [n] and [m] must be non-negative. *)
-end
-  (** The signature of an elliptic curve.
-      It defines a type for the points of the curve and the associated
-      group operations over points. *)
-
-module EC (P: CURVE_PARAMETERS): ELLIPTIC_CURVE
-  (** Construct an elliptic curve with the given parameters. *)
-
-module P192: ELLIPTIC_CURVE
-  (** NIST elliptic curve P-192 *)
-
-module P224: ELLIPTIC_CURVE
-  (** NIST elliptic curve P-224 *)
-
-module P256: ELLIPTIC_CURVE
-  (** NIST elliptic curve P-256 *)
-
-module P384: ELLIPTIC_CURVE
-  (** NIST elliptic curve P-384 *)
-
-module P521: ELLIPTIC_CURVE
-  (** NIST elliptic curve P-521 *)
-
-module ECDSA (C: ELLIPTIC_CURVE) : sig
-
-  type private_key = Z.t
-
-  type public_key = C.point
-
-  val new_key: ?rng:Random.rng -> unit -> private_key * public_key
-      (** Generate a new, random ECDSA key pair.
-          The optional [rng] argument specifies a random number
-          generator to use for generating the key; it defaults to
-          {!Cryptokit.Random.secure_rng}. *)
-
-  val sign: ?rng:Random.rng -> private_key -> string -> Z.t * Z.t
-      (** [sign sk msg] produces a signature of the message [msg]
-          using the private key [sk].
-          The message must be no longer than the bit-size of the
-          curve [C].  Usually, the message to be signed is obtained by 
-          hashing the actual message with a hash function whose bit-size
-          matches that of the curve, e.g. [SHA-256] for a 256-bit curve.
-          The optional [rng] argument specifies a random number
-          generator to use for randomizing the signature; it defaults to
-          {!Cryptokit.Random.secure_rng}. *)
-
-  val verify: public_key -> Z.t * Z.t -> string -> bool
-      (** [verify pk sg msg] checks whether [sg] is a valid signature
-          for the message [msg], produced using a secret key that matches
-          the given public key [pk]. *)
-
-  val wipe_key: private_key -> unit
-      (** Erase the given private key. *)
-
-end
-  (** The ECDSA signature scheme.
-      The [C] parameter is the elliptic curve used. *)
 
 (** {1 Advanced, compositional interface to block ciphers 
        and stream ciphers} *)
