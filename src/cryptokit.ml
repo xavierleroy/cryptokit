@@ -2944,12 +2944,17 @@ let rec sign ?(rng = Random.secure_rng) (s: private_key) msg =
   let x = Z.erem i n in
   if x = Z.zero then sign ~rng s msg else begin
     let y = Bn.(divm (addm h (mulm s x n) n) k n) in
-    if y = Z.zero then sign ~rng s msg else (x, y)
+    if y = Z.zero
+    then sign ~rng s msg
+    else (Bn.to_bytes ~numbits:C.Params.size x,
+          Bn.to_bytes ~numbits:C.Params.size y)
   end
 
 let verify (q: public_key) (x, y) msg =
   if String.length msg * 8 > C.Params.size then raise (Error Message_too_long);
-  let h = Bn.of_bytes msg in
+  let x = Bn.of_bytes x
+  and y = Bn.of_bytes y
+  and h = Bn.of_bytes msg in
   q <> C.zero && C.mul n q = C.zero &&
   Z.lt Z.zero x && Z.lt x n && Z.lt Z.zero y && Z.lt y n &&
   begin
