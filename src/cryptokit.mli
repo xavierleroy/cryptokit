@@ -964,6 +964,30 @@ module MAC: sig
 
 end
 
+(** The [KD] module provides key derivation functions.  These functions
+    produce secret keys appropriate for symmetric-key cryptography
+    from a shared secret and optional diversification data. *)
+
+module KD : sig
+  val kdf1: (unit -> hash) -> ?otherinfo: string -> string -> int -> string
+    (** [kdf1 hash ?otherinfo secret len] derives a key of length [len] bytes
+        from the given secret.  The optional [otherinfo] parameter defaults
+        to the empty string but can be given other values to derive multiple
+        keys from the same secret.  [hash] is the hash function used for
+        derivation.  [Hash.sha1] or [Hash.sha256] are popular choices.
+        The derivation algorithm used is [KDF1] from ISO-18033-2. *)
+
+  val kdf2: (unit -> hash) -> ?otherinfo: string -> string -> int -> string
+    (** Like [kdf1], but uses algorithm [KDF2] from ISO-18033-2. *)
+
+  val kdf3: (unit -> hash) -> ?otherinfo: string -> string -> int -> string
+    (** Like [kdf1], but uses algorithm [KDF] from NIST SP800-56A,
+        which is algorithm [KDF3] from ISO-18033-2 with the [pAmt]
+        parameter equal to 4. *)
+
+end
+
+
 (** {1 Elliptic curves} *)
 
 module type CURVE_PARAMETERS = sig
@@ -1290,7 +1314,7 @@ end
     {!Cryptokit.DH.shared_secret} to its private secret and to the
     message received from the other party.
   - Fixed-size keys can then be derived from the shared secret
-    using the function {!Cryptokit.DH.derive_key}.
+    using a key derivation function from module {!Cryptokit.KD}.
 *)
 module DH: sig
 
@@ -1334,17 +1358,15 @@ module DH: sig
       longer be used afterwards. *)
 
   val derive_key: ?diversification: string -> string -> int -> string
+    [@@ocaml.deprecated "Use a function from module Cryptokit.KD instead"]
     (** [derive_key shared_secret numbytes] derives a secret string
       (typically, a key for symmetric encryption) from the given shared
       secret.  [numbytes] is the desired length for the returned string.
       The optional [diversification] argument is an arbitrary string
-      that defaults to the empty string.  Different secret strings can
-      be obtained from the same shared secret by supplying different
-      [diversification] argument.  The computation of the secret
-      string is performed by SHA-1 hashing of the diversification
-      string, followed by the shared secret, followed by an integer
-      counter.  The hashing is repeated with increasing values of the
-      counter until [numbytes] bytes have been obtained. *)
+      that defaults to the empty string.
+
+      This function does not conform to any standard.  It is recommended
+      to use one of the functions from module {!Cryptokit.KD} instead. *)
 end
 
 (** {1 Advanced, compositional interface to block ciphers 
