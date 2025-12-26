@@ -8,6 +8,7 @@ The Cryptokit library for OCaml provides a variety of cryptographic primitives t
 * Authenticated encryption: AES-GCM, Chacha20-Poly1305.
 * Public-key cryptography: RSA encryption and signature, ECDSA signature, Diffie-Hellman key agreement.
 * Hash functions and MACs: SHA-3, SHA-2, BLAKE2, BLAKE3, RIPEMD-160; MACs based on AES and DES; SipHash.  (SHA-1 and MD5, despite being broken, are also provided for historical value.)
+* Key derivation: KDF1, KDF2, KDF3, PBKDF2.
 * Random number generation.
 * Encodings and compression: base 64, hexadecimal, Zlib compression.
 * Elliptic curves (only in Weierstrass form at this point).

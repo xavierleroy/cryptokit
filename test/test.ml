@@ -1545,6 +1545,38 @@ let _ =
   test 3 (KD.kdf3 Hash.sha1 (hex "DEADBEEFFEEBDAED") 32)
          (hex "60CEF67059AF33F6AEBCE1E10188F434F80306AC0360470AEB41F81BAFB35790")
 
+let _ =
+  testing_function "PBKDF2";
+  List.iteri
+    (fun i (p, s, c, len, res) ->
+      test (i + 1) (KD.pbkdf2 MAC.hmac_sha1 p s c len) (hex res))
+    [("password", "salt", 1, 20,
+            "0c 60 c8 0f 96 1f 0e 71
+             f3 a9 b5 24 af 60 12 06
+             2f e0 37 a6");
+     ("password", "salt", 2, 20,
+            "ea 6c 01 4d c7 2d 6f 8c
+             cd 1e d9 2a ce 1d 41 f0
+             d8 de 89 57");
+     ("password", "salt", 4096, 20,
+            "4b 00 79 01 b7 65 48 9a
+             be ad 49 d9 26 f7 21 d0
+             65 a4 29 c1");
+(* takes too long
+     ("password", "salt", 16777216, 20,
+            "ee fe 3d 61 cd 4d a4 e4
+             e9 94 5b 3d 6b a2 15 8c
+             26 34 e9 84"); *)
+     ("passwordPASSWORDpassword", "saltSALTsaltSALTsaltSALTsaltSALTsalt",
+      4096, 25,
+            "3d 2e ec 4f e4 1c 84 9b
+             80 c8 d8 36 62 c0 e4 4a
+             8b 29 1a 96 4c f2 f0 70
+             38");
+     ("pass\000word", "sa\000lt", 4096, 16,
+            "56 fa 6a a7 55 48 09 9d
+             cc 37 d7 f0 34 25 e0 c3")]
+
 (* Base64 encoding *)
 
 let _ =
