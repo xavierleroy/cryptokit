@@ -76,14 +76,10 @@ let mod_power_CRT a p q dp dq qinv =
 (* Modular square root.  Tonnelli-Shanks algorithm. *)
 
 let sqrtm n p =
-  let p12 = Z.(pred p asr 1) in
-  let is_quadratic_residue x =
-    (* Euler's criterion *)
-    powm x p12 p = Z.one in
   let rec find_nonquadratic_residue z =
-    if is_quadratic_residue z
-    then find_nonquadratic_residue (Z.succ z)
-    else z in
+    if Z.legendre z p = -1
+    then z
+    else find_nonquadratic_residue (Z.succ z) in
   let rec repsquare i t =
     if t = Z.one then i else repsquare (i + 1) (mulm t t p) in
   let rec loop m c t r =
@@ -93,13 +89,14 @@ let sqrtm n p =
       let bb = sqrm b p in
       loop i bb (mulm t bb p) (mulm r b p)
     end in
-  if n = Z.zero then Some Z.zero else
-  if not (is_quadratic_residue n) then None else begin
+  match Z.legendre n p with
+  | 0 -> Some Z.zero
+  | -1 -> None
+  | _ (*1*) ->
     let s = Z.trailing_zeros (Z.pred p) in
     let q = Z.shift_right (Z.pred p) s in
     let z = find_nonquadratic_residue (Z.of_int 2) in
     loop s (powm z q p) (powm n q p) (powm n Z.(succ q asr 1) p)
-  end
 
 (* Conversions to big-endian byte strings *)
 
