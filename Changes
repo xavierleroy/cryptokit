@@ -1,8 +1,8 @@
 Release 1.21:
-- Change `Cryptokit.RSA` to use two distinct types for public keys and for
-  private keys.  (Breaking change.)  (#41)
 - Add `Cryptokit.Paillier`: Paillier's homomorphic, public-key encryption.
   (Contributed by Atish Pranav.)   (#39)
+- Change `Cryptokit.RSA` to use two distinct types for public keys and for private keys.  (Breaking change.)  (#41)
+- Add SHA512/256 and SHA512/224 hash functions.  (Contributed by Pierre-Yves Strub.)  (#42)
 - Add some support for elliptic-curve cryptography: curves in short Weierstrass form, ECDSA signature, ECDH key exchange.
 - Add `Cryptokit.KD` with key derivation functions.
 
