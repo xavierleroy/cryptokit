@@ -14,9 +14,9 @@
  (description "Cryptokit includes authenticated encryption (AES-GCM, Chacha20-Poly1305), block ciphers (AES, DES, 3DES), stream ciphers (Chacha20, ARCfour), public-key cryptography (RSA, ECDSA, DH, ECDH), hashes (SHA-256, SHA-512, SHA-3, Blake2, Blake3), MACs, compression, random number generation -- all presented with a compositional, extensible interface.")
 
 (depends
-  (ocaml (>= 4.08.0))
+  (ocaml (>= 4.13.0))
   (dune (>= 2.5))
   dune-configurator
-  (zarith (>= 1.4))
+  (zarith (>= 1.13))
   conf-zlib
   conf-gmp-powm-sec))
