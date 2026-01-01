@@ -319,15 +319,10 @@ EXPORT void SHA512_finish(struct SHA512Context * ctx, int bitsize,
     SHA512_copy_and_swap(ctx->state, output, 4);
     break;
   case 224:
-    SHA512_copy_and_swap(ctx->state, output, 3);
-#ifdef ARCH_BIG_ENDIAN
-    memcpy(&ctx->state[24], &output[24], 4);
-#else
-    output[24] = (ctx->state[3] >> (8*7)) & 0xff;
-    output[25] = (ctx->state[3] >> (8*6)) & 0xff;
-    output[26] = (ctx->state[3] >> (8*5)) & 0xff;
-    output[27] = (ctx->state[3] >> (8*4)) & 0xff;
-#endif
+    { unsigned char buffer[32];
+      SHA512_copy_and_swap(ctx->state, buffer, 4);
+      memcpy(output, buffer, 28);
+    }
     break;
   /* default: The bit size is wrong.  Produce no output. */
   }
