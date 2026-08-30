@@ -370,7 +370,14 @@ let _ =
      "9313225df88406e555909c5aff5269aa6a7a9538534f7da1e4c303d2a318a728c3c0c95156809539fcf0e2429a6b525416aedbf5a0de6a57a637b39b",
      "8ce24998625615b603a033aca13fb894be9112a5c3a211a8ba262a3cca7e2ca701e4a9a4fba43c90ccdcb281d48c7c6fd62875d2aca417034c34aee5",
      "619cc5aefffe0bfa462af43c1699d050")
-  ]
+  ];
+  (* An empty IV must be rejected: NIST SP 800-38D requires len(IV) >= 1,
+     and an empty IV would leak the GHASH authentication key in the tag. *)
+  let rejects_empty_iv dir =
+    try ignore (AEAD.aes_gcm ~iv:"" (hex "00000000000000000000000000000000") dir); false
+    with Error Wrong_IV_size -> true in
+  incr testcnt; test !testcnt (rejects_empty_iv AEAD.Encrypt) true;
+  incr testcnt; test !testcnt (rejects_empty_iv AEAD.Decrypt) true
 
 (* Chacha20-Poly1305 *)
 

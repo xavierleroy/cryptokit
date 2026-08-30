@@ -1655,9 +1655,14 @@ let ghash_final h mac headerlen cipherlen e0 =
   xor_bytes e0 0 buf 0 16;
   Bytes.to_string buf
 
-(* Initial value of the counter *)
+(* Initial value of the counter.
+   An empty IV is rejected, as required by NIST SP 800-38D:
+   it would produce an all-zero initial counter, whose encryption
+   is the GHASH key H, which would then leak into the
+   authentication tag. *)
 
 let counter0 h iv =
+  if String.length iv = 0 then raise (Error Wrong_IV_size);
   if String.length iv = 12 then
     Bytes.of_string (iv ^ "\000\000\000\001")
   else begin

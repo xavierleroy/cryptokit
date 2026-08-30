@@ -676,6 +676,7 @@ module AEAD : sig
         to use a 96-bit (12 bytes) randomly-generated initialization vector.
         Initialization vectors of size other than 12 bytes are supported
         but trigger additional computations.
+        Raise [Error Wrong_IV_size] if [iv] is the empty string.
       - [header] is the associated data.  It is not encrypted but it is
         authenticated, i.e. taken into account for computing the authentication
         tag.  If not provided, it defaults to the empty string.
