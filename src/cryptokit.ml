@@ -2816,8 +2816,12 @@ let is_on_curve (x, y) =
 
 let zero = (Z.zero, Z.zero)   (* Point at infinity *)
 
+(* (0, 0) is only the internal representation of the point at infinity;
+   it is not on the curve when b <> 0 and must be rejected like any other
+   invalid point.  Accepting it would decode "04 || 0 || 0" as infinity
+   and let ECDH derive an all-zero shared secret from an invalid key. *)
 let make_point p =
-  if p = zero || is_on_curve p then p else raise (Error Invalid_point)
+  if is_on_curve p then p else raise (Error Invalid_point)
 
 let generator = make_point C.generator
 

@@ -1475,7 +1475,23 @@ let _ =
   test 14 (E.encode_point ~compressed:true q) q_enc_comp;
   test 15 (E.decode_point q_enc_comp) q;
   test 16 (E.encode_point ~compressed:true q2) q2_enc_comp;
-  test 17 (E.decode_point q2_enc_comp) q2
+  test 17 (E.decode_point q2_enc_comp) q2;
+  (* The pair (0, 0) is the internal representation of the point at
+     infinity, but it is not on the curve, so neither it nor its
+     uncompressed encoding "04 || 0 || 0" may be accepted as a point
+     (Wycheproof InvalidCurveAttack). *)
+  let rejects_zero_point (module C: ELLIPTIC_CURVE) =
+    try ignore (C.make_point (Z.zero, Z.zero)); false
+    with Error Invalid_point -> true in
+  let rejects_zero_encoding (module C: ELLIPTIC_CURVE) =
+    let enc = "\004" ^ String.make (2 * ((C.Params.size + 7) / 8)) '\000' in
+    try ignore (C.decode_point enc); false
+    with Error Invalid_point -> true in
+  test 20 (rejects_zero_point (module E)) true;
+  test 21 (rejects_zero_encoding (module E)) true;
+  test 22 (rejects_zero_encoding (module P256)) true;
+  test 23 (rejects_zero_encoding (module P384)) true;
+  test 24 (rejects_zero_encoding (module P521)) true
 
 let _ =
   testing_function "ECDSA";
@@ -1539,7 +1555,18 @@ let _ =
   and msg2 = D.message ps2 in
   let ss1 = D.shared_secret ps1 msg2
   and ss2 = D.shared_secret ps2 msg1 in
-  test 1 ss1 ss2
+  test 1 ss1 ss2;
+  (* A peer message "04 || 0 || 0" encodes (0, 0), which is not on the
+     curve.  It must be rejected instead of yielding the all-zero shared
+     secret that the point at infinity encodes to. *)
+  let rejects_zero_point (module C: ELLIPTIC_CURVE) =
+    let module D = ECDH(C) in
+    let msg = "\004" ^ String.make (2 * ((C.Params.size + 7) / 8)) '\000' in
+    try ignore (D.shared_secret (D.private_secret ~rng:prng ()) msg); false
+    with Error Invalid_point -> true in
+  test 2 (rejects_zero_point (module P256)) true;
+  test 3 (rejects_zero_point (module P384)) true;
+  test 4 (rejects_zero_point (module P521)) true
 
 (* Key derivation functions *)
 
